@@ -162,7 +162,7 @@
       padding: 12px 14px;
       border: 1.5px solid var(--border);
       border-radius: 10px;
-      font-size: 16px;
+      font-size: 16px; /* zapobiega zoomowi na iOS */
       margin-bottom: 14px;
       background: #f8fafc;
       transition: border-color 0.15s;
@@ -442,13 +442,14 @@
 
   <script>
     // ===================== FIREBASE CONFIG =====================
+    // ←←← WSTAW SWOJE DANE Z FIREBASE
     const firebaseConfig = {
-      apiKey: "AIzaSyB27DmgYuuOZE2u9y9hYnQxD_dbxPYKsuk",
-      authDomain: "ministranci-nspj.firebaseapp.com",
-      projectId: "ministranci-nspj",
-      storageBucket: "ministranci-nspj.firebasestorage.app",
-      messagingSenderId: "918307132010",
-      appId: "1:918307132010:web:6a26c4753b44a3c9feb013"
+      apiKey: "AIza...",
+      authDomain: "twoj-projekt.firebaseapp.com",
+      projectId: "twoj-projekt",
+      storageBucket: "twoj-projekt.appspot.com",
+      messagingSenderId: "123456789",
+      appId: "1:123456789:web:abcdef"
     };
     // ===========================================================
 
@@ -636,6 +637,7 @@
         const data = codeDoc.data();
         const points = data.points || 0;
 
+        // Transaction: dodaj punkty + usuń kod
         await db.runTransaction(async (tx) => {
           const userRef = db.collection("users").doc(currentUser.uid);
           const userSnap = await tx.get(userRef);
