@@ -335,7 +335,7 @@
         </div>
     </div>
 
-    <!-- SCRIPT Z POPRAWIONĄ SYNC FIREBASE -->
+    <!-- SKRYPT Z PRAWIDŁOWĄ SYNCHRONIZACJĄ FIREBASE -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
         import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js";
@@ -379,7 +379,7 @@
         let calCurrentDate = new Date();
         let calCurrentView = 'month';
 
-        // AUTOMATYCZNE POBIERANIE I SYNCHRONIZACJA W CZASIE RZECZYWISTYM
+        // NASŁUCHIWANIE BAZY DANYCH W CZASIE RZECZYWISTYM (SYNCHRONIZACJA TELEFON <-> KOMPUTER)
         onValue(ref(db, 'lso_data'), (snapshot) => {
             const data = snapshot.val();
             if (data) {
@@ -407,6 +407,8 @@
                 requests: state.requests,
                 calendarEvents: state.calendarEvents,
                 serviceHistory: state.serviceHistory
+            }).catch(error => {
+                console.error("Błąd zapisu do Firebase:", error);
             });
         }
 
