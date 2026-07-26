@@ -335,16 +335,17 @@
         </div>
     </div>
 
-    <!-- SKRYPT Z PRAWIDŁOWĄ SYNCHRONIZACJĄ FIREBASE -->
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
-        import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+        import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
 
+        // === TWÓJ PRAWDZIWY CONFIG (z databaseURL) ===
         const firebaseConfig = {
-            apiKey: "AizaSyB27DmgYuuOZE2u9y9HynQxD_dbxPYKsuk",
-            authDomain: "ministranci-nspji.firebaseapp.com",
+            apiKey: "AIzaSyB27DmgYuuOZE2u9y9HynQxD_dbxPYKsuk",
+            authDomain: "ministranci-nspj.firebaseapp.com",
+            databaseURL: "https://ministranci-nspj-default-rtdb.europe-west1.firebasedatabase.app",
             projectId: "ministranci-nspj",
-            storageBucket: "ministranci-nspjfugestorage.app",
+            storageBucket: "ministranci-nspj.firebasestorage.app",
             messagingSenderId: "918307132010",
             appId: "1:918307132010:web:6a26c4753b44a3c9feb013",
             measurementId: "G-968B2L6BRT"
@@ -379,7 +380,7 @@
         let calCurrentDate = new Date();
         let calCurrentView = 'month';
 
-        // NASŁUCHIWANIE BAZY DANYCH W CZASIE RZECZYWISTYM (SYNCHRONIZACJA TELEFON <-> KOMPUTER)
+        // ===== SYNCHRONIZACJA TELEFON + KOMPUTER =====
         onValue(ref(db, 'lso_data'), (snapshot) => {
             const data = snapshot.val();
             if (data) {
@@ -388,6 +389,7 @@
                 state.requests = data.requests || [];
                 state.calendarEvents = data.calendarEvents || [];
                 state.serviceHistory = data.serviceHistory || [];
+                console.log("✅ Dane załadowane z Firebase");
             } else {
                 state.ministrants = [
                     { id: 1, name: "Kamil Gawenda", degree: "Ministrant", points: 10, password: "", phone: "123-456-789", rank: "Prezes", desc: "", photo: "" }
@@ -398,6 +400,9 @@
             populateLoginUsers();
             toggleUserSelect();
             renderAll();
+        }, (error) => {
+            console.error("❌ Błąd odczytu:", error);
+            alert("Błąd połączenia z bazą! Sprawdź reguły (Rules) w Realtime Database.");
         });
 
         function saveDataToFirebase() {
@@ -407,8 +412,11 @@
                 requests: state.requests,
                 calendarEvents: state.calendarEvents,
                 serviceHistory: state.serviceHistory
-            }).catch(error => {
-                console.error("Błąd zapisu do Firebase:", error);
+            })
+            .then(() => console.log("✅ Dane zapisane"))
+            .catch(error => {
+                console.error("❌ Błąd zapisu:", error);
+                alert("Nie udało się zapisać! Sprawdź reguły Firebase.");
             });
         }
 
