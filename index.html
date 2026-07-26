@@ -1,0 +1,1188 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Zarządzania Ministrantami LSO NSPJ</title>
+    <style>
+        :root {
+            --bg-primary: #121212;
+            --bg-secondary: #1e1e1e;
+            --bg-card: #252525;
+            --text-main: #ffffff;
+            --text-sub: #aaaaaa;
+            --accent-red: #e50914;
+            --accent-red-hover: #b20710;
+            --border-color: #333333;
+            --success-color: #2e7d32;
+            --danger-color: #c62828;
+            --shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+
+        [data-theme="light"] {
+            --bg-primary: #f4f5f7;
+            --bg-secondary: #ffffff;
+            --bg-card: #f9f9f9;
+            --text-main: #172b4d;
+            --text-sub: #5e6c84;
+            --accent-red: #d32f2f;
+            --accent-red-hover: #9a0007;
+            --border-color: #e0e0e0;
+            --success-color: #388e3c;
+            --danger-color: #d32f2f;
+            --shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background-color: var(--bg-secondary);
+            border-bottom: 2px solid var(--accent-red);
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .logo {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: var(--accent-red);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 8px;
+            list-style: none;
+            overflow-x: auto;
+            padding-bottom: 5px;
+            width: 100%;
+        }
+
+        @media (min-width: 900px) {
+            .nav-links { width: auto; padding-bottom: 0; }
+        }
+
+        .nav-btn {
+            background: none;
+            border: none;
+            color: var(--text-main);
+            padding: 8px 12px;
+            cursor: pointer;
+            border-radius: 6px;
+            font-weight: 600;
+            white-space: nowrap;
+            font-size: 0.85rem;
+        }
+
+        .nav-btn:hover, .nav-btn.active {
+            background-color: var(--accent-red);
+            color: #fff;
+        }
+
+        .badge-count {
+            background: var(--accent-red);
+            color: white;
+            border-radius: 10px;
+            padding: 2px 6px;
+            font-size: 0.75rem;
+            margin-left: 4px;
+        }
+
+        .btn {
+            background-color: var(--accent-red);
+            color: white;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.85rem;
+        }
+
+        .btn:hover { background-color: var(--accent-red-hover); }
+        .btn-success { background-color: var(--success-color); }
+        .btn-danger { background-color: var(--danger-color); }
+        .btn-warning { background-color: #f39c12; color: #fff; }
+        .btn-secondary { background-color: #2a2a2a; border: 1px solid var(--border-color); }
+
+        main {
+            flex: 1;
+            padding: 1rem;
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        .card {
+            background-color: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 1.2rem;
+            margin-bottom: 1.2rem;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow);
+        }
+
+        .table-responsive { overflow-x: auto; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            min-width: 500px;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th { background-color: var(--bg-card); color: var(--accent-red); }
+
+        .grid-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 15px;
+        }
+
+        .ministrant-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .avatar {
+            width: 85px;
+            height: 85px;
+            border-radius: 50%;
+            margin-bottom: 10px;
+            background-color: var(--border-color);
+            border: 2px solid var(--accent-red);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            overflow: hidden;
+            object-fit: cover;
+        }
+
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* KALENDARZ */
+        .month-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background: #181818;
+        }
+
+        .month-header-cell {
+            padding: 8px 2px;
+            text-align: center;
+            font-size: 0.75rem;
+            font-weight: bold;
+            color: var(--text-sub);
+            background: #202020;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .day-cell {
+            min-height: 85px;
+            padding: 4px;
+            border-right: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .day-number {
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: var(--text-sub);
+            width: 22px;
+            height: 22px;
+            line-height: 22px;
+            text-align: center;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .day-cell.today .day-number { background: var(--accent-red); color: white; }
+        .day-cell.other-month { opacity: 0.3; }
+
+        .cal-event-badge {
+            background: rgba(229, 9, 20, 0.2);
+            border-left: 3px solid var(--accent-red);
+            color: #fff;
+            padding: 3px;
+            font-size: 0.7rem;
+            border-radius: 3px;
+            margin-bottom: 3px;
+        }
+
+        /* MODALE I LOGOWANIE */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85);
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            padding: 10px;
+        }
+
+        .modal.active { display: flex; }
+
+        .modal-content {
+            background: var(--bg-secondary);
+            padding: 1.5rem;
+            border-radius: 8px;
+            width: 100%;
+            max-width: 480px;
+            border: 1px solid var(--accent-red);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .form-group { margin-bottom: 1.1rem; text-align: left; }
+        .form-group label { display: block; margin-bottom: 5px; color: var(--text-sub); font-size: 0.9rem; }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%; padding: 10px; border-radius: 6px;
+            border: 1px solid var(--border-color); background: var(--bg-primary); color: var(--text-main);
+            font-size: 0.95rem;
+        }
+
+        #login-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg-primary); display: flex; justify-content: center; align-items: center; z-index: 3000;
+            padding: 15px;
+        }
+
+        .login-box {
+            background: var(--bg-secondary); padding: 2rem; border-radius: 12px;
+            border: 2px solid var(--accent-red); width: 100%; max-width: 400px; text-align: center; box-shadow: var(--shadow);
+        }
+
+        .request-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .history-item {
+            background: var(--bg-card);
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            border-left: 4px solid var(--success-color);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .role-tag {
+            background: var(--accent-red);
+            color: #fff;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            margin-top: 4px;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body data-theme="dark">
+
+    <!-- LOGOWANIE -->
+    <div id="login-overlay">
+        <div class="login-box">
+            <h1 style="color: var(--accent-red); font-size: 1.8rem; font-weight: bold; margin-bottom: 2px;">Ministranci NSPJ</h1>
+            <h3 style="color: var(--text-sub); font-size: 1.1rem; font-weight: 500; margin-bottom: 20px;">Logowanie</h3>
+            
+            <div class="form-group">
+                <label>Wybierz Rolę</label>
+                <select id="login-role" onchange="toggleUserSelect()">
+                    <option value="user">Uczestnik (Ministrant)</option>
+                    <option value="all">WSZYSCY</option>
+                    <option value="admin">Administrator</option>
+                </select>
+            </div>
+
+            <div class="form-group" id="user-select-group">
+                <label>Wybierz kim jesteś</label>
+                <select id="login-user-id"></select>
+            </div>
+
+            <div class="form-group">
+                <label>Wybierz Urządzenie</label>
+                <select id="login-device">
+                    <option value="Komputer">💻 Komputer</option>
+                    <option value="Telefon">📱 Telefon</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Hasło</label>
+                <input type="password" id="login-pass" placeholder="Wpisz hasło...">
+            </div>
+
+            <button class="btn" style="width: 100%; margin-top: 10px; padding:12px; font-size:1rem;" onclick="login()">Zaloguj się</button>
+        </div>
+    </div>
+
+    <!-- NAWIGACJA -->
+    <header>
+        <div class="logo">⚜️ LSO NSPJ</div>
+        <ul class="nav-links">
+            <li><button class="nav-btn active" onclick="switchTab('tabela', this)">Tabela & Moje Konto</button></li>
+            <li><button class="nav-btn" onclick="switchTab('kalendarz', this)">Kalendarz</button></li>
+            <li class="user-admin-only"><button class="nav-btn" onclick="switchTab('zgloszenia', this)">Zgłoś Służbę</button></li>
+            <li class="user-admin-only"><button class="nav-btn" onclick="switchTab('punktacja-sluzb', this)">Punktacja Służb</button></li>
+            <li class="admin-only"><button class="nav-btn" onclick="switchTab('powiadomienia', this)">Powiadomienia <span id="notif-badge" class="badge-count" style="display:none;">0</span></button></li>
+            <li class="admin-only"><button class="nav-btn" onclick="switchTab('szybka-sluzba', this)">Szybka Służba</button></li>
+            <li class="admin-only"><button class="nav-btn" onclick="switchTab('hasla-uczestnikow', this)">🔑 Hasła Uczestników</button></li>
+            <li><button class="nav-btn" onclick="switchTab('ministranci', this)">Ministranci</button></li>
+        </ul>
+        <div style="display:flex; align-items:center; gap:8px;">
+            <button class="btn-secondary btn" onclick="toggleTheme()">🌓</button>
+            <button class="btn" onclick="logout()">Wyloguj (<span id="role-display"></span>)</button>
+        </div>
+    </header>
+
+    <main>
+        <div id="tab-tabela" class="tab-content active">
+            <div id="user-my-stats" class="card" style="display:none; border: 2px solid var(--accent-red);">
+                <h2 style="color:var(--accent-red); margin-bottom:10px;">Moje Konto: <span id="my-user-name"></span></h2>
+                <div style="font-size:1.2rem; margin-bottom:15px;">
+                    Aktualna liczba punktów: <strong id="my-user-points" style="color:var(--success-color);">0</strong> pkt | 
+                    Stopień: <strong id="my-user-degree"></strong>
+                </div>
+
+                <h3>📜 Moja Historia Służb i Wpisanych Punktów</h3>
+                <div id="my-history-list" style="margin-top:10px;">
+                    <p style="color:var(--text-sub);">Brak historii służb.</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Tabela Punktowa Wszystkich Ministrantów</h2>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Ministrant</th>
+                                <th>Stopień</th>
+                                <th>Punkty</th>
+                                <th class="admin-only">Akcje (Admin)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="points-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-kalendarz" class="tab-content">
+            <div class="card" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                <h2 id="cal-title">Kalendarz Służb</h2>
+                <button class="btn admin-only" onclick="openModal('modal-event')">+ Dodaj Służbę do Kalendarza</button>
+            </div>
+            <div id="calendar-render-area"></div>
+        </div>
+
+        <div id="tab-zgloszenia" class="tab-content">
+            <div class="card" style="max-width: 550px; margin: 0 auto;">
+                <h2>Zgłoś swoją obecność na służbie</h2>
+                <p style="color:var(--text-sub); margin-bottom:15px; font-size:0.9rem;">Wybierz siebie z listy, zaznacz odbytą służbę oraz godzinę. Zgłoszenie trafi do akceptacji Administratora.</p>
+                
+                <div class="form-group">
+                    <label>Kim jesteś?</label>
+                    <select id="req-ministrant"></select>
+                </div>
+
+                <div class="form-group">
+                    <label>Jaka to była służba?</label>
+                    <select id="req-service"></select>
+                </div>
+
+                <div class="form-group">
+                    <label>Na którą godzinę była służba?</label>
+                    <input type="time" id="req-time" required>
+                </div>
+
+                <button class="btn" style="width: 100%; margin-top: 10px;" onclick="submitServiceRequest()">Wyślij zgłoszenie do Admina</button>
+            </div>
+        </div>
+
+        <div id="tab-powiadomienia" class="tab-content">
+            <div class="card">
+                <h2>Oczekujące zgłoszenia od ministrantów</h2>
+                <div id="requests-list" style="margin-top:15px;"></div>
+            </div>
+        </div>
+
+        <div id="tab-szybka-sluzba" class="tab-content">
+            <div class="card" style="border: 1px solid var(--accent-red);">
+                <h2>⚡ Szybkie przyznanie służby (Bezpośrednio przez Admina)</h2>
+                <p style="color:var(--text-sub); font-size:0.85rem; margin-bottom:15px;">Jako Admin możesz od razu przyznać służbę ministrantowi i dodać mu punkty. Ministrant zobaczysz tę służbę w swoim profilu.</p>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
+                    <div class="form-group">
+                        <label>Ministrant</label>
+                        <select id="admin-direct-min"></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Służba</label>
+                        <select id="admin-direct-serv"></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Godzina</label>
+                        <input type="time" id="admin-direct-time">
+                    </div>
+                </div>
+                <button class="btn btn-success" style="width: 100%; margin-top: 10px;" onclick="adminDirectAddService()">+ Przyznaj służbę i punkty natychmiast</button>
+            </div>
+        </div>
+
+        <div id="tab-hasla-uczestnikow" class="tab-content">
+            <div class="card">
+                <h2>🔑 Zarządzanie Hasłami Uczestników</h2>
+                <p style="color:var(--text-sub); font-size:0.9rem; margin-bottom:15px;">Tutaj jako Administrator możesz ustawić indywidualne hasło logowania dla każdego uczestnika.</p>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Ministrant (Uczestnik)</th>
+                                <th>Stopień</th>
+                                <th>Hasło Uczestnika</th>
+                                <th>Zarządzaj Hasłem</th>
+                            </tr>
+                        </thead>
+                        <tbody id="passwords-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-punktacja-sluzb" class="tab-content">
+            <div class="card">
+                <h2>Cennik Punktów za Służby</h2>
+                <p style="color:var(--text-sub); font-size:0.9rem; margin-bottom:15px;">Tabela przedstawia wszystkie rodzaje służb oraz punkty przyznawane (lub odejmowane) przez Administratora.</p>
+
+                <div class="admin-only" style="display: flex; gap: 8px; margin-bottom: 15px; flex-wrap: wrap; background:var(--bg-card); padding:10px; border-radius:6px;">
+                    <input type="text" id="new-service-name" placeholder="Nazwa nowej służby..." style="flex:2; min-width:180px; padding:8px; border-radius:4px; border:1px solid var(--border-color); background:var(--bg-primary); color:#fff;">
+                    <input type="number" id="new-service-pos" placeholder="+ Pkt" style="flex:1; min-width:90px; padding:8px; border-radius:4px; border:1px solid var(--border-color); background:var(--bg-primary); color:#fff;">
+                    <input type="number" id="new-service-neg" placeholder="- Pkt" style="flex:1; min-width:90px; padding:8px; border-radius:4px; border:1px solid var(--border-color); background:var(--bg-primary); color:#fff;">
+                    <button class="btn" onclick="addNewServiceType()">Dodaj Służbę</button>
+                </div>
+
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Nazwa Służby</th>
+                                <th>Punkty Dodatnie (+)</th>
+                                <th>Punkty Ujemne (-)</th>
+                                <th class="admin-only">Akcja Admina</th>
+                            </tr>
+                        </thead>
+                        <tbody id="services-settings-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-ministranci" class="tab-content">
+            <div class="card" style="display:flex; justify-content:space-between; align-items:center;">
+                <h2>Lista Ministrantów</h2>
+                <button class="btn admin-only" onclick="openAddMinistrantModal()">+ Dodaj Ministranta</button>
+            </div>
+            <div id="ministrants-grid" class="grid-cards"></div>
+        </div>
+    </main>
+
+    <div id="modal-ministrant" class="modal">
+        <div class="modal-content">
+            <h3 id="modal-min-title">Dodaj / Edytuj Ministranta</h3>
+            <input type="hidden" id="m-edit-id">
+            
+            <div class="form-group">
+                <label>Imię i Nazwisko</label>
+                <input type="text" id="m-name" placeholder="Jan Kowalski">
+            </div>
+
+            <div class="form-group">
+                <label>Zdjęcie Profilowe (Link URL)</label>
+                <input type="text" id="m-photo" placeholder="https://example.com/zdjecie.jpg">
+            </div>
+
+            <div class="form-group">
+                <label>Numer Telefonu</label>
+                <input type="text" id="m-phone" placeholder="123-456-789">
+            </div>
+
+            <div class="form-group">
+                <label>Stopień Liturgiczny</label>
+                <select id="m-degree">
+                    <option>Kandydat</option><option>Ministrant</option><option>Lektor młodszy</option>
+                    <option>Lektor starszy</option><option>Lektor</option><option>Ceremoniarz</option>
+                    <option>Animator</option><option>Starsi</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Ranga (Opcjonalnie)</label>
+                <input type="text" id="m-rank" placeholder="np. Prezes, Zastępca, Skarbnik">
+            </div>
+
+            <div class="form-group">
+                <label>Opis</label>
+                <textarea id="m-desc" rows="3" placeholder="Krótki opis o ministrancie..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>Punkty</label>
+                <input type="number" id="m-points" value="0">
+            </div>
+
+            <button class="btn" style="width:100%; margin-bottom:8px;" onclick="saveMinistrant()">Zapisz Zmiany</button>
+            <button class="btn btn-secondary" style="width:100%;" onclick="closeModal('modal-ministrant')">Anuluj</button>
+        </div>
+    </div>
+
+    <div id="modal-event" class="modal">
+        <div class="modal-content">
+            <h3>Dodaj Służbę do Kalendarza</h3>
+            <div class="form-group">
+                <label>Nazwa/Typ Służby</label>
+                <select id="cal-service-type"></select>
+            </div>
+            <div class="form-group"><label>Data</label><input type="date" id="cal-date"></div>
+            <div class="form-group"><label>Godzina</label><input type="time" id="cal-time"></div>
+            <div class="form-group">
+                <label>Wyznaczani Ministranci</label>
+                <select id="cal-assigned" multiple style="height: 100px;"></select>
+            </div>
+            <button class="btn" style="width:100%; margin-bottom:8px;" onclick="saveCalendarEvent()">Zapisz w Kalendarzu</button>
+            <button class="btn btn-secondary" style="width:100%;" onclick="closeModal('modal-event')">Anuluj</button>
+        </div>
+    </div>
+
+    <script>
+        // BEZPIECZNY HASH SHA-256 HASŁA ADMINA
+        const ADMIN_HASH = "25b1d98c3a5d7892b92afa49cc9ec98b341fddade508e78b19f1c10e3443a05a";
+        const ALL_PASS = "nspj";
+
+        const defaultServices = [
+            "Msza Święta", "Chrzest Święty", "Nabożeństwo pierwszoobwodowe", "Pogrzeb", "Ślub po mszy", "Ślub", "Zbiórka", 
+            "Nabożeństwo", "Gorzkie Żale", "Droga Krzyżowa", "Różaniec", "Wydarzenie specjalne", "Kolęda", "Pasterka", 
+            "Pomoc animatorowi/księdzu", "Ćwiczenie do Świąt", "Triduum", "Czuwanie", "Rekolekcje", "Msza fatimska", 
+            "Majowe", "Udział w turnieju/konkursie", "Wygrana w turnieju/konkursie", "Zbiórka specjalna", "Bierzmowanie", 
+            "Procesja Bożego Ciała", "Święcenie pokarmów", "Święcenia aut", "Święto Trzech Króli", "Służba zakończeniowa rok", 
+            "Służba w Nowy Rok", "Tarsycjusz", "Msza tygodniowa", "Msza niedzielna"
+        ].map((name, i) => ({ id: i + 1, name, posPoints: 10, negPoints: -10 }));
+
+        let state = {
+            currentUserRole: null,
+            currentUserId: null,
+            currentDevice: null,
+            ministrants: JSON.parse(localStorage.getItem('lso_ministrants')) || [
+                { id: 1, name: "Kamil Gawenda", degree: "Ministrant", points: 10, password: "", phone: "123-456-789", rank: "Prezes", desc: "Przykładowy opis ministranta.", photo: "" }
+            ],
+            services: JSON.parse(localStorage.getItem('lso_services')) || defaultServices,
+            requests: JSON.parse(localStorage.getItem('lso_requests')) || [],
+            calendarEvents: JSON.parse(localStorage.getItem('lso_calevents')) || [],
+            serviceHistory: JSON.parse(localStorage.getItem('lso_history')) || []
+        };
+
+        function saveData() {
+            localStorage.setItem('lso_ministrants', JSON.stringify(state.ministrants));
+            localStorage.setItem('lso_services', JSON.stringify(state.services));
+            localStorage.setItem('lso_requests', JSON.stringify(state.requests));
+            localStorage.setItem('lso_calevents', JSON.stringify(state.calendarEvents));
+            localStorage.setItem('lso_history', JSON.stringify(state.serviceHistory));
+        }
+
+        // Szyfrowanie SHA-256 dla hasła admina
+        async function hashPassword(message) {
+            const msgUint8 = new TextEncoder().encode(message);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
+        function populateLoginUsers() {
+            const select = document.getElementById('login-user-id');
+            select.innerHTML = state.ministrants.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
+        }
+
+        function toggleUserSelect() {
+            const role = document.getElementById('login-role').value;
+            document.getElementById('user-select-group').style.display = role === 'user' ? 'block' : 'none';
+        }
+
+        async function login() {
+            const role = document.getElementById('login-role').value;
+            const pass = document.getElementById('login-pass').value;
+            state.currentDevice = document.getElementById('login-device').value;
+
+            if (role === 'admin') {
+                const enteredHash = await hashPassword(pass);
+                if (enteredHash === ADMIN_HASH) {
+                    state.currentUserRole = 'admin';
+                    state.currentUserId = null;
+                } else {
+                    alert('Niepoprawne hasło administratora!');
+                    return;
+                }
+            } else if (role === 'all') {
+                if (pass === ALL_PASS) {
+                    state.currentUserRole = 'all';
+                    state.currentUserId = null;
+                } else {
+                    alert('Niepoprawne hasło dla roli WSZYSCY!');
+                    return;
+                }
+            } else {
+                const selectedUserId = parseInt(document.getElementById('login-user-id').value);
+                const userObj = state.ministrants.find(m => m.id === selectedUserId);
+
+                if (!userObj) {
+                    alert('Wybierz użytkownika z listy!');
+                    return;
+                }
+
+                const userPass = userObj.password || "";
+                if (userPass !== "" && pass !== userPass) {
+                    alert(`Niepoprawne hasło dla użytkownika ${userObj.name}!`);
+                    return;
+                }
+
+                state.currentUserRole = 'user';
+                state.currentUserId = selectedUserId;
+            }
+
+            document.getElementById('login-overlay').style.display = 'none';
+            
+            let displayName = 'Admin';
+            if (state.currentUserRole === 'user') {
+                const curUserObj = state.ministrants.find(m => m.id === state.currentUserId);
+                displayName = curUserObj ? curUserObj.name : 'Uczestnik';
+            } else if (state.currentUserRole === 'all') {
+                displayName = 'WSZYSCY';
+            }
+
+            document.getElementById('role-display').innerText = `${displayName} [${state.currentDevice}]`;
+            
+            applyPermissions();
+            renderAll();
+        }
+
+        function logout() {
+            state.currentUserRole = null;
+            state.currentUserId = null;
+            document.getElementById('login-overlay').style.display = 'flex';
+            document.getElementById('login-pass').value = '';
+            populateLoginUsers();
+        }
+
+        function applyPermissions() {
+            const isAdmin = state.currentUserRole === 'admin';
+            const isUser = state.currentUserRole === 'user';
+
+            document.querySelectorAll('.admin-only').forEach(el => el.style.display = isAdmin ? '' : 'none');
+            document.querySelectorAll('.user-admin-only').forEach(el => el.style.display = (isAdmin || isUser) ? '' : 'none');
+
+            const userStats = document.getElementById('user-my-stats');
+            if (isUser && state.currentUserId) {
+                userStats.style.display = 'block';
+                renderUserPersonalStats();
+            } else {
+                userStats.style.display = 'none';
+            }
+        }
+
+        function renderUserPersonalStats() {
+            const user = state.ministrants.find(m => m.id === state.currentUserId);
+            if (!user) return;
+
+            document.getElementById('my-user-name').innerText = user.name;
+            document.getElementById('my-user-points').innerText = user.points;
+            document.getElementById('my-user-degree').innerText = user.degree;
+
+            const historyList = document.getElementById('my-history-list');
+            const myHistory = state.serviceHistory.filter(h => h.ministrantId === user.id);
+
+            if (myHistory.length === 0) {
+                historyList.innerHTML = '<p style="color:var(--text-sub);">Brak historii służb.</p>';
+            } else {
+                historyList.innerHTML = myHistory.slice().reverse().map(h => `
+                    <div class="history-item" style="border-left-color: ${h.points >= 0 ? 'var(--success-color)' : 'var(--danger-color)'};">
+                        <div>
+                            <strong>${h.serviceName}</strong> <small style="color:var(--text-sub);">(${h.date} - ${h.time})</small>
+                        </div>
+                        <div style="font-weight:bold; color: ${h.points >= 0 ? 'var(--success-color)' : 'var(--danger-color)'};">
+                            ${h.points >= 0 ? '+' + h.points : h.points} pkt
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        function toggleTheme() {
+            const body = document.body;
+            body.setAttribute('data-theme', body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+        }
+
+        function switchTab(tabId, btn) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            
+            document.getElementById(`tab-${tabId}`).classList.add('active');
+            if (btn) btn.classList.add('active');
+        }
+
+        function openModal(id) { document.getElementById(id).classList.add('active'); }
+        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
+        function renderAll() {
+            renderPointsTable();
+            renderMinistrantsGrid();
+            renderServiceDropdowns();
+            renderRequests();
+            renderServicesSettings();
+            renderCalendar();
+            renderPasswordsTable();
+            applyPermissions();
+        }
+
+        function renderPointsTable() {
+            const tbody = document.getElementById('points-table-body');
+            tbody.innerHTML = '';
+            state.ministrants.forEach(m => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td><strong>${m.name}</strong></td>
+                        <td>${m.degree}</td>
+                        <td style="font-weight:bold; color:${m.points >= 0 ? 'var(--success-color)' : 'var(--accent-red)'};">${m.points} pkt</td>
+                        <td class="admin-only">
+                            <button class="btn btn-warning" style="padding:3px 8px; font-size:0.75rem;" onclick="openEditMinistrantModal(${m.id})">✏️ Edytuj / Pkt</button>
+                            <button class="btn btn-danger" style="padding:3px 8px; font-size:0.75rem;" onclick="deleteMinistrant(${m.id})">Usuń</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function renderPasswordsTable() {
+            const tbody = document.getElementById('passwords-table-body');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+
+            state.ministrants.forEach(m => {
+                const currentPass = m.password || '';
+                tbody.innerHTML += `
+                    <tr>
+                        <td><strong>${m.name}</strong></td>
+                        <td>${m.degree}</td>
+                        <td>
+                            <input type="text" id="pass-input-${m.id}" value="${currentPass}" placeholder="Brak hasła" style="padding: 6px; border-radius: 4px; border: 1px solid var(--border-color); background: var(--bg-primary); color: #fff; width: 140px;">
+                        </td>
+                        <td>
+                            <button class="btn btn-success" style="padding: 4px 8px; font-size:0.8rem;" onclick="saveUserPassword(${m.id})">💾 Zapisz</button>
+                            <button class="btn btn-secondary" style="padding: 4px 8px; font-size:0.8rem;" onclick="generateUserPassword(${m.id})">🎲 Generuj</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function saveUserPassword(id) {
+            const input = document.getElementById(`pass-input-${id}`);
+            const m = state.ministrants.find(item => item.id === id);
+            if (m && input) {
+                m.password = input.value.trim();
+                saveData();
+                alert(`Zapisano nowe hasło dla: ${m.name}`);
+            }
+        }
+
+        function generateUserPassword(id) {
+            const randomPass = Math.floor(1000 + Math.random() * 9000).toString();
+            const input = document.getElementById(`pass-input-${id}`);
+            if (input) {
+                input.value = randomPass;
+                saveUserPassword(id);
+            }
+        }
+
+        function renderMinistrantsGrid() {
+            const grid = document.getElementById('ministrants-grid');
+            grid.innerHTML = '';
+            state.ministrants.forEach(m => {
+                const avatarContent = m.photo ? `<img src="${m.photo}" alt="${m.name}">` : `👤`;
+                const rankHtml = m.rank ? `<div class="role-tag">${m.rank}</div>` : '';
+                const phoneHtml = m.phone ? `<p style="font-size:0.85rem; color:var(--text-sub); margin-top:4px;">📞 ${m.phone}</p>` : '';
+                const descHtml = m.desc ? `<p style="font-size:0.8rem; margin-top:6px; color:var(--text-sub); font-style:italic;">"${m.desc}"</p>` : '';
+
+                grid.innerHTML += `
+                    <div class="ministrant-card">
+                        <div class="avatar">${avatarContent}</div>
+                        <h3>${m.name}</h3>
+                        ${rankHtml}
+                        <p style="color:var(--text-main); font-weight:600; margin-top:6px;">${m.degree}</p>
+                        ${phoneHtml}
+                        ${descHtml}
+                        <p style="font-weight:bold; color:var(--accent-red); margin:10px 0 5px 0;">Punkty: ${m.points} pkt</p>
+                        ${state.currentUserRole === 'admin' ? `<button class="btn btn-warning" style="width:100%; font-size:0.8rem; margin-top:8px;" onclick="openEditMinistrantModal(${m.id})">✏️ Edytuj Profil / Punkty</button>` : ''}
+                    </div>
+                `;
+            });
+        }
+
+        function openAddMinistrantModal() {
+            document.getElementById('m-edit-id').value = '';
+            document.getElementById('m-name').value = '';
+            document.getElementById('m-photo').value = '';
+            document.getElementById('m-phone').value = '';
+            document.getElementById('m-degree').value = 'Kandydat';
+            document.getElementById('m-rank').value = '';
+            document.getElementById('m-desc').value = '';
+            document.getElementById('m-points').value = '0';
+            document.getElementById('modal-min-title').innerText = 'Dodaj Nowego Ministranta';
+            openModal('modal-ministrant');
+        }
+
+        function openEditMinistrantModal(id) {
+            const m = state.ministrants.find(item => item.id === id);
+            if (!m) return;
+            document.getElementById('m-edit-id').value = m.id;
+            document.getElementById('m-name').value = m.name;
+            document.getElementById('m-photo').value = m.photo || '';
+            document.getElementById('m-phone').value = m.phone || '';
+            document.getElementById('m-degree').value = m.degree;
+            document.getElementById('m-rank').value = m.rank || '';
+            document.getElementById('m-desc').value = m.desc || '';
+            document.getElementById('m-points').value = m.points;
+            document.getElementById('modal-min-title').innerText = `Edycja: ${m.name}`;
+            openModal('modal-ministrant');
+        }
+
+        function saveMinistrant() {
+            const id = document.getElementById('m-edit-id').value;
+            const name = document.getElementById('m-name').value;
+            const photo = document.getElementById('m-photo').value;
+            const phone = document.getElementById('m-phone').value;
+            const degree = document.getElementById('m-degree').value;
+            const rank = document.getElementById('m-rank').value;
+            const desc = document.getElementById('m-desc').value;
+            const points = parseInt(document.getElementById('m-points').value) || 0;
+
+            if (!name) return alert('Wpisz imię i nazwisko!');
+
+            if (id) {
+                const m = state.ministrants.find(item => item.id == id);
+                if (m) {
+                    m.name = name;
+                    m.photo = photo;
+                    m.phone = phone;
+                    m.degree = degree;
+                    m.rank = rank;
+                    m.desc = desc;
+                    m.points = points;
+                }
+            } else {
+                state.ministrants.push({
+                    id: Date.now(),
+                    name, photo, phone, degree, rank, desc, points, password: ""
+                });
+            }
+
+            saveData();
+            populateLoginUsers();
+            renderAll();
+            closeModal('modal-ministrant');
+        }
+
+        function deleteMinistrant(id) {
+            if (confirm('Usunąć tego ministranta?')) {
+                state.ministrants = state.ministrants.filter(m => m.id !== id);
+                saveData();
+                populateLoginUsers();
+                renderAll();
+            }
+        }
+
+        function renderServiceDropdowns() {
+            const reqMinSelect = document.getElementById('req-ministrant');
+            reqMinSelect.innerHTML = state.ministrants.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
+
+            const reqServSelect = document.getElementById('req-service');
+            reqServSelect.innerHTML = state.services.map(s => `<option value="${s.id}">${s.name} (+${s.posPoints} pkt / ${s.negPoints} pkt)</option>`).join('');
+
+            const calServSelect = document.getElementById('cal-service-type');
+            calServSelect.innerHTML = state.services.map(s => `<option value="${s.name}">${s.name}</option>`).join('');
+
+            const calAssignedSelect = document.getElementById('cal-assigned');
+            calAssignedSelect.innerHTML = state.ministrants.map(m => `<option value="${m.name}">${m.name}</option>`).join('');
+
+            const adminDirectMin = document.getElementById('admin-direct-min');
+            adminDirectMin.innerHTML = state.ministrants.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
+
+            const adminDirectServ = document.getElementById('admin-direct-serv');
+            adminDirectServ.innerHTML = state.services.map(s => `<option value="${s.id}">${s.name} (+${s.posPoints} pkt)</option>`).join('');
+        }
+
+        function submitServiceRequest() {
+            const minId = parseInt(document.getElementById('req-ministrant').value);
+            const servId = parseInt(document.getElementById('req-service').value);
+            const time = document.getElementById('req-time').value;
+
+            if (!minId || !servId || !time) return alert('Uzupełnij wszystkie pola!');
+
+            const min = state.ministrants.find(m => m.id === minId);
+            const serv = state.services.find(s => s.id === servId);
+
+            state.requests.push({
+                id: Date.now(),
+                ministrantId: min.id,
+                ministrantName: min.name,
+                serviceId: serv.id,
+                serviceName: serv.name,
+                posPoints: serv.posPoints,
+                negPoints: serv.negPoints,
+                serviceTime: time,
+                sentAt: new Date().toLocaleString()
+            });
+
+            saveData();
+            renderRequests();
+            alert('Zgłoszenie zostało wysłane do Administratora!');
+        }
+
+        function adminDirectAddService() {
+            const minId = parseInt(document.getElementById('admin-direct-min').value);
+            const servId = parseInt(document.getElementById('admin-direct-serv').value);
+            const time = document.getElementById('admin-direct-time').value || 'Służba';
+
+            if (!minId || !servId) return alert('Wybierz ministranta i służbę!');
+
+            const min = state.ministrants.find(m => m.id === minId);
+            const serv = state.services.find(s => s.id === servId);
+
+            min.points += serv.posPoints;
+
+            state.serviceHistory.push({
+                id: Date.now(),
+                ministrantId: min.id,
+                serviceName: serv.name,
+                points: serv.posPoints,
+                date: new Date().toLocaleDateString(),
+                time: time
+            });
+
+            saveData();
+            renderAll();
+            alert(`Przyznano służbę "${serv.name}" (+${serv.posPoints} pkt) dla ${min.name}!`);
+        }
+
+        function renderRequests() {
+            const list = document.getElementById('requests-list');
+            const badge = document.getElementById('notif-badge');
+            
+            badge.innerText = state.requests.length;
+            badge.style.display = state.requests.length > 0 ? 'inline-block' : 'none';
+
+            if (state.requests.length === 0) {
+                list.innerHTML = '<p style="color:var(--text-sub);">Brak nowych zgłoszeń.</p>';
+                return;
+            }
+
+            list.innerHTML = '';
+            state.requests.forEach(r => {
+                list.innerHTML += `
+                    <div class="request-card">
+                        <div>
+                            <strong>📩 ${r.ministrantName}</strong> zgłosił obecność na: <strong>${r.serviceName}</strong><br>
+                            <small style="color:var(--text-sub);">Godzina: ${r.serviceTime} | Wysłano: ${r.sentAt}</small>
+                        </div>
+                        <div style="display:flex; gap:8px;">
+                            <button class="btn btn-success" onclick="processRequest(${r.id}, true)">✅ Potwierdź (+${r.posPoints} pkt)</button>
+                            <button class="btn btn-danger" onclick="processRequest(${r.id}, false)">❌ Odrzuć (${r.negPoints} pkt)</button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function processRequest(reqId, isApproved) {
+            const req = state.requests.find(r => r.id === reqId);
+            if (!req) return;
+
+            const min = state.ministrants.find(m => m.id === req.ministrantId);
+            if (min) {
+                const pts = isApproved ? req.posPoints : req.negPoints;
+                min.points += pts;
+
+                state.serviceHistory.push({
+                    id: Date.now(),
+                    ministrantId: min.id,
+                    serviceName: req.serviceName,
+                    points: pts,
+                    date: new Date().toLocaleDateString(),
+                    time: req.serviceTime
+                });
+            }
+
+            state.requests = state.requests.filter(r => r.id !== reqId);
+            saveData();
+            renderAll();
+        }
+
+        function renderServicesSettings() {
+            const tbody = document.getElementById('services-settings-body');
+            tbody.innerHTML = '';
+            state.services.forEach(s => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td><strong>${s.name}</strong></td>
+                        <td style="color:var(--success-color); font-weight:bold;">+${s.posPoints} pkt</td>
+                        <td style="color:var(--accent-red); font-weight:bold;">${s.negPoints} pkt</td>
+                        <td class="admin-only"><button class="btn btn-danger" style="padding:3px 8px;" onclick="deleteServiceType(${s.id})">Usuń</button></td>
+                    </tr>
+                `;
+            });
+        }
+
+        function addNewServiceType() {
+            const name = document.getElementById('new-service-name').value;
+            const pos = parseInt(document.getElementById('new-service-pos').value) || 10;
+            let neg = parseInt(document.getElementById('new-service-neg').value) || -10;
+
+            if (!name) return alert('Wpisz nazwę służby!');
+            if (neg > 0) neg = -neg;
+
+            state.services.push({ id: Date.now(), name, posPoints: pos, negPoints: neg });
+            saveData();
+            renderAll();
+
+            document.getElementById('new-service-name').value = '';
+            document.getElementById('new-service-pos').value = '';
+            document.getElementById('new-service-neg').value = '';
+        }
+
+        function deleteServiceType(id) {
+            state.services = state.services.filter(s => s.id !== id);
+            saveData();
+            renderAll();
+        }
+
+        function saveCalendarEvent() {
+            const serviceName = document.getElementById('cal-service-type').value;
+            const date = document.getElementById('cal-date').value;
+            const time = document.getElementById('cal-time').value;
+            const assignedSelect = document.getElementById('cal-assigned');
+            const assigned = Array.from(assignedSelect.selectedOptions).map(o => o.value);
+
+            if (!date || !time) return alert('Wybierz datę i godzinę!');
+
+            state.calendarEvents.push({
+                id: Date.now(),
+                serviceName,
+                date,
+                time,
+                assigned
+            });
+
+            saveData();
+            renderCalendar();
+            closeModal('modal-event');
+        }
+
+        function renderCalendar() {
+            const area = document.getElementById('calendar-render-area');
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = now.getMonth();
+
+            let html = '<div class="month-grid">';
+            const daysHeader = ['PON', 'WT', 'ŚR', 'CZW', 'PT', 'SOB', 'NDZ'];
+            daysHeader.forEach(d => html += `<div class="month-header-cell">${d}</div>`);
+
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+            
+            let startingDay = firstDay.getDay() - 1;
+            if (startingDay === -1) startingDay = 6;
+
+            for (let i = 0; i < startingDay; i++) {
+                html += `<div class="day-cell other-month"></div>`;
+            }
+
+            for (let day = 1; day <= lastDay.getDate(); day++) {
+                const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const dayEvents = state.calendarEvents.filter(e => e.date === dateStr);
+                const isToday = now.getDate() === day;
+
+                html += `<div class="day-cell ${isToday ? 'today' : ''}">
+                    <span class="day-number">${day}</span>`;
+                
+                dayEvents.forEach(e => {
+                    const assignedText = e.assigned.length ? `<br><small>👤 ${e.assigned.join(', ')}</small>` : '';
+                    html += `<div class="cal-event-badge">
+                        <strong>${e.time}</strong> - ${e.serviceName} ${assignedText}
+                    </div>`;
+                });
+
+                html += `</div>`;
+            }
+
+            html += '</div>';
+            area.innerHTML = html;
+        }
+
+        populateLoginUsers();
+        toggleUserSelect();
+    </script>
+</body>
