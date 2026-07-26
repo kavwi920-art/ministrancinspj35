@@ -666,27 +666,24 @@
         </div>
     </div>
 
-    <!-- FIREBASE INITIALIZATION -->
+    <!-- FIREBASE MODULE SCRIPTS -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
-        import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-analytics.js";
+        import { getDatabase, ref, set, get, onValue, update, remove, push } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js";
 
         const firebaseConfig = {
-            apiKey: "AIzaSyB27DmgYuuOZE2u9y9hYnQxD_dbxPYKsuk",
-            authDomain: "ministranci-nspj.firebaseapp.com",
+            apiKey: "AizaSyB27DmgYuuOZE2u9y9HynQxD_dbxPYKsuk",
+            authDomain: "ministranci-nspji.firebaseapp.com",
             projectId: "ministranci-nspj",
-            storageBucket: "ministranci-nspj.firebasestorage.app",
+            storageBucket: "ministranci-nspjfugestorage.app",
             messagingSenderId: "918307132010",
             appId: "1:918307132010:web:6a26c4753b44a3c9feb013",
             measurementId: "G-968B2L6BRT"
         };
 
         const app = initializeApp(firebaseConfig);
-        const analytics = getAnalytics(app);
-    </script>
+        const db = getDatabase(app);
 
-    <!-- APLIKACJA JS -->
-    <script>
         const ADMIN_HASH = "25b1d98c3a5d7892b92afa49cc9ec98b341fddade508e78b19f1c10e3443a05a";
         const ALL_PASS = "nspj";
 
@@ -703,24 +700,46 @@
             currentUserRole: null,
             currentUserId: null,
             currentDevice: null,
-            ministrants: JSON.parse(localStorage.getItem('lso_ministrants')) || [
-                { id: 1, name: "Kamil Gawenda", degree: "Ministrant", points: 10, password: "", phone: "123-456-789", rank: "Prezes", desc: "Przykładowy opis ministranta.", photo: "" }
-            ],
-            services: JSON.parse(localStorage.getItem('lso_services')) || defaultServices,
-            requests: JSON.parse(localStorage.getItem('lso_requests')) || [],
-            calendarEvents: JSON.parse(localStorage.getItem('lso_calevents')) || [],
-            serviceHistory: JSON.parse(localStorage.getItem('lso_history')) || []
+            ministrants: [],
+            services: [],
+            requests: [],
+            calendarEvents: [],
+            serviceHistory: []
         };
 
         let calCurrentDate = new Date();
         let calCurrentView = 'month';
 
-        function saveData() {
-            localStorage.setItem('lso_ministrants', JSON.stringify(state.ministrants));
-            localStorage.setItem('lso_services', JSON.stringify(state.services));
-            localStorage.setItem('lso_requests', JSON.stringify(state.requests));
-            localStorage.setItem('lso_calevents', JSON.stringify(state.calendarEvents));
-            localStorage.setItem('lso_history', JSON.stringify(state.serviceHistory));
+        // Nasłuchiwanie zmian w bazie danych Firebase w czasie rzeczywistym
+        onValue(ref(db, 'lso_data'), (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                state.ministrants = data.ministrants || [];
+                state.services = data.services || defaultServices;
+                state.requests = data.requests || [];
+                state.calendarEvents = data.calendarEvents || [];
+                state.serviceHistory = data.serviceHistory || [];
+            } else {
+                // Inicjalizacja domyślnymi danymi jeśli baza jest pusta
+                state.ministrants = [
+                    { id: 1, name: "Kamil Gawenda", degree: "Ministrant", points: 10, password: "", phone: "123-456-789", rank: "Prezes", desc: "Przykładowy opis ministranta.", photo: "" }
+                ];
+                state.services = defaultServices;
+                saveDataToFirebase();
+            }
+            populateLoginUsers();
+            toggleUserSelect();
+            renderAll();
+        });
+
+        function saveDataToFirebase() {
+            set(ref(db, 'lso_data'), {
+                ministrants: state.ministrants,
+                services: state.services,
+                requests: state.requests,
+                calendarEvents: state.calendarEvents,
+                serviceHistory: state.serviceHistory
+            });
         }
 
         async function hashPassword(message) {
@@ -730,22 +749,21 @@
             return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
         }
 
-        function populateLoginUsers() {
+        window.populateLoginUsers = function() {
             const select = document.getElementById('login-user-id');
-            if (select) {
-                select.innerHTML = state.ministrants.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
-            }
+            if(!select) return;
+            select.innerHTML = state.ministrants.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
         }
 
-        function toggleUserSelect() {
-            const role = document.getElementById('login-role').value;
-            const userSelectGroup = document.getElementById('user-select-group');
-            if (userSelectGroup) {
-                userSelectGroup.style.display = role === 'user' ? 'block' : 'none';
-            }
+        window.toggleUserSelect = function() {
+            const roleEl = document.getElementById('login-role');
+            if(!roleEl) return;
+            const role = roleEl.value;
+            const group = document.getElementById('user-select-group');
+            if(group) group.style.display = role === 'user' ? 'block' : 'none';
         }
 
-        async function login() {
+        window.login = async function() {
             const role = document.getElementById('login-role').value;
             const pass = document.getElementById('login-pass').value;
             state.currentDevice = document.getElementById('login-device').value;
@@ -790,14 +808,13 @@
             }
 
             document.getElementById('role-display').innerText = `${displayName} [${state.currentDevice}]`;
-            
             switchTab('tabela', document.querySelector('.nav-links button'));
 
             applyPermissions();
             renderAll();
         }
 
-        function logout() {
+        window.logout = function() {
             state.currentUserRole = null;
             state.currentUserId = null;
             document.getElementById('login-overlay').style.display = 'flex';
@@ -831,7 +848,7 @@
             document.getElementById('my-user-degree').innerText = user.degree;
 
             const historyList = document.getElementById('my-history-list');
-            const myHistory = state.serviceHistory.filter(h => h.ministrantId === user.id);
+            const myHistory = (state.serviceHistory || []).filter(h => h.ministrantId === user.id);
             if (myHistory.length === 0) {
                 historyList.innerHTML = '<p style="color:var(--text-sub);">Brak historii służb.</p>';
             } else {
@@ -844,12 +861,12 @@
             }
         }
 
-        function toggleTheme() {
+        window.toggleTheme = function() {
             const body = document.body;
             body.setAttribute('data-theme', body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
         }
 
-        function switchTab(tabId, btn) {
+        window.switchTab = function(tabId, btn) {
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
             const targetTab = document.getElementById(`tab-${tabId}`);
@@ -857,8 +874,8 @@
             if (btn) btn.classList.add('active');
         }
 
-        function openModal(id) { document.getElementById(id).classList.add('active'); }
-        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+        window.openModal = function(id) { document.getElementById(id).classList.add('active'); }
+        window.closeModal = function(id) { document.getElementById(id).classList.remove('active'); }
 
         function renderAll() {
             renderPointsTable();
@@ -873,7 +890,7 @@
 
         function renderPointsTable() {
             const tbody = document.getElementById('points-table-body');
-            if (!tbody) return;
+            if(!tbody) return;
             tbody.innerHTML = '';
             
             const sortedMin = [...state.ministrants].sort((a, b) => b.points - a.points);
@@ -919,17 +936,17 @@
             });
         }
 
-        function saveUserPassword(id) {
+        window.saveUserPassword = function(id) {
             const input = document.getElementById(`pass-input-${id}`);
             const m = state.ministrants.find(item => item.id === id);
             if (m && input) {
                 m.password = input.value.trim();
-                saveData();
+                saveDataToFirebase();
                 alert(`Zapisano hasło dla: ${m.name}`);
             }
         }
 
-        function generateUserPassword(id) {
+        window.generateUserPassword = function(id) {
             const randomPass = Math.floor(1000 + Math.random() * 9000).toString();
             const input = document.getElementById(`pass-input-${id}`);
             if (input) {
@@ -940,7 +957,7 @@
 
         function renderMinistrantsGrid() {
             const grid = document.getElementById('ministrants-grid');
-            if (!grid) return;
+            if(!grid) return;
             grid.innerHTML = '';
             state.ministrants.forEach(m => {
                 const avatarContent = m.photo ? `<img src="${m.photo}" alt="${m.name}">` : `👤`;
@@ -958,7 +975,7 @@
             });
         }
 
-        function openAddMinistrantModal() {
+        window.openAddMinistrantModal = function() {
             document.getElementById('m-edit-id').value = '';
             document.getElementById('m-name').value = '';
             document.getElementById('m-photo').value = '';
@@ -971,7 +988,7 @@
             openModal('modal-ministrant');
         }
 
-        function openEditMinistrantModal(id) {
+        window.openEditMinistrantModal = function(id) {
             const m = state.ministrants.find(item => item.id === id);
             if (!m) return;
             document.getElementById('m-edit-id').value = m.id;
@@ -986,7 +1003,7 @@
             openModal('modal-ministrant');
         }
 
-        function saveMinistrant() {
+        window.saveMinistrant = function() {
             const id = document.getElementById('m-edit-id').value;
             const name = document.getElementById('m-name').value;
             const photo = document.getElementById('m-photo').value;
@@ -1003,18 +1020,14 @@
             } else {
                 state.ministrants.push({ id: Date.now(), name, photo, phone, degree, rank, desc, points, password: "" });
             }
-            saveData();
-            populateLoginUsers();
-            renderAll();
+            saveDataToFirebase();
             closeModal('modal-ministrant');
         }
 
-        function deleteMinistrant(id) {
+        window.deleteMinistrant = function(id) {
             if (confirm('Usunąć tego ministranta?')) {
                 state.ministrants = state.ministrants.filter(m => m.id !== id);
-                saveData();
-                populateLoginUsers();
-                renderAll();
+                saveDataToFirebase();
             }
         }
 
@@ -1022,19 +1035,19 @@
             const reqMin = document.getElementById('req-ministrant');
             const reqServ = document.getElementById('req-service');
             const calServ = document.getElementById('cal-service-type');
-            const calAssig = document.getElementById('cal-assigned');
+            const calAssigned = document.getElementById('cal-assigned');
             const adminMin = document.getElementById('admin-direct-min');
             const adminServ = document.getElementById('admin-direct-serv');
 
-            if (reqMin) reqMin.innerHTML = state.ministrants.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
-            if (reqServ) reqServ.innerHTML = state.services.map(s => `<option value="${s.id}">${s.name} (+${s.posPoints} / ${s.negPoints})</option>`).join('');
-            if (calServ) calServ.innerHTML = state.services.map(s => `<option value="${s.name}">${s.name}</option>`).join('');
-            if (calAssig) calAssig.innerHTML = state.ministrants.map(m => `<option value="${m.name}">${m.name}</option>`).join('');
-            if (adminMin) adminMin.innerHTML = state.ministrants.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
-            if (adminServ) adminServ.innerHTML = state.services.map(s => `<option value="${s.id}">${s.name} (+${s.posPoints} pkt)</option>`).join('');
+            if(reqMin) reqMin.innerHTML = state.ministrants.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
+            if(reqServ) reqServ.innerHTML = state.services.map(s => `<option value="${s.id}">${s.name} (+${s.posPoints} / ${s.negPoints})</option>`).join('');
+            if(calServ) calServ.innerHTML = state.services.map(s => `<option value="${s.name}">${s.name}</option>`).join('');
+            if(calAssigned) calAssigned.innerHTML = state.ministrants.map(m => `<option value="${m.name}">${m.name}</option>`).join('');
+            if(adminMin) adminMin.innerHTML = state.ministrants.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
+            if(adminServ) adminServ.innerHTML = state.services.map(s => `<option value="${s.id}">${s.name} (+${s.posPoints} pkt)</option>`).join('');
         }
 
-        function submitServiceRequest() {
+        window.submitServiceRequest = function() {
             const minId = parseInt(document.getElementById('req-ministrant').value);
             const servId = parseInt(document.getElementById('req-service').value);
             const time = document.getElementById('req-time').value;
@@ -1042,17 +1055,17 @@
             const min = state.ministrants.find(m => m.id === minId);
             const serv = state.services.find(s => s.id === servId);
 
+            if(!state.requests) state.requests = [];
             state.requests.push({
                 id: Date.now(), ministrantId: min.id, ministrantName: min.name,
                 serviceId: serv.id, serviceName: serv.name, posPoints: serv.posPoints,
                 negPoints: serv.negPoints, serviceTime: time, sentAt: new Date().toLocaleString()
             });
-            saveData();
-            renderRequests();
+            saveDataToFirebase();
             alert('Zgłoszenie wysłane do Admina!');
         }
 
-        function adminDirectAddService() {
+        window.adminDirectAddService = function() {
             const minId = parseInt(document.getElementById('admin-direct-min').value);
             const servId = parseInt(document.getElementById('admin-direct-serv').value);
             const time = document.getElementById('admin-direct-time').value || 'Służba';
@@ -1061,29 +1074,30 @@
             const serv = state.services.find(s => s.id === servId);
             min.points += serv.posPoints;
 
+            if(!state.serviceHistory) state.serviceHistory = [];
             state.serviceHistory.push({
                 id: Date.now(), ministrantId: min.id, serviceName: serv.name,
                 points: serv.posPoints, date: new Date().toLocaleDateString(), time
             });
-            saveData();
-            renderAll();
+            saveDataToFirebase();
             alert(`Przyznano służbę "${serv.name}" (+${serv.posPoints} pkt) dla ${min.name}!`);
         }
 
         function renderRequests() {
             const list = document.getElementById('requests-list');
             const badge = document.getElementById('notif-badge');
-            if (!list || !badge) return;
+            if(!list || !badge) return;
 
-            badge.innerText = state.requests.length;
-            badge.style.display = state.requests.length > 0 ? 'inline-block' : 'none';
+            const reqs = state.requests || [];
+            badge.innerText = reqs.length;
+            badge.style.display = reqs.length > 0 ? 'inline-block' : 'none';
 
-            if (state.requests.length === 0) {
+            if (reqs.length === 0) {
                 list.innerHTML = '<p style="color:var(--text-sub);">Brak nowych zgłoszeń.</p>';
                 return;
             }
             list.innerHTML = '';
-            state.requests.forEach(r => {
+            reqs.forEach(r => {
                 list.innerHTML += `
                     <div class="request-card">
                         <div><strong>📩 ${r.ministrantName}</strong> zgłosił: <strong>${r.serviceName}</strong><br><small style="color:var(--text-sub);">Godzina: ${r.serviceTime}</small></div>
@@ -1096,28 +1110,28 @@
             });
         }
 
-        function processRequest(reqId, isApproved) {
+        window.processRequest = function(reqId, isApproved) {
             const req = state.requests.find(r => r.id === reqId);
             if (!req) return;
             const min = state.ministrants.find(m => m.id === req.ministrantId);
             if (min) {
                 const pts = isApproved ? req.posPoints : req.negPoints;
                 min.points += pts;
+                if(!state.serviceHistory) state.serviceHistory = [];
                 state.serviceHistory.push({
                     id: Date.now(), ministrantId: min.id, serviceName: req.serviceName,
                     points: pts, date: new Date().toLocaleDateString(), time: req.serviceTime
                 });
             }
             state.requests = state.requests.filter(r => r.id !== reqId);
-            saveData();
-            renderAll();
+            saveDataToFirebase();
         }
 
         function renderServicesSettings() {
             const tbody = document.getElementById('services-settings-body');
-            if (!tbody) return;
+            if(!tbody) return;
             tbody.innerHTML = '';
-            state.services.forEach(s => {
+            (state.services || []).forEach(s => {
                 tbody.innerHTML += `
                     <tr>
                         <td><strong>${s.name}</strong></td>
@@ -1129,27 +1143,26 @@
             });
         }
 
-        function addNewServiceType() {
+        window.addNewServiceType = function() {
             const name = document.getElementById('new-service-name').value;
             const pos = parseInt(document.getElementById('new-service-pos').value) || 10;
             let neg = parseInt(document.getElementById('new-service-neg').value) || -10;
             if (!name) return alert('Wpisz nazwę służby!');
             if (neg > 0) neg = -neg;
+            if(!state.services) state.services = [];
             state.services.push({ id: Date.now(), name, posPoints: pos, negPoints: neg });
-            saveData();
-            renderAll();
+            saveDataToFirebase();
             document.getElementById('new-service-name').value = '';
             document.getElementById('new-service-pos').value = '';
             document.getElementById('new-service-neg').value = '';
         }
 
-        function deleteServiceType(id) {
+        window.deleteServiceType = function(id) {
             state.services = state.services.filter(s => s.id !== id);
-            saveData();
-            renderAll();
+            saveDataToFirebase();
         }
 
-        function openAddEventModal() {
+        window.openAddEventModal = function() {
             if (state.currentUserRole !== 'admin') return;
             document.getElementById('cal-edit-id').value = '';
             document.getElementById('modal-event-title').innerText = 'Dodaj Służbę do Kalendarza';
@@ -1161,7 +1174,7 @@
             openModal('modal-event');
         }
 
-        function saveCalendarEvent() {
+        window.saveCalendarEvent = function() {
             const editId = document.getElementById('cal-edit-id').value;
             const serviceName = document.getElementById('cal-service-type').value;
             const date = document.getElementById('cal-date').value;
@@ -1171,21 +1184,21 @@
 
             if (!date || !time) return alert('Wybierz datę i godzinę!');
 
+            if(!state.calendarEvents) state.calendarEvents = [];
             if (editId) {
                 const ev = state.calendarEvents.find(e => e.id == editId);
                 if (ev) { ev.serviceName = serviceName; ev.date = date; ev.time = time; ev.status = status; ev.assigned = assigned; }
             } else {
                 state.calendarEvents.push({ id: Date.now(), serviceName, date, time, status, assigned });
             }
-            saveData();
-            renderCalendar();
+            saveDataToFirebase();
             closeModal('modal-event');
             closeModal('modal-day-view');
         }
 
         const monthNamesPl = ["Styczeń", "Luty", "Marzec", "Kwiecień", "Maj", "Czerwiec", "Lipiec", "Sierpień", "Wrzesień", "Październik", "Listopad", "Grudzień"];
 
-        function calSetView(view) {
+        window.calSetView = function(view) {
             calCurrentView = view;
             document.getElementById('view-btn-month').classList.toggle('active', view === 'month');
             document.getElementById('view-btn-week').classList.toggle('active', view === 'week');
@@ -1193,12 +1206,12 @@
             renderCalendar();
         }
 
-        function calGoToday() {
+        window.calGoToday = function() {
             calCurrentDate = new Date();
             renderCalendar();
         }
 
-        function calChangePeriod(direction) {
+        window.calChangePeriod = function(direction) {
             if (calCurrentView === 'month') {
                 calCurrentDate.setMonth(calCurrentDate.getMonth() + direction);
             } else if (calCurrentView === 'week') {
@@ -1212,8 +1225,7 @@
         function renderCalendar() {
             const area = document.getElementById('calendar-render-area');
             const titleEl = document.getElementById('cal-period-title');
-            if (!area || !titleEl) return;
-
+            if(!area || !titleEl) return;
             const year = calCurrentDate.getFullYear();
             const month = calCurrentDate.getMonth();
             const dayNum = calCurrentDate.getDate();
@@ -1246,7 +1258,7 @@
 
             for (let day = 1; day <= lastDay.getDate(); day++) {
                 const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-                const dayEvents = state.calendarEvents.filter(e => e.date === dateStr);
+                const dayEvents = (state.calendarEvents || []).filter(e => e.date === dateStr);
                 const isToday = todayStr === dateStr;
 
                 html += `<div class="day-cell ${isToday ? 'today' : ''}" onclick="openDayView('${dateStr}')">
@@ -1280,7 +1292,7 @@
                 const d = new Date(startOfWeek);
                 d.setDate(startOfWeek.getDate() + i);
                 const dateStr = d.toISOString().split('T')[0];
-                const dayEvents = state.calendarEvents.filter(e => e.date === dateStr);
+                const dayEvents = (state.calendarEvents || []).filter(e => e.date === dateStr);
                 const isToday = todayStr === dateStr;
 
                 html += `<div class="day-cell ${isToday ? 'today' : ''}" style="min-height: 250px;" onclick="openDayView('${dateStr}')">
@@ -1298,7 +1310,7 @@
 
         function renderSingleDayView(year, month, day, area) {
             const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-            const dayEvents = state.calendarEvents.filter(e => e.date === dateStr);
+            const dayEvents = (state.calendarEvents || []).filter(e => e.date === dateStr);
 
             let html = `<div style="padding: 10px;">
                 <h3 style="color:var(--accent-red); margin-bottom:15px;">Harmonogram na dzień: ${dateStr}</h3>`;
@@ -1335,12 +1347,11 @@
             area.innerHTML = html;
         }
 
-        function openDayView(dateStr) {
-            const dayEvents = state.calendarEvents.filter(e => e.date === dateStr);
+        window.openDayView = function(dateStr) {
+            const dayEvents = (state.calendarEvents || []).filter(e => e.date === dateStr);
             const titleEl = document.getElementById('day-view-title');
             const listEl = document.getElementById('day-view-list');
-            if (!titleEl || !listEl) return;
-
+            if(!titleEl || !listEl) return;
             titleEl.innerText = `Służby w dniu: ${dateStr}`;
 
             if (dayEvents.length === 0) {
@@ -1376,7 +1387,7 @@
             openModal('modal-day-view');
         }
 
-        function prepareAddEventForDate(dateStr) {
+        window.prepareAddEventForDate = function(dateStr) {
             closeModal('modal-day-view');
             document.getElementById('cal-edit-id').value = '';
             document.getElementById('modal-event-title').innerText = 'Dodaj Służbę do Kalendarza';
@@ -1388,8 +1399,8 @@
             openModal('modal-event');
         }
 
-        function editCalendarEvent(id) {
-            const ev = state.calendarEvents.find(e => e.id === id);
+        window.editCalendarEvent = function(id) {
+            const ev = (state.calendarEvents || []).find(e => e.id === id);
             if (!ev) return;
             closeModal('modal-day-view');
             document.getElementById('cal-edit-id').value = ev.id;
@@ -1407,20 +1418,15 @@
             openModal('modal-event');
         }
 
-        function deleteCalendarEvent(id, dateStr) {
+        window.deleteCalendarEvent = function(id, dateStr) {
             if (confirm('Czy na pewno chcesz usunąć tę służbę z kalendarza?')) {
                 state.calendarEvents = state.calendarEvents.filter(e => e.id !== id);
-                saveData();
-                renderCalendar();
+                saveDataToFirebase();
                 if(document.getElementById('modal-day-view').classList.contains('active')) {
                     openDayView(dateStr);
                 }
             }
         }
-
-        // Inicjalizacja przy starcie skryptu
-        populateLoginUsers();
-        toggleUserSelect();
     </script>
 </body>
 </html>
