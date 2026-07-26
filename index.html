@@ -666,6 +666,26 @@
         </div>
     </div>
 
+    <!-- FIREBASE INITIALIZATION -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-analytics.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyB27DmgYuuOZE2u9y9hYnQxD_dbxPYKsuk",
+            authDomain: "ministranci-nspj.firebaseapp.com",
+            projectId: "ministranci-nspj",
+            storageBucket: "ministranci-nspj.firebasestorage.app",
+            messagingSenderId: "918307132010",
+            appId: "1:918307132010:web:6a26c4753b44a3c9feb013",
+            measurementId: "G-968B2L6BRT"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+    </script>
+
+    <!-- APLIKACJA JS -->
     <script>
         const ADMIN_HASH = "25b1d98c3a5d7892b92afa49cc9ec98b341fddade508e78b19f1c10e3443a05a";
         const ALL_PASS = "nspj";
@@ -712,12 +732,17 @@
 
         function populateLoginUsers() {
             const select = document.getElementById('login-user-id');
-            select.innerHTML = state.ministrants.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
+            if (select) {
+                select.innerHTML = state.ministrants.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
+            }
         }
 
         function toggleUserSelect() {
             const role = document.getElementById('login-role').value;
-            document.getElementById('user-select-group').style.display = role === 'user' ? 'block' : 'none';
+            const userSelectGroup = document.getElementById('user-select-group');
+            if (userSelectGroup) {
+                userSelectGroup.style.display = role === 'user' ? 'block' : 'none';
+            }
         }
 
         async function login() {
@@ -766,7 +791,6 @@
 
             document.getElementById('role-display').innerText = `${displayName} [${state.currentDevice}]`;
             
-            // AUTOMATYCZNIE PRZEŁĄCZA NA ZAKŁADKĘ TABELI DLA UCZESTNIKÓW
             switchTab('tabela', document.querySelector('.nav-links button'));
 
             applyPermissions();
@@ -849,9 +873,9 @@
 
         function renderPointsTable() {
             const tbody = document.getElementById('points-table-body');
+            if (!tbody) return;
             tbody.innerHTML = '';
             
-            // SORTOWANIE OD NAJWIĘKSZEJ LICZBY PUNKTÓW DO NAJMNIEJSZEj
             const sortedMin = [...state.ministrants].sort((a, b) => b.points - a.points);
 
             sortedMin.forEach((m, index) => {
@@ -916,6 +940,7 @@
 
         function renderMinistrantsGrid() {
             const grid = document.getElementById('ministrants-grid');
+            if (!grid) return;
             grid.innerHTML = '';
             state.ministrants.forEach(m => {
                 const avatarContent = m.photo ? `<img src="${m.photo}" alt="${m.name}">` : `👤`;
@@ -994,12 +1019,19 @@
         }
 
         function renderServiceDropdowns() {
-            document.getElementById('req-ministrant').innerHTML = state.ministrants.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
-            document.getElementById('req-service').innerHTML = state.services.map(s => `<option value="${s.id}">${s.name} (+${s.posPoints} / ${s.negPoints})</option>`).join('');
-            document.getElementById('cal-service-type').innerHTML = state.services.map(s => `<option value="${s.name}">${s.name}</option>`).join('');
-            document.getElementById('cal-assigned').innerHTML = state.ministrants.map(m => `<option value="${m.name}">${m.name}</option>`).join('');
-            document.getElementById('admin-direct-min').innerHTML = state.ministrants.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
-            document.getElementById('admin-direct-serv').innerHTML = state.services.map(s => `<option value="${s.id}">${s.name} (+${s.posPoints} pkt)</option>`).join('');
+            const reqMin = document.getElementById('req-ministrant');
+            const reqServ = document.getElementById('req-service');
+            const calServ = document.getElementById('cal-service-type');
+            const calAssig = document.getElementById('cal-assigned');
+            const adminMin = document.getElementById('admin-direct-min');
+            const adminServ = document.getElementById('admin-direct-serv');
+
+            if (reqMin) reqMin.innerHTML = state.ministrants.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
+            if (reqServ) reqServ.innerHTML = state.services.map(s => `<option value="${s.id}">${s.name} (+${s.posPoints} / ${s.negPoints})</option>`).join('');
+            if (calServ) calServ.innerHTML = state.services.map(s => `<option value="${s.name}">${s.name}</option>`).join('');
+            if (calAssig) calAssig.innerHTML = state.ministrants.map(m => `<option value="${m.name}">${m.name}</option>`).join('');
+            if (adminMin) adminMin.innerHTML = state.ministrants.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
+            if (adminServ) adminServ.innerHTML = state.services.map(s => `<option value="${s.id}">${s.name} (+${s.posPoints} pkt)</option>`).join('');
         }
 
         function submitServiceRequest() {
@@ -1041,6 +1073,8 @@
         function renderRequests() {
             const list = document.getElementById('requests-list');
             const badge = document.getElementById('notif-badge');
+            if (!list || !badge) return;
+
             badge.innerText = state.requests.length;
             badge.style.display = state.requests.length > 0 ? 'inline-block' : 'none';
 
@@ -1081,6 +1115,7 @@
 
         function renderServicesSettings() {
             const tbody = document.getElementById('services-settings-body');
+            if (!tbody) return;
             tbody.innerHTML = '';
             state.services.forEach(s => {
                 tbody.innerHTML += `
@@ -1177,6 +1212,8 @@
         function renderCalendar() {
             const area = document.getElementById('calendar-render-area');
             const titleEl = document.getElementById('cal-period-title');
+            if (!area || !titleEl) return;
+
             const year = calCurrentDate.getFullYear();
             const month = calCurrentDate.getMonth();
             const dayNum = calCurrentDate.getDate();
@@ -1302,6 +1339,8 @@
             const dayEvents = state.calendarEvents.filter(e => e.date === dateStr);
             const titleEl = document.getElementById('day-view-title');
             const listEl = document.getElementById('day-view-list');
+            if (!titleEl || !listEl) return;
+
             titleEl.innerText = `Służby w dniu: ${dateStr}`;
 
             if (dayEvents.length === 0) {
@@ -1379,30 +1418,9 @@
             }
         }
 
+        // Inicjalizacja przy starcie skryptu
         populateLoginUsers();
         toggleUserSelect();
-        <script type="module">
-  // Import the functions you need from the SDKs you need
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
-  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-analytics.js";
-  // TODO: Add SDKs for Firebase products that you want to use
-  // https://firebase.google.com/docs/web/setup#available-libraries
-
-  // Your web app's Firebase configuration
-  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-  const firebaseConfig = {
-    apiKey: "AIzaSyB27DmgYuuOZE2u9y9hYnQxD_dbxPYKsuk",
-    authDomain: "ministranci-nspj.firebaseapp.com",
-    projectId: "ministranci-nspj",
-    storageBucket: "ministranci-nspj.firebasestorage.app",
-    messagingSenderId: "918307132010",
-    appId: "1:918307132010:web:6a26c4753b44a3c9feb013",
-    measurementId: "G-968B2L6BRT"
-  };
-
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-  const analytics = getAnalytics(app);
-</script> 
+    </script>
 </body>
 </html>
