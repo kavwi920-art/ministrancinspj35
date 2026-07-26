@@ -204,7 +204,40 @@
             object-fit: cover;
         }
 
-        /* KALENDARZ */
+        /* KALENDARZ - NOWY STYL JAK NA ZDJĘCIU */
+        .cal-nav-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .cal-nav-left {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .cal-pill-btn {
+            background: #2a2a2a;
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        .cal-pill-btn:hover { background: #333; }
+        .cal-pill-btn.active {
+            background-color: var(--accent-red);
+            border-color: var(--accent-red);
+            color: #fff;
+        }
+
         .month-grid {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
@@ -214,7 +247,7 @@
         }
 
         .month-header-cell {
-            padding: 8px 2px;
+            padding: 10px 2px;
             text-align: center;
             font-size: 0.75rem;
             font-weight: bold;
@@ -258,6 +291,9 @@
             border-radius: 3px;
             margin-bottom: 3px;
             border-left: 3px solid #fff;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
         .cal-event-green { background: rgba(46, 125, 50, 0.3); border-left-color: #2e7d32; }
         .cal-event-yellow { background: rgba(243, 156, 18, 0.3); border-left-color: #f39c12; }
@@ -433,11 +469,27 @@
         </div>
 
         <div id="tab-kalendarz" class="tab-content">
-            <div class="card" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
-                <h2 id="cal-title">Kalendarz Służb</h2>
-                <button class="btn admin-only" onclick="openAddEventModal()">+ Dodaj Służbę do Kalendarza</button>
+            <div class="card">
+                <!-- NOWY PASEK NAWIGACJI KALENDARZA JAK NA ZDJĘCIU -->
+                <div class="cal-nav-bar">
+                    <div class="cal-nav-left">
+                        <button class="btn" onclick="openAddEventModal()" style="margin-right: 10px;" id="add-serv-cal-btn">+ Nowa służba</button>
+                        <button class="cal-pill-btn" onclick="calChangePeriod(-1)">〈</button>
+                        <button class="cal-pill-btn" onclick="calGoToday()">Dziś</button>
+                        <button class="cal-pill-btn" onclick="calChangePeriod(1)">〉</button>
+                    </div>
+                    <div>
+                        <h2 id="cal-period-title" style="font-size: 1.2rem; color: var(--accent-red);">Kalendarz Służb</h2>
+                    </div>
+                    <div style="display: flex; gap: 4px;">
+                        <button class="cal-pill-btn active" id="view-btn-month" onclick="calSetView('month')">Miesiąc</button>
+                        <button class="cal-pill-btn" id="view-btn-week" onclick="calSetView('week')">Tydzień</button>
+                        <button class="cal-pill-btn" id="view-btn-day" onclick="calSetView('day')">Dzień</button>
+                    </div>
+                </div>
+
+                <div id="calendar-render-area"></div>
             </div>
-            <div id="calendar-render-area"></div>
         </div>
 
         <div id="tab-zgloszenia" class="tab-content">
@@ -474,7 +526,7 @@
         <div id="tab-szybka-sluzba" class="tab-content">
             <div class="card" style="border: 1px solid var(--accent-red);">
                 <h2>⚡ Szybkie przyznanie służby (Bezpośrednio przez Admina)</h2>
-                <p style="color:var(--text-sub); font-size:0.85rem; margin-bottom:15px;">Jako Admin możesz od razu przyznać służbę ministrantowi i dodać mu punkty. Ministrant zobaczysz tę służbę w swoim profilu.</p>
+                <p style="color:var(--text-sub); font-size:0.85rem; margin-bottom:15px;">Jako Admin możesz od razu przyznać służbę ministrantowi i dodać mu punkty.</p>
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
                     <div class="form-group">
                         <label>Ministrant</label>
@@ -496,7 +548,6 @@
         <div id="tab-hasla-uczestnikow" class="tab-content">
             <div class="card">
                 <h2>🔑 Zarządzanie Hasłami Uczestników</h2>
-                <p style="color:var(--text-sub); font-size:0.9rem; margin-bottom:15px;">Tutaj jako Administrator możesz ustawić indywidualne hasło logowania dla każdego uczestnika.</p>
                 <div class="table-responsive">
                     <table>
                         <thead>
@@ -516,15 +567,12 @@
         <div id="tab-punktacja-sluzb" class="tab-content">
             <div class="card">
                 <h2>Cennik Punktów za Służby</h2>
-                <p style="color:var(--text-sub); font-size:0.9rem; margin-bottom:15px;">Tabela przedstawia wszystkie rodzaje służb oraz punkty przyznawane (lub odejmowane) przez Administratora.</p>
-
                 <div class="admin-only" style="display: flex; gap: 8px; margin-bottom: 15px; flex-wrap: wrap; background:var(--bg-card); padding:10px; border-radius:6px;">
                     <input type="text" id="new-service-name" placeholder="Nazwa nowej służby..." style="flex:2; min-width:180px; padding:8px; border-radius:4px; border:1px solid var(--border-color); background:var(--bg-primary); color:#fff;">
                     <input type="number" id="new-service-pos" placeholder="+ Pkt" style="flex:1; min-width:90px; padding:8px; border-radius:4px; border:1px solid var(--border-color); background:var(--bg-primary); color:#fff;">
                     <input type="number" id="new-service-neg" placeholder="- Pkt" style="flex:1; min-width:90px; padding:8px; border-radius:4px; border:1px solid var(--border-color); background:var(--bg-primary); color:#fff;">
                     <button class="btn" onclick="addNewServiceType()">Dodaj Służbę</button>
                 </div>
-
                 <div class="table-responsive">
                     <table>
                         <thead>
@@ -555,22 +603,9 @@
         <div class="modal-content">
             <h3 id="modal-min-title">Dodaj / Edytuj Ministranta</h3>
             <input type="hidden" id="m-edit-id">
-            
-            <div class="form-group">
-                <label>Imię i Nazwisko</label>
-                <input type="text" id="m-name" placeholder="Jan Kowalski">
-            </div>
-
-            <div class="form-group">
-                <label>Zdjęcie Profilowe (Link URL)</label>
-                <input type="text" id="m-photo" placeholder="https://example.com/zdjecie.jpg">
-            </div>
-
-            <div class="form-group">
-                <label>Numer Telefonu</label>
-                <input type="text" id="m-phone" placeholder="123-456-789">
-            </div>
-
+            <div class="form-group"><label>Imię i Nazwisko</label><input type="text" id="m-name" placeholder="Jan Kowalski"></div>
+            <div class="form-group"><label>Zdjęcie Profilowe (Link URL)</label><input type="text" id="m-photo" placeholder="https://..."></div>
+            <div class="form-group"><label>Numer Telefonu</label><input type="text" id="m-phone" placeholder="123-456-789"></div>
             <div class="form-group">
                 <label>Stopień Liturgiczny</label>
                 <select id="m-degree">
@@ -579,22 +614,9 @@
                     <option>Animator</option><option>Starsi</option>
                 </select>
             </div>
-
-            <div class="form-group">
-                <label>Ranga (Opcjonalnie)</label>
-                <input type="text" id="m-rank" placeholder="np. Prezes, Zastępca, Skarbnik">
-            </div>
-
-            <div class="form-group">
-                <label>Opis</label>
-                <textarea id="m-desc" rows="3" placeholder="Krótki opis o ministrancie..."></textarea>
-            </div>
-
-            <div class="form-group">
-                <label>Punkty</label>
-                <input type="number" id="m-points" value="0">
-            </div>
-
+            <div class="form-group"><label>Ranga (Opcjonalnie)</label><input type="text" id="m-rank" placeholder="np. Prezes"></div>
+            <div class="form-group"><label>Opis</label><textarea id="m-desc" rows="3"></textarea></div>
+            <div class="form-group"><label>Punkty</label><input type="number" id="m-points" value="0"></div>
             <button class="btn" style="width:100%; margin-bottom:8px;" onclick="saveMinistrant()">Zapisz Zmiany</button>
             <button class="btn btn-secondary" style="width:100%;" onclick="closeModal('modal-ministrant')">Anuluj</button>
         </div>
@@ -605,10 +627,7 @@
         <div class="modal-content">
             <h3 id="modal-event-title">Dodaj Służbę do Kalendarza</h3>
             <input type="hidden" id="cal-edit-id">
-            <div class="form-group">
-                <label>Nazwa/Typ Służby</label>
-                <select id="cal-service-type"></select>
-            </div>
+            <div class="form-group"><label>Nazwa/Typ Służby</label><select id="cal-service-type"></select></div>
             <div class="form-group"><label>Data</label><input type="date" id="cal-date"></div>
             <div class="form-group"><label>Godzina</label><input type="time" id="cal-time"></div>
             <div class="form-group">
@@ -619,16 +638,13 @@
                     <option value="red">🔴 Odwołane (Czerwony)</option>
                 </select>
             </div>
-            <div class="form-group">
-                <label>Wyznaczani Ministranci</label>
-                <select id="cal-assigned" multiple style="height: 100px;"></select>
-            </div>
+            <div class="form-group"><label>Wyznaczani Ministranci</label><select id="cal-assigned" multiple style="height: 100px;"></select></div>
             <button class="btn" style="width:100%; margin-bottom:8px;" onclick="saveCalendarEvent()">Zapisz w Kalendarzu</button>
             <button class="btn btn-secondary" style="width:100%;" onclick="closeModal('modal-event')">Anuluj</button>
         </div>
     </div>
 
-    <!-- MODAL WIDOKU DNIA / SZCZEGÓŁÓW KALENDARZA -->
+    <!-- MODAL WIDOKU DNIA / SZCZEGÓŁÓW -->
     <div id="modal-day-view" class="modal">
         <div class="modal-content">
             <h3 id="day-view-title" style="color: var(--accent-red); margin-bottom: 15px;">Wydarzenia dnia</h3>
@@ -662,6 +678,10 @@
             calendarEvents: JSON.parse(localStorage.getItem('lso_calevents')) || [],
             serviceHistory: JSON.parse(localStorage.getItem('lso_history')) || []
         };
+
+        // Zmienne stanu kalendarza nawigacyjnego
+        let calCurrentDate = new Date();
+        let calCurrentView = 'month'; // 'month', 'week', 'day'
 
         function saveData() {
             localStorage.setItem('lso_ministrants', JSON.stringify(state.ministrants));
@@ -713,24 +733,17 @@
             } else {
                 const selectedUserId = parseInt(document.getElementById('login-user-id').value);
                 const userObj = state.ministrants.find(m => m.id === selectedUserId);
-
-                if (!userObj) {
-                    alert('Wybierz użytkownika z listy!');
-                    return;
-                }
-
+                if (!userObj) return alert('Wybierz użytkownika z listy!');
                 const userPass = userObj.password || "";
                 if (userPass !== "" && pass !== userPass) {
                     alert(`Niepoprawne hasło dla użytkownika ${userObj.name}!`);
                     return;
                 }
-
                 state.currentUserRole = 'user';
                 state.currentUserId = selectedUserId;
             }
 
             document.getElementById('login-overlay').style.display = 'none';
-            
             let displayName = 'Admin';
             if (state.currentUserRole === 'user') {
                 const curUserObj = state.ministrants.find(m => m.id === state.currentUserId);
@@ -740,7 +753,6 @@
             }
 
             document.getElementById('role-display').innerText = `${displayName} [${state.currentDevice}]`;
-            
             applyPermissions();
             renderAll();
         }
@@ -756,9 +768,11 @@
         function applyPermissions() {
             const isAdmin = state.currentUserRole === 'admin';
             const isUser = state.currentUserRole === 'user';
-
             document.querySelectorAll('.admin-only').forEach(el => el.style.display = isAdmin ? '' : 'none');
             document.querySelectorAll('.user-admin-only').forEach(el => el.style.display = (isAdmin || isUser) ? '' : 'none');
+            
+            const addServBtn = document.getElementById('add-serv-cal-btn');
+            if (addServBtn) addServBtn.style.display = isAdmin ? 'inline-block' : 'none';
 
             const userStats = document.getElementById('user-my-stats');
             if (isUser && state.currentUserId) {
@@ -772,25 +786,19 @@
         function renderUserPersonalStats() {
             const user = state.ministrants.find(m => m.id === state.currentUserId);
             if (!user) return;
-
             document.getElementById('my-user-name').innerText = user.name;
             document.getElementById('my-user-points').innerText = user.points;
             document.getElementById('my-user-degree').innerText = user.degree;
 
             const historyList = document.getElementById('my-history-list');
             const myHistory = state.serviceHistory.filter(h => h.ministrantId === user.id);
-
             if (myHistory.length === 0) {
                 historyList.innerHTML = '<p style="color:var(--text-sub);">Brak historii służb.</p>';
             } else {
                 historyList.innerHTML = myHistory.slice().reverse().map(h => `
                     <div class="history-item" style="border-left-color: ${h.points >= 0 ? 'var(--success-color)' : 'var(--danger-color)'};">
-                        <div>
-                            <strong>${h.serviceName}</strong> <small style="color:var(--text-sub);">(${h.date} - ${h.time})</small>
-                        </div>
-                        <div style="font-weight:bold; color: ${h.points >= 0 ? 'var(--success-color)' : 'var(--danger-color)'};">
-                            ${h.points >= 0 ? '+' + h.points : h.points} pkt
-                        </div>
+                        <div><strong>${h.serviceName}</strong> <small style="color:var(--text-sub);">(${h.date} - ${h.time})</small></div>
+                        <div style="font-weight:bold; color: ${h.points >= 0 ? 'var(--success-color)' : 'var(--danger-color)'};">${h.points >= 0 ? '+' + h.points : h.points} pkt</div>
                     </div>
                 `).join('');
             }
@@ -804,7 +812,6 @@
         function switchTab(tabId, btn) {
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-            
             document.getElementById(`tab-${tabId}`).classList.add('active');
             if (btn) btn.classList.add('active');
         }
@@ -833,7 +840,7 @@
                         <td>${m.degree}</td>
                         <td style="font-weight:bold; color:${m.points >= 0 ? 'var(--success-color)' : 'var(--accent-red)'};">${m.points} pkt</td>
                         <td class="admin-only">
-                            <button class="btn btn-warning" style="padding:3px 8px; font-size:0.75rem;" onclick="openEditMinistrantModal(${m.id})">✏️ Edytuj / Pkt</button>
+                            <button class="btn btn-warning" style="padding:3px 8px; font-size:0.75rem;" onclick="openEditMinistrantModal(${m.id})">✏️ Edytuj</button>
                             <button class="btn btn-danger" style="padding:3px 8px; font-size:0.75rem;" onclick="deleteMinistrant(${m.id})">Usuń</button>
                         </td>
                     </tr>
@@ -845,16 +852,12 @@
             const tbody = document.getElementById('passwords-table-body');
             if (!tbody) return;
             tbody.innerHTML = '';
-
             state.ministrants.forEach(m => {
-                const currentPass = m.password || '';
                 tbody.innerHTML += `
                     <tr>
                         <td><strong>${m.name}</strong></td>
                         <td>${m.degree}</td>
-                        <td>
-                            <input type="text" id="pass-input-${m.id}" value="${currentPass}" placeholder="Brak hasła" style="padding: 6px; border-radius: 4px; border: 1px solid var(--border-color); background: var(--bg-primary); color: #fff; width: 140px;">
-                        </td>
+                        <td><input type="text" id="pass-input-${m.id}" value="${m.password || ''}" placeholder="Brak hasła" style="padding: 6px; border-radius: 4px; border: 1px solid var(--border-color); background: var(--bg-primary); color: #fff; width: 140px;"></td>
                         <td>
                             <button class="btn btn-success" style="padding: 4px 8px; font-size:0.8rem;" onclick="saveUserPassword(${m.id})">💾 Zapisz</button>
                             <button class="btn btn-secondary" style="padding: 4px 8px; font-size:0.8rem;" onclick="generateUserPassword(${m.id})">🎲 Generuj</button>
@@ -870,7 +873,7 @@
             if (m && input) {
                 m.password = input.value.trim();
                 saveData();
-                alert(`Zapisano nowe hasło dla: ${m.name}`);
+                alert(`Zapisano hasło dla: ${m.name}`);
             }
         }
 
@@ -888,20 +891,15 @@
             grid.innerHTML = '';
             state.ministrants.forEach(m => {
                 const avatarContent = m.photo ? `<img src="${m.photo}" alt="${m.name}">` : `👤`;
-                const rankHtml = m.rank ? `<div class="role-tag">${m.rank}</div>` : '';
-                const phoneHtml = m.phone ? `<p style="font-size:0.85rem; color:var(--text-sub); margin-top:4px;">📞 ${m.phone}</p>` : '';
-                const descHtml = m.desc ? `<p style="font-size:0.8rem; margin-top:6px; color:var(--text-sub); font-style:italic;">"${m.desc}"</p>` : '';
-
                 grid.innerHTML += `
                     <div class="ministrant-card">
                         <div class="avatar">${avatarContent}</div>
                         <h3>${m.name}</h3>
-                        ${rankHtml}
+                        ${m.rank ? `<div class="role-tag">${m.rank}</div>` : ''}
                         <p style="color:var(--text-main); font-weight:600; margin-top:6px;">${m.degree}</p>
-                        ${phoneHtml}
-                        ${descHtml}
+                        ${m.phone ? `<p style="font-size:0.85rem; color:var(--text-sub); margin-top:4px;">📞 ${m.phone}</p>` : ''}
                         <p style="font-weight:bold; color:var(--accent-red); margin:10px 0 5px 0;">Punkty: ${m.points} pkt</p>
-                        ${state.currentUserRole === 'admin' ? `<button class="btn btn-warning" style="width:100%; font-size:0.8rem; margin-top:8px;" onclick="openEditMinistrantModal(${m.id})">✏️ Edytuj Profil / Punkty</button>` : ''}
+                        ${state.currentUserRole === 'admin' ? `<button class="btn btn-warning" style="width:100%; font-size:0.8rem; margin-top:8px;" onclick="openEditMinistrantModal(${m.id})">✏️ Edytuj Profil</button>` : ''}
                     </div>
                 `;
             });
@@ -946,25 +944,12 @@
             const points = parseInt(document.getElementById('m-points').value) || 0;
 
             if (!name) return alert('Wpisz imię i nazwisko!');
-
             if (id) {
                 const m = state.ministrants.find(item => item.id == id);
-                if (m) {
-                    m.name = name;
-                    m.photo = photo;
-                    m.phone = phone;
-                    m.degree = degree;
-                    m.rank = rank;
-                    m.desc = desc;
-                    m.points = points;
-                }
+                if (m) { m.name = name; m.photo = photo; m.phone = phone; m.degree = degree; m.rank = rank; m.desc = desc; m.points = points; }
             } else {
-                state.ministrants.push({
-                    id: Date.now(),
-                    name, photo, phone, degree, rank, desc, points, password: ""
-                });
+                state.ministrants.push({ id: Date.now(), name, photo, phone, degree, rank, desc, points, password: "" });
             }
-
             saveData();
             populateLoginUsers();
             renderAll();
@@ -981,73 +966,45 @@
         }
 
         function renderServiceDropdowns() {
-            const reqMinSelect = document.getElementById('req-ministrant');
-            reqMinSelect.innerHTML = state.ministrants.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
-
-            const reqServSelect = document.getElementById('req-service');
-            reqServSelect.innerHTML = state.services.map(s => `<option value="${s.id}">${s.name} (+${s.posPoints} pkt / ${s.negPoints} pkt)</option>`).join('');
-
-            const calServSelect = document.getElementById('cal-service-type');
-            calServSelect.innerHTML = state.services.map(s => `<option value="${s.name}">${s.name}</option>`).join('');
-
-            const calAssignedSelect = document.getElementById('cal-assigned');
-            calAssignedSelect.innerHTML = state.ministrants.map(m => `<option value="${m.name}">${m.name}</option>`).join('');
-
-            const adminDirectMin = document.getElementById('admin-direct-min');
-            adminDirectMin.innerHTML = state.ministrants.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
-
-            const adminDirectServ = document.getElementById('admin-direct-serv');
-            adminDirectServ.innerHTML = state.services.map(s => `<option value="${s.id}">${s.name} (+${s.posPoints} pkt)</option>`).join('');
+            document.getElementById('req-ministrant').innerHTML = state.ministrants.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
+            document.getElementById('req-service').innerHTML = state.services.map(s => `<option value="${s.id}">${s.name} (+${s.posPoints} / ${s.negPoints})</option>`).join('');
+            document.getElementById('cal-service-type').innerHTML = state.services.map(s => `<option value="${s.name}">${s.name}</option>`).join('');
+            document.getElementById('cal-assigned').innerHTML = state.ministrants.map(m => `<option value="${m.name}">${m.name}</option>`).join('');
+            document.getElementById('admin-direct-min').innerHTML = state.ministrants.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
+            document.getElementById('admin-direct-serv').innerHTML = state.services.map(s => `<option value="${s.id}">${s.name} (+${s.posPoints} pkt)</option>`).join('');
         }
 
         function submitServiceRequest() {
             const minId = parseInt(document.getElementById('req-ministrant').value);
             const servId = parseInt(document.getElementById('req-service').value);
             const time = document.getElementById('req-time').value;
-
             if (!minId || !servId || !time) return alert('Uzupełnij wszystkie pola!');
-
             const min = state.ministrants.find(m => m.id === minId);
             const serv = state.services.find(s => s.id === servId);
 
             state.requests.push({
-                id: Date.now(),
-                ministrantId: min.id,
-                ministrantName: min.name,
-                serviceId: serv.id,
-                serviceName: serv.name,
-                posPoints: serv.posPoints,
-                negPoints: serv.negPoints,
-                serviceTime: time,
-                sentAt: new Date().toLocaleString()
+                id: Date.now(), ministrantId: min.id, ministrantName: min.name,
+                serviceId: serv.id, serviceName: serv.name, posPoints: serv.posPoints,
+                negPoints: serv.negPoints, serviceTime: time, sentAt: new Date().toLocaleString()
             });
-
             saveData();
             renderRequests();
-            alert('Zgłoszenie zostało wysłane do Administratora!');
+            alert('Zgłoszenie wysłane do Admina!');
         }
 
         function adminDirectAddService() {
             const minId = parseInt(document.getElementById('admin-direct-min').value);
             const servId = parseInt(document.getElementById('admin-direct-serv').value);
             const time = document.getElementById('admin-direct-time').value || 'Służba';
-
             if (!minId || !servId) return alert('Wybierz ministranta i służbę!');
-
             const min = state.ministrants.find(m => m.id === minId);
             const serv = state.services.find(s => s.id === servId);
-
             min.points += serv.posPoints;
 
             state.serviceHistory.push({
-                id: Date.now(),
-                ministrantId: min.id,
-                serviceName: serv.name,
-                points: serv.posPoints,
-                date: new Date().toLocaleDateString(),
-                time: time
+                id: Date.now(), ministrantId: min.id, serviceName: serv.name,
+                points: serv.posPoints, date: new Date().toLocaleDateString(), time
             });
-
             saveData();
             renderAll();
             alert(`Przyznano służbę "${serv.name}" (+${serv.posPoints} pkt) dla ${min.name}!`);
@@ -1056,7 +1013,6 @@
         function renderRequests() {
             const list = document.getElementById('requests-list');
             const badge = document.getElementById('notif-badge');
-            
             badge.innerText = state.requests.length;
             badge.style.display = state.requests.length > 0 ? 'inline-block' : 'none';
 
@@ -1064,18 +1020,14 @@
                 list.innerHTML = '<p style="color:var(--text-sub);">Brak nowych zgłoszeń.</p>';
                 return;
             }
-
             list.innerHTML = '';
             state.requests.forEach(r => {
                 list.innerHTML += `
                     <div class="request-card">
-                        <div>
-                            <strong>📩 ${r.ministrantName}</strong> zgłosił obecność na: <strong>${r.serviceName}</strong><br>
-                            <small style="color:var(--text-sub);">Godzina: ${r.serviceTime} | Wysłano: ${r.sentAt}</small>
-                        </div>
+                        <div><strong>📩 ${r.ministrantName}</strong> zgłosił: <strong>${r.serviceName}</strong><br><small style="color:var(--text-sub);">Godzina: ${r.serviceTime}</small></div>
                         <div style="display:flex; gap:8px;">
-                            <button class="btn btn-success" onclick="processRequest(${r.id}, true)">✅ Potwierdź (+${r.posPoints} pkt)</button>
-                            <button class="btn btn-danger" onclick="processRequest(${r.id}, false)">❌ Odrzuć (${r.negPoints} pkt)</button>
+                            <button class="btn btn-success" onclick="processRequest(${r.id}, true)">✅ Potwierdź (+${r.posPoints})</button>
+                            <button class="btn btn-danger" onclick="processRequest(${r.id}, false)">❌ Odrzuć (${r.negPoints})</button>
                         </div>
                     </div>
                 `;
@@ -1085,22 +1037,15 @@
         function processRequest(reqId, isApproved) {
             const req = state.requests.find(r => r.id === reqId);
             if (!req) return;
-
             const min = state.ministrants.find(m => m.id === req.ministrantId);
             if (min) {
                 const pts = isApproved ? req.posPoints : req.negPoints;
                 min.points += pts;
-
                 state.serviceHistory.push({
-                    id: Date.now(),
-                    ministrantId: min.id,
-                    serviceName: req.serviceName,
-                    points: pts,
-                    date: new Date().toLocaleDateString(),
-                    time: req.serviceTime
+                    id: Date.now(), ministrantId: min.id, serviceName: req.serviceName,
+                    points: pts, date: new Date().toLocaleDateString(), time: req.serviceTime
                 });
             }
-
             state.requests = state.requests.filter(r => r.id !== reqId);
             saveData();
             renderAll();
@@ -1125,14 +1070,11 @@
             const name = document.getElementById('new-service-name').value;
             const pos = parseInt(document.getElementById('new-service-pos').value) || 10;
             let neg = parseInt(document.getElementById('new-service-neg').value) || -10;
-
             if (!name) return alert('Wpisz nazwę służby!');
             if (neg > 0) neg = -neg;
-
             state.services.push({ id: Date.now(), name, posPoints: pos, negPoints: neg });
             saveData();
             renderAll();
-
             document.getElementById('new-service-name').value = '';
             document.getElementById('new-service-pos').value = '';
             document.getElementById('new-service-neg').value = '';
@@ -1148,13 +1090,11 @@
             if (state.currentUserRole !== 'admin') return;
             document.getElementById('cal-edit-id').value = '';
             document.getElementById('modal-event-title').innerText = 'Dodaj Służbę do Kalendarza';
-            document.getElementById('cal-date').value = '';
+            document.getElementById('cal-date').value = new Date().toISOString().split('T')[0];
             document.getElementById('cal-time').value = '';
             document.getElementById('cal-status').value = 'green';
             const assignedSelect = document.getElementById('cal-assigned');
-            for (let i = 0; i < assignedSelect.options.length; i++) {
-                assignedSelect.options[i].selected = false;
-            }
+            for (let i = 0; i < assignedSelect.options.length; i++) assignedSelect.options[i].selected = false;
             openModal('modal-event');
         }
 
@@ -1164,50 +1104,73 @@
             const date = document.getElementById('cal-date').value;
             const time = document.getElementById('cal-time').value;
             const status = document.getElementById('cal-status').value;
-            const assignedSelect = document.getElementById('cal-assigned');
-            const assigned = Array.from(assignedSelect.selectedOptions).map(o => o.value);
+            const assigned = Array.from(document.getElementById('cal-assigned').selectedOptions).map(o => o.value);
 
             if (!date || !time) return alert('Wybierz datę i godzinę!');
 
             if (editId) {
                 const ev = state.calendarEvents.find(e => e.id == editId);
-                if (ev) {
-                    ev.serviceName = serviceName;
-                    ev.date = date;
-                    ev.time = time;
-                    ev.status = status;
-                    ev.assigned = assigned;
-                }
+                if (ev) { ev.serviceName = serviceName; ev.date = date; ev.time = time; ev.status = status; ev.assigned = assigned; }
             } else {
-                state.calendarEvents.push({
-                    id: Date.now(),
-                    serviceName,
-                    date,
-                    time,
-                    status,
-                    assigned
-                });
+                state.calendarEvents.push({ id: Date.now(), serviceName, date, time, status, assigned });
             }
-
             saveData();
             renderCalendar();
             closeModal('modal-event');
             closeModal('modal-day-view');
         }
 
+        // --- OBSŁUGA KALENDARZA (MIESIĄC, TYDZIEŃ, DZIEŃ + PRZEWIJANIE) ---
+        const monthNamesPl = ["Styczeń", "Luty", "Marzec", "Kwiecień", "Maj", "Czerwiec", "Lipiec", "Sierpień", "Wrzesień", "Październik", "Listopad", "Grudzień"];
+
+        function calSetView(view) {
+            calCurrentView = view;
+            document.getElementById('view-btn-month').classList.toggle('active', view === 'month');
+            document.getElementById('view-btn-week').classList.toggle('active', view === 'week');
+            document.getElementById('view-btn-day').classList.toggle('active', view === 'day');
+            renderCalendar();
+        }
+
+        function calGoToday() {
+            calCurrentDate = new Date();
+            renderCalendar();
+        }
+
+        function calChangePeriod(direction) {
+            if (calCurrentView === 'month') {
+                calCurrentDate.setMonth(calCurrentDate.getMonth() + direction);
+            } else if (calCurrentView === 'week') {
+                calCurrentDate.setDate(calCurrentDate.getDate() + (direction * 7));
+            } else if (calCurrentView === 'day') {
+                calCurrentDate.setDate(calCurrentDate.getDate() + direction);
+            }
+            renderCalendar();
+        }
+
         function renderCalendar() {
             const area = document.getElementById('calendar-render-area');
-            const now = new Date();
-            const year = now.getFullYear();
-            const month = now.getMonth();
+            const titleEl = document.getElementById('cal-period-title');
+            const year = calCurrentDate.getFullYear();
+            const month = calCurrentDate.getMonth();
+            const dayNum = calCurrentDate.getDate();
 
+            if (calCurrentView === 'month') {
+                titleEl.innerText = `${monthNamesPl[month]} ${year}`;
+                renderMonthView(year, month, area);
+            } else if (calCurrentView === 'week') {
+                renderWeekView(area, titleEl);
+            } else if (calCurrentView === 'day') {
+                titleEl.innerText = `${dayNum} ${monthNamesPl[month]} ${year}`;
+                renderSingleDayView(year, month, dayNum, area);
+            }
+        }
+
+        function renderMonthView(year, month, area) {
             let html = '<div class="month-grid">';
-            const daysHeader = ['PON', 'WT', 'ŚR', 'CZW', 'PT', 'SOB', 'NDZ'];
-            daysHeader.forEach(d => html += `<div class="month-header-cell">${d}</div>`);
+            ['PON', 'WT', 'ŚR', 'CZW', 'PT', 'SOB', 'NDZ'].forEach(d => html += `<div class="month-header-cell">${d}</div>`);
 
             const firstDay = new Date(year, month, 1);
             const lastDay = new Date(year, month + 1, 0);
-            
             let startingDay = firstDay.getDay() - 1;
             if (startingDay === -1) startingDay = 6;
 
@@ -1215,28 +1178,96 @@
                 html += `<div class="day-cell other-month"></div>`;
             }
 
+            const todayStr = new Date().toISOString().split('T')[0];
+
             for (let day = 1; day <= lastDay.getDate(); day++) {
                 const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
                 const dayEvents = state.calendarEvents.filter(e => e.date === dateStr);
-                const isToday = now.getDate() === day;
+                const isToday = todayStr === dateStr;
 
                 html += `<div class="day-cell ${isToday ? 'today' : ''}" onclick="openDayView('${dateStr}')">
                     <span class="day-number">${day}</span>`;
                 
                 dayEvents.forEach(e => {
-                    let colorClass = 'cal-event-green';
-                    if (e.status === 'yellow') colorClass = 'cal-event-yellow';
-                    if (e.status === 'red') colorClass = 'cal-event-red';
-
-                    html += `<div class="cal-event-badge ${colorClass}">
-                        <strong>${e.time}</strong> - ${e.serviceName}
-                    </div>`;
+                    let colorClass = e.status === 'yellow' ? 'cal-event-yellow' : (e.status === 'red' ? 'cal-event-red' : 'cal-event-green');
+                    html += `<div class="cal-event-badge ${colorClass}"><strong>${e.time}</strong> ${e.serviceName}</div>`;
                 });
-
                 html += `</div>`;
             }
-
             html += '</div>';
+            area.innerHTML = html;
+        }
+
+        function renderWeekView(area, titleEl) {
+            const curr = new Date(calCurrentDate);
+            const firstDayOfWeek = curr.getDate() - curr.getDay() + (curr.getDay() === 0 ? -6 : 1);
+            const startOfWeek = new Date(curr.setDate(firstDayOfWeek));
+            const endOfWeek = new Date(curr.setDate(startOfWeek.getDate() + 6));
+
+            titleEl.innerText = `${startOfWeek.getDate()} ${monthNamesPl[startOfWeek.getMonth()]} - ${endOfWeek.getDate()} ${monthNamesPl[endOfWeek.getMonth()]} ${endOfWeek.getFullYear()}`;
+
+            let html = '<div class="month-grid">';
+            const daysHeader = ['PON', 'WT', 'ŚR', 'CZW', 'PT', 'SOB', 'NDZ'];
+            daysHeader.forEach(d => html += `<div class="month-header-cell">${d}</div>`);
+
+            const todayStr = new Date().toISOString().split('T')[0];
+
+            for (let i = 0; i < 7; i++) {
+                const d = new Date(startOfWeek);
+                d.setDate(startOfWeek.getDate() + i);
+                const dateStr = d.toISOString().split('T')[0];
+                const dayEvents = state.calendarEvents.filter(e => e.date === dateStr);
+                const isToday = todayStr === dateStr;
+
+                html += `<div class="day-cell ${isToday ? 'today' : ''}" style="min-height: 250px;" onclick="openDayView('${dateStr}')">
+                    <span class="day-number">${d.getDate()}</span>`;
+                
+                dayEvents.forEach(e => {
+                    let colorClass = e.status === 'yellow' ? 'cal-event-yellow' : (e.status === 'red' ? 'cal-event-red' : 'cal-event-green');
+                    html += `<div class="cal-event-badge ${colorClass}"><strong>${e.time}</strong> ${e.serviceName}</div>`;
+                });
+                html += `</div>`;
+            }
+            html += '</div>';
+            area.innerHTML = html;
+        }
+
+        function renderSingleDayView(year, month, day, area) {
+            const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+            const dayEvents = state.calendarEvents.filter(e => e.date === dateStr);
+
+            let html = `<div style="padding: 10px;">
+                <h3 style="color:var(--accent-red); margin-bottom:15px;">Harmonogram na dzień: ${dateStr}</h3>`;
+
+            if (dayEvents.length === 0) {
+                html += '<p style="color:var(--text-sub);">Brak zaplanowanych służb w tym dniu.</p>';
+            } else {
+                dayEvents.forEach(e => {
+                    let statusText = e.status === 'yellow' ? '🟡 Do ustalenia' : (e.status === 'red' ? '🔴 Odwołane' : '🟢 Będzie');
+                    let assignedText = e.assigned && e.assigned.length ? e.assigned.join(', ') : 'Brak wyznaczonych';
+                    let borderColor = e.status === 'red' ? 'var(--danger-color)' : (e.status === 'yellow' ? '#f39c12' : 'var(--success-color)');
+
+                    html += `
+                        <div style="background:var(--bg-card); padding:15px; border-radius:8px; margin-bottom:12px; border-left: 5px solid ${borderColor};">
+                            <strong>${e.serviceName}</strong><br>
+                            <small style="color:var(--text-sub);">Godzina: ${e.time} | Status: <strong>${statusText}</strong></small><br>
+                            <small style="color:var(--text-main);">Wyznaczeni: ${assignedText}</small>
+                            ${state.currentUserRole === 'admin' ? `
+                                <div style="margin-top:10px; display:flex; gap:6px;">
+                                    <button class="btn btn-warning" style="padding:4px 10px; font-size:0.8rem;" onclick="editCalendarEvent(${e.id})">✏️ Edytuj</button>
+                                    <button class="btn btn-danger" style="padding:4px 10px; font-size:0.8rem;" onclick="deleteCalendarEvent(${e.id}, '${dateStr}')">🗑️ Usuń</button>
+                                </div>
+                            ` : ''}
+                        </div>
+                    `;
+                });
+            }
+
+            if (state.currentUserRole === 'admin') {
+                html += `<button class="btn" style="width:100%; margin-top:15px;" onclick="prepareAddEventForDate('${dateStr}')">+ Dodaj służbę na ten dzień</button>`;
+            }
+
+            html += `</div>`;
             area.innerHTML = html;
         }
 
@@ -1244,25 +1275,19 @@
             const dayEvents = state.calendarEvents.filter(e => e.date === dateStr);
             const titleEl = document.getElementById('day-view-title');
             const listEl = document.getElementById('day-view-list');
-
             titleEl.innerText = `Służby w dniu: ${dateStr}`;
 
             if (dayEvents.length === 0) {
                 listEl.innerHTML = '<p style="color:var(--text-sub);">Brak zaplanowanych służb w tym dniu.</p>';
-                if (state.currentUserRole === 'admin') {
-                    listEl.innerHTML += `<button class="btn" style="width:100%; margin-top:15px;" onclick="prepareAddEventForDate('${dateStr}')">+ Dodaj służbę na ten dzień</button>`;
-                }
             } else {
                 let html = '';
                 dayEvents.forEach(e => {
-                    let statusText = '🟢 Będzie';
-                    if (e.status === 'yellow') statusText = '🟡 Do ustalenia';
-                    if (e.status === 'red') statusText = '🔴 Odwołane';
-
-                    const assignedText = e.assigned && e.assigned.length ? e.assigned.join(', ') : 'Brak wyznaczonych';
+                    let statusText = e.status === 'yellow' ? '🟡 Do ustalenia' : (e.status === 'red' ? '🔴 Odwołane' : '🟢 Będzie');
+                    let assignedText = e.assigned && e.assigned.length ? e.assigned.join(', ') : 'Brak wyznaczonych';
+                    let borderColor = e.status === 'red' ? 'var(--danger-color)' : (e.status === 'yellow' ? '#f39c12' : 'var(--success-color)');
 
                     html += `
-                        <div style="background:var(--bg-card); padding:12px; border-radius:6px; margin-bottom:10px; border-left: 4px solid ${e.status==='red'?'var(--danger-color)':(e.status==='yellow'?'#f39c12':'var(--success-color)')};">
+                        <div style="background:var(--bg-card); padding:12px; border-radius:6px; margin-bottom:10px; border-left: 4px solid ${borderColor};">
                             <strong>${e.serviceName}</strong><br>
                             <small style="color:var(--text-sub);">Godzina: ${e.time} | Status: <strong>${statusText}</strong></small><br>
                             <small style="color:var(--text-main);">Wyznaczeni: ${assignedText}</small>
@@ -1275,12 +1300,11 @@
                         </div>
                     `;
                 });
-
-                if (state.currentUserRole === 'admin') {
-                    html += `<button class="btn" style="width:100%; margin-top:10px;" onclick="prepareAddEventForDate('${dateStr}')">+ Dodaj kolejną służbę</button>`;
-                }
-
                 listEl.innerHTML = html;
+            }
+
+            if (state.currentUserRole === 'admin') {
+                listEl.innerHTML += `<button class="btn" style="width:100%; margin-top:10px;" onclick="prepareAddEventForDate('${dateStr}')">+ Dodaj kolejną służbę</button>`;
             }
 
             openModal('modal-day-view');
@@ -1294,16 +1318,13 @@
             document.getElementById('cal-time').value = '';
             document.getElementById('cal-status').value = 'green';
             const assignedSelect = document.getElementById('cal-assigned');
-            for (let i = 0; i < assignedSelect.options.length; i++) {
-                assignedSelect.options[i].selected = false;
-            }
+            for (let i = 0; i < assignedSelect.options.length; i++) assignedSelect.options[i].selected = false;
             openModal('modal-event');
         }
 
         function editCalendarEvent(id) {
             const ev = state.calendarEvents.find(e => e.id === id);
             if (!ev) return;
-
             closeModal('modal-day-view');
             document.getElementById('cal-edit-id').value = ev.id;
             document.getElementById('modal-event-title').innerText = 'Edytuj Służbę';
@@ -1317,7 +1338,6 @@
                 const opt = assignedSelect.options[i];
                 opt.selected = ev.assigned && ev.assigned.includes(opt.value);
             }
-
             openModal('modal-event');
         }
 
@@ -1326,11 +1346,11 @@
                 state.calendarEvents = state.calendarEvents.filter(e => e.id !== id);
                 saveData();
                 renderCalendar();
-                openDayView(dateStr);
+                if(document.getElementById('modal-day-view').classList.contains('active')) {
+                    openDayView(dateStr);
+                }
             }
         }
-
-        document.querySelector('#tab-kalendarz button.admin-only').setAttribute('onclick', 'openAddEventModal()');
 
         populateLoginUsers();
         toggleUserSelect();
