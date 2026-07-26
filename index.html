@@ -3,25 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>System Zarządzania Ministrantami LSO NSPJ</title>
+    <title>MINISTRANCI-NSPJ</title>
     <style>
         :root {
-            --bg-primary: #121212;
-            --bg-secondary: #1e1e1e;
-            --bg-card: #252525;
+            --bg-primary: #0f0f0f;
+            --bg-secondary: #1a1a1a;
+            --bg-card: #222222;
             --text-main: #ffffff;
-            --text-sub: #aaaaaa;
+            --text-sub: #a0a0a0;
             --accent-red: #e50914;
             --accent-red-hover: #b20710;
-            --border-color: #333333;
+            --border-color: #2e2e2e;
             --success-color: #2e7d32;
             --danger-color: #c62828;
-            --shadow: 0 4px 15px rgba(0,0,0,0.5);
+            --shadow: 0 8px 24px rgba(0,0,0,0.4);
+            --radius: 14px;
         }
         [data-theme="light"] {
             --bg-primary: #f4f5f7;
             --bg-secondary: #ffffff;
-            --bg-card: #f9f9f9;
+            --bg-card: #f8f9fa;
             --text-main: #172b4d;
             --text-sub: #5e6c84;
             --accent-red: #d32f2f;
@@ -29,75 +30,450 @@
             --border-color: #e0e0e0;
             --success-color: #388e3c;
             --danger-color: #d32f2f;
-            --shadow: 0 4px 15px rgba(0,0,0,0.1);
+            --shadow: 0 8px 24px rgba(0,0,0,0.08);
         }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; transition: background-color 0.3s, color 0.3s; }
-        body { background-color: var(--bg-primary); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; }
-        header { background-color: var(--bg-secondary); border-bottom: 2px solid var(--accent-red); padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center; box-shadow: var(--shadow); position: sticky; top: 0; z-index: 1000; flex-wrap: wrap; gap: 10px; }
-        .logo { font-size: 1.4rem; font-weight: bold; color: var(--accent-red); display: flex; align-items: center; gap: 8px; }
-        .nav-links { display: flex; gap: 8px; list-style: none; overflow-x: auto; padding-bottom: 5px; width: 100%; }
-        @media (min-width: 900px) { .nav-links { width: auto; padding-bottom: 0; } }
-        .nav-btn { background: none; border: none; color: var(--text-main); padding: 8px 12px; cursor: pointer; border-radius: 6px; font-weight: 600; white-space: nowrap; font-size: 0.85rem; }
-        .nav-btn:hover, .nav-btn.active { background-color: var(--accent-red); color: #fff; }
-        .badge-count { background: var(--accent-red); color: white; border-radius: 10px; padding: 2px 6px; font-size: 0.75rem; margin-left: 4px; }
-        .btn { background-color: var(--accent-red); color: white; border: none; padding: 8px 14px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.85rem; }
-        .btn:hover { background-color: var(--accent-red-hover); }
-        .btn-success { background-color: var(--success-color); }
-        .btn-danger { background-color: var(--danger-color); }
-        .btn-warning { background-color: #f39c12; color: #fff; }
-        .btn-secondary { background-color: #2a2a2a; border: 1px solid var(--border-color); }
-        main { flex: 1; padding: 1rem; max-width: 1200px; width: 100%; margin: 0 auto; }
-        .tab-content { display: none; }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        /* ========== HEADER ========== */
+        header {
+            background: var(--bg-secondary);
+            border-bottom: 2px solid var(--accent-red);
+            padding: 0.75rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: var(--shadow);
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        .logo {
+            font-size: 1.35rem;
+            font-weight: 800;
+            color: var(--accent-red);
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+        }
+        .nav-links {
+            display: flex;
+            gap: 6px;
+            list-style: none;
+            overflow-x: auto;
+            padding-bottom: 2px;
+            flex: 1;
+            justify-content: center;
+        }
+        .nav-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-sub);
+            padding: 8px 14px;
+            cursor: pointer;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.88rem;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+        .nav-btn:hover { background: rgba(229,9,20,0.15); color: var(--text-main); }
+        .nav-btn.active {
+            background: var(--accent-red);
+            color: #fff;
+            box-shadow: 0 4px 12px rgba(229,9,20,0.35);
+        }
+        .badge-count {
+            background: #fff;
+            color: var(--accent-red);
+            border-radius: 12px;
+            padding: 1px 7px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            margin-left: 4px;
+        }
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .user-chip {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            color: var(--text-sub);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* ========== BUTTONS ========== */
+        .btn {
+            background: var(--accent-red);
+            color: white;
+            border: none;
+            padding: 9px 16px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.88rem;
+            transition: all 0.2s;
+        }
+        .btn:hover { background: var(--accent-red-hover); transform: translateY(-1px); }
+        .btn-success { background: var(--success-color); }
+        .btn-danger { background: var(--danger-color); }
+        .btn-warning { background: #e67e22; color: #fff; }
+        .btn-secondary {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+        }
+        .btn-secondary:hover { background: var(--border-color); }
+
+        /* ========== MAIN ========== */
+        main {
+            flex: 1;
+            padding: 1.5rem;
+            max-width: 1280px;
+            width: 100%;
+            margin: 0 auto;
+        }
+        .tab-content { display: none; animation: fadeIn 0.25s ease; }
         .tab-content.active { display: block; }
-        .card { background-color: var(--bg-secondary); border-radius: 8px; padding: 1.2rem; margin-bottom: 1.2rem; border: 1px solid var(--border-color); box-shadow: var(--shadow); }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+        .card {
+            background: var(--bg-secondary);
+            border-radius: var(--radius);
+            padding: 1.4rem;
+            margin-bottom: 1.4rem;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow);
+        }
+
+        /* ========== PERSONAL CARD ========== */
+        .personal-card {
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            gap: 24px;
+            align-items: center;
+            background: linear-gradient(135deg, var(--bg-secondary) 0%, #1f1f1f 100%);
+            border: 2px solid var(--accent-red);
+            border-radius: var(--radius);
+            padding: 1.6rem;
+            margin-bottom: 1.6rem;
+        }
+        .personal-avatar {
+            width: 96px;
+            height: 96px;
+            border-radius: 50%;
+            background: var(--bg-card);
+            border: 3px solid var(--accent-red);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.4rem;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        .personal-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .personal-info h2 { font-size: 1.5rem; margin-bottom: 4px; }
+        .personal-info .degree { color: var(--text-sub); font-size: 1rem; margin-bottom: 10px; }
+        .points-big {
+            font-size: 2.6rem;
+            font-weight: 800;
+            color: var(--success-color);
+            line-height: 1;
+        }
+        .points-label { font-size: 0.9rem; color: var(--text-sub); }
+
+        /* ========== TABLE ========== */
         .table-responsive { overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; margin-top: 1rem; min-width: 500px; }
-        th, td { padding: 10px; text-align: left; border-bottom: 1px solid var(--border-color); }
-        th { background-color: var(--bg-card); color: var(--accent-red); }
-        .rank-badge { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 50%; font-weight: bold; font-size: 0.9rem; }
-        .rank-1 { background: #ffd700; color: #000; box-shadow: 0 0 10px rgba(255,215,0,0.5); }
-        .rank-2 { background: #c0c0c0; color: #000; box-shadow: 0 0 8px rgba(192,192,192,0.5); }
-        .rank-3 { background: #cd7f32; color: #fff; box-shadow: 0 0 8px rgba(205,127,50,0.5); }
+        table { width: 100%; border-collapse: collapse; margin-top: 0.8rem; min-width: 520px; }
+        th, td { padding: 12px 14px; text-align: left; border-bottom: 1px solid var(--border-color); }
+        th {
+            background: var(--bg-card);
+            color: var(--accent-red);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+        tr:hover td { background: rgba(255,255,255,0.02); }
+
+        .rank-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            font-weight: 800;
+            font-size: 0.9rem;
+        }
+        .rank-1 { background: linear-gradient(135deg,#ffd700,#f0c000); color: #000; box-shadow: 0 0 12px rgba(255,215,0,0.45); }
+        .rank-2 { background: linear-gradient(135deg,#e0e0e0,#b0b0b0); color: #000; }
+        .rank-3 { background: linear-gradient(135deg,#cd7f32,#a05a2c); color: #fff; }
         .rank-other { background: var(--bg-card); color: var(--text-sub); border: 1px solid var(--border-color); }
-        .grid-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 15px; }
-        .ministrant-card { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 8px; padding: 15px; text-align: center; display: flex; flex-direction: column; align-items: center; }
-        .avatar { width: 85px; height: 85px; border-radius: 50%; margin-bottom: 10px; background-color: var(--border-color); border: 2px solid var(--accent-red); display: flex; align-items: center; justify-content: center; font-size: 2rem; overflow: hidden; object-fit: cover; }
+
+        /* ========== GRID CARDS ========== */
+        .grid-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 18px;
+        }
+        .ministrant-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 20px;
+            text-align: center;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .ministrant-card:hover { transform: translateY(-4px); box-shadow: var(--shadow); }
+        .avatar {
+            width: 88px;
+            height: 88px;
+            border-radius: 50%;
+            margin: 0 auto 14px;
+            background: var(--bg-card);
+            border: 2px solid var(--accent-red);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.2rem;
+            overflow: hidden;
+        }
         .avatar img { width: 100%; height: 100%; object-fit: cover; }
-        .cal-nav-bar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 15px; }
-        .cal-nav-left { display: flex; align-items: center; gap: 6px; }
-        .cal-pill-btn { background: #2a2a2a; color: var(--text-main); border: 1px solid var(--border-color); padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.85rem; }
-        .cal-pill-btn:hover { background: #333; }
-        .cal-pill-btn.active { background-color: var(--accent-red); border-color: var(--accent-red); color: #fff; }
-        .month-grid { display: grid; grid-template-columns: repeat(7, 1fr); border: 1px solid var(--border-color); border-radius: 8px; background: #181818; }
-        .month-header-cell { padding: 10px 2px; text-align: center; font-size: 0.75rem; font-weight: bold; color: var(--text-sub); background: #202020; border-bottom: 1px solid var(--border-color); }
-        .day-cell { min-height: 95px; padding: 4px; border-right: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color); cursor: pointer; position: relative; }
+        .role-tag {
+            background: var(--accent-red);
+            color: #fff;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-block;
+            margin-top: 6px;
+        }
+
+        /* ========== CALENDAR ========== */
+        .cal-nav-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+        .cal-nav-left { display: flex; align-items: center; gap: 8px; }
+        .cal-pill-btn {
+            background: var(--bg-card);
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+            padding: 7px 14px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+        .cal-pill-btn:hover { background: #2a2a2a; }
+        .cal-pill-btn.active {
+            background: var(--accent-red);
+            border-color: var(--accent-red);
+            color: #fff;
+        }
+        .month-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            overflow: hidden;
+            background: var(--bg-secondary);
+        }
+        .month-header-cell {
+            padding: 12px 4px;
+            text-align: center;
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: var(--text-sub);
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border-color);
+        }
+        .day-cell {
+            min-height: 100px;
+            padding: 6px;
+            border-right: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: background 0.15s;
+        }
         .day-cell:hover { background: rgba(255,255,255,0.03); }
-        .day-number { font-size: 0.8rem; font-weight: bold; color: var(--text-sub); width: 22px; height: 22px; line-height: 22px; text-align: center; border-radius: 50%; display: inline-block; }
-        .day-cell.today .day-number { background: var(--accent-red); color: white; }
-        .day-cell.other-month { opacity: 0.3; }
-        .cal-event-badge { color: #fff; padding: 3px 5px; font-size: 0.7rem; border-radius: 3px; margin-bottom: 3px; border-left: 3px solid #fff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .cal-event-green { background: rgba(46, 125, 50, 0.3); border-left-color: #2e7d32; }
-        .cal-event-yellow { background: rgba(243, 156, 18, 0.3); border-left-color: #f39c12; }
-        .cal-event-red { background: rgba(198, 40, 40, 0.3); border-left-color: #c62828; }
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); justify-content: center; align-items: center; z-index: 2000; padding: 10px; }
+        .day-number {
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: var(--text-sub);
+            width: 26px;
+            height: 26px;
+            line-height: 26px;
+            text-align: center;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        .day-cell.today .day-number {
+            background: var(--accent-red);
+            color: white;
+        }
+        .day-cell.other-month { opacity: 0.28; }
+        .cal-event-badge {
+            color: #fff;
+            padding: 3px 6px;
+            font-size: 0.7rem;
+            border-radius: 5px;
+            margin-bottom: 3px;
+            border-left: 3px solid #fff;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .cal-event-green { background: rgba(46,125,50,0.28); border-left-color: #2e7d32; }
+        .cal-event-yellow { background: rgba(243,156,18,0.28); border-left-color: #f39c12; }
+        .cal-event-red { background: rgba(198,40,40,0.28); border-left-color: #c62828; }
+
+        /* ========== MODALS & FORMS ========== */
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.82);
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            padding: 16px;
+        }
         .modal.active { display: flex; }
-        .modal-content { background: var(--bg-secondary); padding: 1.5rem; border-radius: 8px; width: 100%; max-width: 480px; border: 1px solid var(--accent-red); max-height: 90vh; overflow-y: auto; }
-        .form-group { margin-bottom: 1.1rem; text-align: left; }
-        .form-group label { display: block; margin-bottom: 5px; color: var(--text-sub); font-size: 0.9rem; }
-        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-primary); color: var(--text-main); font-size: 0.95rem; }
-        #login-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-primary); display: flex; justify-content: center; align-items: center; z-index: 3000; padding: 15px; }
-        .login-box { background: var(--bg-secondary); padding: 2rem; border-radius: 12px; border: 2px solid var(--accent-red); width: 100%; max-width: 400px; text-align: center; box-shadow: var(--shadow); }
-        .request-card { background: var(--bg-card); border: 1px solid var(--border-color); padding: 12px; border-radius: 6px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
-        .history-item { background: var(--bg-card); padding: 10px; border-radius: 6px; margin-bottom: 8px; border-left: 4px solid var(--success-color); display: flex; justify-content: space-between; }
-        .role-tag { background: var(--accent-red); color: #fff; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; margin-top: 4px; display: inline-block; }
+        .modal-content {
+            background: var(--bg-secondary);
+            padding: 1.8rem;
+            border-radius: var(--radius);
+            width: 100%;
+            max-width: 480px;
+            border: 1px solid var(--accent-red);
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+        .form-group { margin-bottom: 1.15rem; text-align: left; }
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            color: var(--text-sub);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 11px 13px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-primary);
+            color: var(--text-main);
+            font-size: 0.95rem;
+            transition: border-color 0.2s;
+        }
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--accent-red);
+        }
+
+        /* ========== LOGIN ========== */
+        #login-overlay {
+            position: fixed;
+            inset: 0;
+            background: var(--bg-primary);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 3000;
+            padding: 20px;
+        }
+        .login-box {
+            background: var(--bg-secondary);
+            padding: 2.4rem;
+            border-radius: 18px;
+            border: 2px solid var(--accent-red);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: var(--shadow);
+        }
+        .login-box h1 {
+            color: var(--accent-red);
+            font-size: 1.9rem;
+            font-weight: 800;
+            margin-bottom: 4px;
+            letter-spacing: 0.5px;
+        }
+        .login-box h3 {
+            color: var(--text-sub);
+            font-size: 1.05rem;
+            font-weight: 500;
+            margin-bottom: 24px;
+        }
+
+        /* ========== OTHER ========== */
+        .request-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            padding: 14px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .history-item {
+            background: var(--bg-card);
+            padding: 12px 14px;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            border-left: 4px solid var(--success-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        @media (max-width: 768px) {
+            .personal-card { grid-template-columns: 1fr; text-align: center; }
+            .personal-avatar { margin: 0 auto; }
+            .nav-links { justify-content: flex-start; }
+            header { padding: 0.7rem 1rem; }
+        }
     </style>
 </head>
 <body data-theme="dark">
 
+    <!-- LOGIN -->
     <div id="login-overlay">
         <div class="login-box">
-            <h1 style="color: var(--accent-red); font-size: 1.8rem; font-weight: bold; margin-bottom: 2px;">Ministranci NSPJ</h1>
-            <h3 style="color: var(--text-sub); font-size: 1.1rem; font-weight: 500; margin-bottom: 20px;">Logowanie</h3>
+            <h1>MINISTRANCI-NSPJ</h1>
+            <h3>Logowanie do systemu</h3>
             
             <div class="form-group">
                 <label>Wybierz Rolę</label>
@@ -126,12 +502,13 @@
                 <input type="password" id="login-pass" placeholder="Wpisz hasło...">
             </div>
 
-            <button class="btn" style="width: 100%; margin-top: 10px; padding:12px; font-size:1rem;" onclick="login()">Zaloguj się</button>
+            <button class="btn" style="width:100%; margin-top:12px; padding:13px; font-size:1rem;" onclick="login()">Zaloguj się</button>
         </div>
     </div>
 
+    <!-- HEADER -->
     <header>
-        <div class="logo">⚜️ LSO NSPJ</div>
+        <div class="logo">⚜️ MINISTRANCI-NSPJ</div>
         <ul class="nav-links">
             <li><button class="nav-btn active" onclick="switchTab('tabela', this)">Tabela & Moje Konto</button></li>
             <li><button class="nav-btn" onclick="switchTab('kalendarz', this)">Kalendarz</button></li>
@@ -139,40 +516,49 @@
             <li class="user-admin-only"><button class="nav-btn" onclick="switchTab('punktacja-sluzb', this)">Punktacja Służb</button></li>
             <li class="admin-only"><button class="nav-btn" onclick="switchTab('powiadomienia', this)">Powiadomienia <span id="notif-badge" class="badge-count" style="display:none;">0</span></button></li>
             <li class="admin-only"><button class="nav-btn" onclick="switchTab('szybka-sluzba', this)">Szybka Służba</button></li>
-            <li class="admin-only"><button class="nav-btn" onclick="switchTab('hasla-uczestnikow', this)">🔑 Hasła Uczestników</button></li>
+            <li class="admin-only"><button class="nav-btn" onclick="switchTab('hasla-uczestnikow', this)">🔑 Hasła</button></li>
             <li><button class="nav-btn" onclick="switchTab('ministranci', this)">Ministranci</button></li>
         </ul>
-        <div style="display:flex; align-items:center; gap:8px;">
-            <button class="btn-secondary btn" onclick="toggleTheme()">🌓</button>
-            <button class="btn" onclick="logout()">Wyloguj (<span id="role-display"></span>)</button>
+        <div class="header-right">
+            <div class="user-chip" id="role-display">—</div>
+            <button class="btn-secondary btn" onclick="toggleTheme()" title="Zmień motyw">🌓</button>
+            <button class="btn" onclick="logout()">Wyloguj</button>
         </div>
     </header>
 
     <main>
+        <!-- TABELA & MOJE KONTO -->
         <div id="tab-tabela" class="tab-content active">
-            <div id="user-my-stats" class="card" style="display:none; border: 2px solid var(--accent-red);">
-                <h2 style="color:var(--accent-red); margin-bottom:10px;">Moje Konto: <span id="my-user-name"></span></h2>
-                <div style="font-size:1.2rem; margin-bottom:15px;">
-                    Aktualna liczba punktów: <strong id="my-user-points" style="color:var(--success-color);">0</strong> pkt | 
-                    Stopień: <strong id="my-user-degree"></strong>
+            <div id="user-my-stats" class="personal-card" style="display:none;">
+                <div class="personal-avatar" id="my-avatar">👤</div>
+                <div class="personal-info">
+                    <h2 id="my-user-name">—</h2>
+                    <div class="degree" id="my-user-degree">—</div>
+                    <div style="margin-top:8px;">
+                        <div class="points-big" id="my-user-points">0</div>
+                        <div class="points-label">punktów</div>
+                    </div>
                 </div>
-                <h3>📜 Moja Historia Służb i Wpisanych Punktów</h3>
-                <div id="my-history-list" style="margin-top:10px;">
-                    <p style="color:var(--text-sub);">Brak historii służb.</p>
+                <div style="min-width:220px;">
+                    <h3 style="font-size:0.95rem; color:var(--text-sub); margin-bottom:10px;">Ostatnie służby</h3>
+                    <div id="my-history-list">
+                        <p style="color:var(--text-sub); font-size:0.9rem;">Brak historii.</p>
+                    </div>
                 </div>
             </div>
 
             <div class="card">
-                <h2>🏆 Ranking i Tabela Punktowa Ministrantów</h2>
+                <h2 style="margin-bottom:6px;">🏆 Ranking Ministrantów</h2>
+                <p style="color:var(--text-sub); font-size:0.9rem; margin-bottom:14px;">Aktualna tabela punktowa</p>
                 <div class="table-responsive">
                     <table>
                         <thead>
                             <tr>
-                                <th style="width: 80px; text-align: center;">Miejsce</th>
+                                <th style="width:70px; text-align:center;">Miejsce</th>
                                 <th>Ministrant</th>
                                 <th>Stopień</th>
                                 <th>Punkty</th>
-                                <th class="admin-only">Akcje (Admin)</th>
+                                <th class="admin-only">Akcje</th>
                             </tr>
                         </thead>
                         <tbody id="points-table-body"></tbody>
@@ -181,17 +567,18 @@
             </div>
         </div>
 
+        <!-- KALENDARZ -->
         <div id="tab-kalendarz" class="tab-content">
             <div class="card">
                 <div class="cal-nav-bar">
                     <div class="cal-nav-left">
-                        <button class="btn" onclick="openAddEventModal()" style="margin-right: 10px;" id="add-serv-cal-btn">+ Nowa służba</button>
+                        <button class="btn" onclick="openAddEventModal()" id="add-serv-cal-btn">+ Nowa służba</button>
                         <button class="cal-pill-btn" onclick="calChangePeriod(-1)">〈</button>
                         <button class="cal-pill-btn" onclick="calGoToday()">Dziś</button>
                         <button class="cal-pill-btn" onclick="calChangePeriod(1)">〉</button>
                     </div>
-                    <div><h2 id="cal-period-title" style="font-size: 1.2rem; color: var(--accent-red);">Kalendarz Służb</h2></div>
-                    <div style="display: flex; gap: 4px;">
+                    <h2 id="cal-period-title" style="font-size:1.25rem; color:var(--accent-red);">Kalendarz Służb</h2>
+                    <div style="display:flex; gap:6px;">
                         <button class="cal-pill-btn active" id="view-btn-month" onclick="calSetView('month')">Miesiąc</button>
                         <button class="cal-pill-btn" id="view-btn-week" onclick="calSetView('week')">Tydzień</button>
                         <button class="cal-pill-btn" id="view-btn-day" onclick="calSetView('day')">Dzień</button>
@@ -201,47 +588,51 @@
             </div>
         </div>
 
+        <!-- ZGŁOSZENIA -->
         <div id="tab-zgloszenia" class="tab-content">
-            <div class="card" style="max-width: 550px; margin: 0 auto;">
-                <h2>Zgłoś swoją obecność na służbie</h2>
-                <p style="color:var(--text-sub); margin-bottom:15px; font-size:0.9rem;">Wybierz siebie z listy, zaznacz odbytą służbę oraz godzinę.</p>
+            <div class="card" style="max-width:520px; margin:0 auto;">
+                <h2>Zgłoś obecność na służbie</h2>
+                <p style="color:var(--text-sub); margin:8px 0 18px; font-size:0.9rem;">Wybierz siebie, służbę oraz godzinę.</p>
                 <div class="form-group"><label>Kim jesteś?</label><select id="req-ministrant"></select></div>
                 <div class="form-group"><label>Jaka to była służba?</label><select id="req-service"></select></div>
-                <div class="form-group"><label>Na którą godzinę była służba?</label><input type="time" id="req-time" required></div>
-                <button class="btn" style="width: 100%; margin-top: 10px;" onclick="submitServiceRequest()">Wyślij zgłoszenie do Admina</button>
+                <div class="form-group"><label>Godzina służby</label><input type="time" id="req-time" required></div>
+                <button class="btn" style="width:100%; margin-top:8px;" onclick="submitServiceRequest()">Wyślij zgłoszenie</button>
             </div>
         </div>
 
+        <!-- POWIADOMIENIA -->
         <div id="tab-powiadomienia" class="tab-content">
             <div class="card">
-                <h2>Oczekujące zgłoszenia od ministrantów</h2>
-                <div id="requests-list" style="margin-top:15px;"></div>
+                <h2>Oczekujące zgłoszenia</h2>
+                <div id="requests-list" style="margin-top:16px;"></div>
             </div>
         </div>
 
+        <!-- SZYBKA SŁUŻBA -->
         <div id="tab-szybka-sluzba" class="tab-content">
-            <div class="card" style="border: 1px solid var(--accent-red);">
+            <div class="card" style="border:1px solid var(--accent-red);">
                 <h2>⚡ Szybkie przyznanie służby</h2>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
+                <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:14px; margin-top:14px;">
                     <div class="form-group"><label>Ministrant</label><select id="admin-direct-min"></select></div>
                     <div class="form-group"><label>Służba</label><select id="admin-direct-serv"></select></div>
                     <div class="form-group"><label>Godzina</label><input type="time" id="admin-direct-time"></div>
                 </div>
-                <button class="btn btn-success" style="width: 100%; margin-top: 10px;" onclick="adminDirectAddService()">+ Przyznaj służbę i punkty natychmiast</button>
+                <button class="btn btn-success" style="width:100%; margin-top:12px;" onclick="adminDirectAddService()">+ Przyznaj służbę i punkty</button>
             </div>
         </div>
 
+        <!-- HASŁA -->
         <div id="tab-hasla-uczestnikow" class="tab-content">
             <div class="card">
-                <h2>🔑 Zarządzanie Hasłami Uczestników</h2>
-                <div class="table-responsive">
+                <h2>🔑 Zarządzanie hasłami uczestników</h2>
+                <div class="table-responsive" style="margin-top:14px;">
                     <table>
                         <thead>
                             <tr>
                                 <th>Ministrant</th>
                                 <th>Stopień</th>
-                                <th>Hasło Uczestnika</th>
-                                <th>Zarządzaj Hasłem</th>
+                                <th>Hasło</th>
+                                <th>Akcje</th>
                             </tr>
                         </thead>
                         <tbody id="passwords-table-body"></tbody>
@@ -250,23 +641,24 @@
             </div>
         </div>
 
+        <!-- PUNKTACJA -->
         <div id="tab-punktacja-sluzb" class="tab-content">
             <div class="card">
-                <h2>Cennik Punktów za Służby</h2>
-                <div class="admin-only" style="display: flex; gap: 8px; margin-bottom: 15px; flex-wrap: wrap; background:var(--bg-card); padding:10px; border-radius:6px;">
-                    <input type="text" id="new-service-name" placeholder="Nazwa nowej służby..." style="flex:2; min-width:180px; padding:8px; border-radius:4px; border:1px solid var(--border-color); background:var(--bg-primary); color:#fff;">
-                    <input type="number" id="new-service-pos" placeholder="+ Pkt" style="flex:1; min-width:90px; padding:8px; border-radius:4px; border:1px solid var(--border-color); background:var(--bg-primary); color:#fff;">
-                    <input type="number" id="new-service-neg" placeholder="- Pkt" style="flex:1; min-width:90px; padding:8px; border-radius:4px; border:1px solid var(--border-color); background:var(--bg-primary); color:#fff;">
-                    <button class="btn" onclick="addNewServiceType()">Dodaj Służbę</button>
+                <h2>Cennik punktów za służby</h2>
+                <div class="admin-only" style="display:flex; gap:10px; margin:16px 0; flex-wrap:wrap; background:var(--bg-card); padding:14px; border-radius:12px;">
+                    <input type="text" id="new-service-name" placeholder="Nazwa nowej służby..." style="flex:2; min-width:180px; padding:10px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-primary); color:var(--text-main);">
+                    <input type="number" id="new-service-pos" placeholder="+ Pkt" style="flex:1; min-width:90px; padding:10px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-primary); color:var(--text-main);">
+                    <input type="number" id="new-service-neg" placeholder="- Pkt" style="flex:1; min-width:90px; padding:10px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-primary); color:var(--text-main);">
+                    <button class="btn" onclick="addNewServiceType()">Dodaj</button>
                 </div>
                 <div class="table-responsive">
                     <table>
                         <thead>
                             <tr>
-                                <th>Nazwa Służby</th>
-                                <th>Punkty Dodatnie (+)</th>
-                                <th>Punkty Ujemne (-)</th>
-                                <th class="admin-only">Akcja Admina</th>
+                                <th>Nazwa służby</th>
+                                <th>Punkty (+)</th>
+                                <th>Punkty (-)</th>
+                                <th class="admin-only">Akcja</th>
                             </tr>
                         </thead>
                         <tbody id="services-settings-body"></tbody>
@@ -275,42 +667,45 @@
             </div>
         </div>
 
+        <!-- MINISTRANCI -->
         <div id="tab-ministranci" class="tab-content">
-            <div class="card" style="display:flex; justify-content:space-between; align-items:center;">
+            <div class="card" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
                 <h2>Lista Ministrantów</h2>
                 <button class="btn admin-only" onclick="openAddMinistrantModal()">+ Dodaj Ministranta</button>
             </div>
-            <div id="ministrants-grid" class="grid-cards"></div>
+            <div id="ministrants-grid" class="grid-cards" style="margin-top:8px;"></div>
         </div>
     </main>
 
+    <!-- MODALS -->
     <div id="modal-ministrant" class="modal">
         <div class="modal-content">
-            <h3 id="modal-min-title">Dodaj / Edytuj Ministranta</h3>
+            <h3 id="modal-min-title" style="margin-bottom:18px;">Dodaj / Edytuj Ministranta</h3>
             <input type="hidden" id="m-edit-id">
             <div class="form-group"><label>Imię i Nazwisko</label><input type="text" id="m-name"></div>
-            <div class="form-group"><label>Zdjęcie Profilowe (URL)</label><input type="text" id="m-photo"></div>
+            <div class="form-group"><label>Zdjęcie (URL)</label><input type="text" id="m-photo"></div>
             <div class="form-group"><label>Telefon</label><input type="text" id="m-phone"></div>
             <div class="form-group">
                 <label>Stopień</label>
                 <select id="m-degree">
                     <option>Kandydat</option><option>Ministrant</option><option>Lektor młodszy</option>
-                    <option>Lektor starszy</option><option>Lektor</option><option>Ceremoniarz</option><option>Animator</option><option>Starsi</option>
+                    <option>Lektor starszy</option><option>Lektor</option><option>Ceremoniarz</option>
+                    <option>Animator</option><option>Starsi</option>
                 </select>
             </div>
             <div class="form-group"><label>Ranga</label><input type="text" id="m-rank"></div>
             <div class="form-group"><label>Opis</label><textarea id="m-desc" rows="3"></textarea></div>
             <div class="form-group"><label>Punkty</label><input type="number" id="m-points" value="0"></div>
-            <button class="btn" style="width:100%; margin-bottom:8px;" onclick="saveMinistrant()">Zapisz Zmiany</button>
+            <button class="btn" style="width:100%; margin-bottom:10px;" onclick="saveMinistrant()">Zapisz</button>
             <button class="btn btn-secondary" style="width:100%;" onclick="closeModal('modal-ministrant')">Anuluj</button>
         </div>
     </div>
 
     <div id="modal-event" class="modal">
         <div class="modal-content">
-            <h3 id="modal-event-title">Dodaj Służbę do Kalendarza</h3>
+            <h3 id="modal-event-title" style="margin-bottom:18px;">Dodaj Służbę do Kalendarza</h3>
             <input type="hidden" id="cal-edit-id">
-            <div class="form-group"><label>Typ Służby</label><select id="cal-service-type"></select></div>
+            <div class="form-group"><label>Typ służby</label><select id="cal-service-type"></select></div>
             <div class="form-group"><label>Data</label><input type="date" id="cal-date"></div>
             <div class="form-group"><label>Godzina</label><input type="time" id="cal-time"></div>
             <div class="form-group">
@@ -321,16 +716,16 @@
                     <option value="red">🔴 Odwołane</option>
                 </select>
             </div>
-            <div class="form-group"><label>Wyznaczeni</label><select id="cal-assigned" multiple style="height: 100px;"></select></div>
-            <button class="btn" style="width:100%; margin-bottom:8px;" onclick="saveCalendarEvent()">Zapisz w Kalendarzu</button>
+            <div class="form-group"><label>Wyznaczeni</label><select id="cal-assigned" multiple style="height:110px;"></select></div>
+            <button class="btn" style="width:100%; margin-bottom:10px;" onclick="saveCalendarEvent()">Zapisz</button>
             <button class="btn btn-secondary" style="width:100%;" onclick="closeModal('modal-event')">Anuluj</button>
         </div>
     </div>
 
     <div id="modal-day-view" class="modal">
         <div class="modal-content">
-            <h3 id="day-view-title" style="color: var(--accent-red); margin-bottom: 15px;">Wydarzenia dnia</h3>
-            <div id="day-view-list" style="margin-bottom: 15px; max-height: 60vh; overflow-y: auto;"></div>
+            <h3 id="day-view-title" style="color:var(--accent-red); margin-bottom:16px;">Wydarzenia dnia</h3>
+            <div id="day-view-list" style="margin-bottom:16px; max-height:60vh; overflow-y:auto;"></div>
             <button class="btn btn-secondary" style="width:100%;" onclick="closeModal('modal-day-view')">Zamknij</button>
         </div>
     </div>
@@ -339,7 +734,6 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
         import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
 
-        // === TWÓJ PRAWDZIWY CONFIG (z databaseURL) ===
         const firebaseConfig = {
             apiKey: "AIzaSyB27DmgYuuOZE2u9y9HynQxD_dbxPYKsuk",
             authDomain: "ministranci-nspj.firebaseapp.com",
@@ -358,11 +752,11 @@
         const ALL_PASS = "nspj";
 
         const defaultServices = [
-            "Msza Święta", "Chrzest Święty", "Nabożeństwo pierwszoobwodowe", "Pogrzeb", "Ślub po mszy", "Ślub", "Zbiórka", 
-            "Nabożeństwo", "Gorzkie Żale", "Droga Krzyżowa", "Różaniec", "Wydarzenie specjalne", "Kolęda", "Pasterka", 
-            "Pomoc animatorowi/księdzu", "Ćwiczenie do Świąt", "Triduum", "Czuwanie", "Rekolekcje", "Msza fatimska", 
-            "Majowe", "Udział w turnieju/konkursie", "Wygrana w turnieju/konkursie", "Zbiórka specjalna", "Bierzmowanie", 
-            "Procesja Bożego Ciała", "Święcenie pokarmów", "Święcenia aut", "Święto Trzech Króli", "Służba zakończeniowa rok", 
+            "Msza Święta", "Chrzest Święty", "Nabożeństwo pierwszoobwodowe", "Pogrzeb", "Ślub po mszy", "Ślub", "Zbiórka",
+            "Nabożeństwo", "Gorzkie Żale", "Droga Krzyżowa", "Różaniec", "Wydarzenie specjalne", "Kolęda", "Pasterka",
+            "Pomoc animatorowi/księdzu", "Ćwiczenie do Świąt", "Triduum", "Czuwanie", "Rekolekcje", "Msza fatimska",
+            "Majowe", "Udział w turnieju/konkursie", "Wygrana w turnieju/konkursie", "Zbiórka specjalna", "Bierzmowanie",
+            "Procesja Bożego Ciała", "Święcenie pokarmów", "Święcenia aut", "Święto Trzech Króli", "Służba zakończeniowa rok",
             "Służba w Nowy Rok", "Tarsycjusz", "Msza tygodniowa", "Msza niedzielna"
         ].map((name, i) => ({ id: i + 1, name, posPoints: 10, negPoints: -10 }));
 
@@ -380,7 +774,6 @@
         let calCurrentDate = new Date();
         let calCurrentView = 'month';
 
-        // ===== SYNCHRONIZACJA TELEFON + KOMPUTER =====
         onValue(ref(db, 'lso_data'), (snapshot) => {
             const data = snapshot.val();
             if (data) {
@@ -389,7 +782,6 @@
                 state.requests = data.requests || [];
                 state.calendarEvents = data.calendarEvents || [];
                 state.serviceHistory = data.serviceHistory || [];
-                console.log("✅ Dane załadowane z Firebase");
             } else {
                 state.ministrants = [
                     { id: 1, name: "Kamil Gawenda", degree: "Ministrant", points: 10, password: "", phone: "123-456-789", rank: "Prezes", desc: "", photo: "" }
@@ -401,8 +793,8 @@
             toggleUserSelect();
             renderAll();
         }, (error) => {
-            console.error("❌ Błąd odczytu:", error);
-            alert("Błąd połączenia z bazą! Sprawdź reguły (Rules) w Realtime Database.");
+            console.error("Błąd odczytu:", error);
+            alert("Błąd połączenia z bazą! Sprawdź reguły Firebase.");
         });
 
         function saveDataToFirebase() {
@@ -412,11 +804,9 @@
                 requests: state.requests,
                 calendarEvents: state.calendarEvents,
                 serviceHistory: state.serviceHistory
-            })
-            .then(() => console.log("✅ Dane zapisane"))
-            .catch(error => {
-                console.error("❌ Błąd zapisu:", error);
-                alert("Nie udało się zapisać! Sprawdź reguły Firebase.");
+            }).catch(error => {
+                console.error("Błąd zapisu:", error);
+                alert("Nie udało się zapisać!");
             });
         }
 
@@ -429,16 +819,14 @@
 
         window.populateLoginUsers = function() {
             const select = document.getElementById('login-user-id');
-            if(!select) return;
+            if (!select) return;
             select.innerHTML = state.ministrants.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
         }
 
         window.toggleUserSelect = function() {
-            const roleEl = document.getElementById('login-role');
-            if(!roleEl) return;
-            const role = roleEl.value;
+            const role = document.getElementById('login-role')?.value;
             const group = document.getElementById('user-select-group');
-            if(group) group.style.display = role === 'user' ? 'block' : 'none';
+            if (group) group.style.display = role === 'user' ? 'block' : 'none';
         }
 
         window.login = async function() {
@@ -469,11 +857,11 @@
             document.getElementById('login-overlay').style.display = 'none';
             let displayName = 'Admin';
             if (state.currentUserRole === 'user') {
-                const curUserObj = state.ministrants.find(m => m.id === state.currentUserId);
-                displayName = curUserObj ? curUserObj.name : 'Uczestnik';
-            } else if (state.currentUserRole === 'all') { displayName = 'WSZYSCY'; }
+                const cur = state.ministrants.find(m => m.id === state.currentUserId);
+                displayName = cur ? cur.name : 'Uczestnik';
+            } else if (state.currentUserRole === 'all') displayName = 'WSZYSCY';
 
-            document.getElementById('role-display').innerText = `${displayName} [${state.currentDevice}]`;
+            document.getElementById('role-display').innerText = `${displayName} · ${state.currentDevice}`;
             switchTab('tabela', document.querySelector('.nav-links button'));
             applyPermissions();
             renderAll();
@@ -494,11 +882,14 @@
             document.querySelectorAll('.user-admin-only').forEach(el => el.style.display = (isAdmin || isUser) ? '' : 'none');
             const addServBtn = document.getElementById('add-serv-cal-btn');
             if (addServBtn) addServBtn.style.display = isAdmin ? 'inline-block' : 'none';
+
             const userStats = document.getElementById('user-my-stats');
             if (isUser && state.currentUserId) {
-                userStats.style.display = 'block';
+                userStats.style.display = 'grid';
                 renderUserPersonalStats();
-            } else { userStats.style.display = 'none'; }
+            } else {
+                userStats.style.display = 'none';
+            }
         }
 
         function renderUserPersonalStats() {
@@ -507,15 +898,19 @@
             document.getElementById('my-user-name').innerText = user.name;
             document.getElementById('my-user-points').innerText = user.points;
             document.getElementById('my-user-degree').innerText = user.degree;
+
+            const avatarEl = document.getElementById('my-avatar');
+            avatarEl.innerHTML = user.photo ? `<img src="${user.photo}" alt="${user.name}">` : '👤';
+
             const historyList = document.getElementById('my-history-list');
             const myHistory = (state.serviceHistory || []).filter(h => h.ministrantId === user.id);
             if (myHistory.length === 0) {
-                historyList.innerHTML = '<p style="color:var(--text-sub);">Brak historii służb.</p>';
+                historyList.innerHTML = '<p style="color:var(--text-sub); font-size:0.9rem;">Brak historii.</p>';
             } else {
-                historyList.innerHTML = myHistory.slice().reverse().map(h => `
-                    <div class="history-item" style="border-left-color: ${h.points >= 0 ? 'var(--success-color)' : 'var(--danger-color)'};">
-                        <div><strong>${h.serviceName}</strong> <small style="color:var(--text-sub);">(${h.date} - ${h.time})</small></div>
-                        <div style="font-weight:bold; color: ${h.points >= 0 ? 'var(--success-color)' : 'var(--danger-color)'};">${h.points >= 0 ? '+' + h.points : h.points} pkt</div>
+                historyList.innerHTML = myHistory.slice().reverse().slice(0, 5).map(h => `
+                    <div class="history-item" style="border-left-color:${h.points >= 0 ? 'var(--success-color)' : 'var(--danger-color)'}; padding:8px 10px; margin-bottom:6px;">
+                        <div style="font-size:0.85rem;"><strong>${h.serviceName}</strong><br><small style="color:var(--text-sub);">${h.date} ${h.time}</small></div>
+                        <div style="font-weight:700; color:${h.points >= 0 ? 'var(--success-color)' : 'var(--danger-color)'};">${h.points >= 0 ? '+' + h.points : h.points}</div>
                     </div>
                 `).join('');
             }
@@ -529,8 +924,8 @@
         window.switchTab = function(tabId, btn) {
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-            const targetTab = document.getElementById(`tab-${tabId}`);
-            if (targetTab) targetTab.classList.add('active');
+            const target = document.getElementById(`tab-${tabId}`);
+            if (target) target.classList.add('active');
             if (btn) btn.classList.add('active');
         }
 
@@ -550,24 +945,23 @@
 
         function renderPointsTable() {
             const tbody = document.getElementById('points-table-body');
-            if(!tbody) return;
+            if (!tbody) return;
             tbody.innerHTML = '';
-            const sortedMin = [...state.ministrants].sort((a, b) => b.points - a.points);
-            sortedMin.forEach((m, index) => {
+            const sorted = [...state.ministrants].sort((a, b) => b.points - a.points);
+            sorted.forEach((m, index) => {
                 const rank = index + 1;
-                let rankClass = rank === 1 ? "rank-1" : (rank === 2 ? "rank-2" : (rank === 3 ? "rank-3" : "rank-other"));
+                const rankClass = rank === 1 ? "rank-1" : rank === 2 ? "rank-2" : rank === 3 ? "rank-3" : "rank-other";
                 tbody.innerHTML += `
                     <tr>
-                        <td style="text-align: center;"><span class="rank-badge ${rankClass}">${rank}</span></td>
+                        <td style="text-align:center;"><span class="rank-badge ${rankClass}">${rank}</span></td>
                         <td><strong>${m.name}</strong></td>
                         <td>${m.degree}</td>
-                        <td style="font-weight:bold; color:${m.points >= 0 ? 'var(--success-color)' : 'var(--accent-red)'};">${m.points} pkt</td>
+                        <td style="font-weight:700; color:${m.points >= 0 ? 'var(--success-color)' : 'var(--accent-red)'};">${m.points} pkt</td>
                         <td class="admin-only">
-                            <button class="btn btn-warning" style="padding:3px 8px; font-size:0.75rem;" onclick="openEditMinistrantModal(${m.id})">✏️ Edytuj</button>
-                            <button class="btn btn-danger" style="padding:3px 8px; font-size:0.75rem;" onclick="deleteMinistrant(${m.id})">Usuń</button>
+                            <button class="btn btn-warning" style="padding:4px 10px; font-size:0.78rem;" onclick="openEditMinistrantModal(${m.id})">✏️</button>
+                            <button class="btn btn-danger" style="padding:4px 10px; font-size:0.78rem;" onclick="deleteMinistrant(${m.id})">Usuń</button>
                         </td>
-                    </tr>
-                `;
+                    </tr>`;
             });
         }
 
@@ -580,45 +974,50 @@
                     <tr>
                         <td><strong>${m.name}</strong></td>
                         <td>${m.degree}</td>
-                        <td><input type="text" id="pass-input-${m.id}" value="${m.password || ''}" placeholder="Brak hasła" style="padding: 6px; border-radius: 4px; border: 1px solid var(--border-color); background: var(--bg-primary); color: #fff; width: 140px;"></td>
+                        <td><input type="text" id="pass-input-${m.id}" value="${m.password || ''}" placeholder="Brak hasła" style="padding:7px 10px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-primary); color:var(--text-main); width:140px;"></td>
                         <td>
-                            <button class="btn btn-success" style="padding: 4px 8px; font-size:0.8rem;" onclick="saveUserPassword(${m.id})">💾 Zapisz</button>
-                            <button class="btn btn-secondary" style="padding: 4px 8px; font-size:0.8rem;" onclick="generateUserPassword(${m.id})">🎲 Generuj</button>
+                            <button class="btn btn-success" style="padding:5px 10px; font-size:0.8rem;" onclick="saveUserPassword(${m.id})">💾</button>
+                            <button class="btn btn-secondary" style="padding:5px 10px; font-size:0.8rem;" onclick="generateUserPassword(${m.id})">🎲</button>
                         </td>
-                    </tr>
-                `;
+                    </tr>`;
             });
         }
 
         window.saveUserPassword = function(id) {
             const input = document.getElementById(`pass-input-${id}`);
             const m = state.ministrants.find(item => item.id === id);
-            if (m && input) { m.password = input.value.trim(); saveDataToFirebase(); alert(`Zapisano hasło dla: ${m.name}`); }
+            if (m && input) {
+                m.password = input.value.trim();
+                saveDataToFirebase();
+                alert(`Zapisano hasło dla: ${m.name}`);
+            }
         }
 
         window.generateUserPassword = function(id) {
             const randomPass = Math.floor(1000 + Math.random() * 9000).toString();
             const input = document.getElementById(`pass-input-${id}`);
-            if (input) { input.value = randomPass; saveUserPassword(id); }
+            if (input) {
+                input.value = randomPass;
+                saveUserPassword(id);
+            }
         }
 
         function renderMinistrantsGrid() {
             const grid = document.getElementById('ministrants-grid');
-            if(!grid) return;
+            if (!grid) return;
             grid.innerHTML = '';
             state.ministrants.forEach(m => {
                 const avatarContent = m.photo ? `<img src="${m.photo}" alt="${m.name}">` : `👤`;
                 grid.innerHTML += `
                     <div class="ministrant-card">
                         <div class="avatar">${avatarContent}</div>
-                        <h3>${m.name}</h3>
+                        <h3 style="font-size:1.1rem;">${m.name}</h3>
                         ${m.rank ? `<div class="role-tag">${m.rank}</div>` : ''}
-                        <p style="color:var(--text-main); font-weight:600; margin-top:6px;">${m.degree}</p>
+                        <p style="color:var(--text-main); font-weight:600; margin-top:8px;">${m.degree}</p>
                         ${m.phone ? `<p style="font-size:0.85rem; color:var(--text-sub); margin-top:4px;">📞 ${m.phone}</p>` : ''}
-                        <p style="font-weight:bold; color:var(--accent-red); margin:10px 0 5px 0;">Punkty: ${m.points} pkt</p>
-                        ${state.currentUserRole === 'admin' ? `<button class="btn btn-warning" style="width:100%; font-size:0.8rem; margin-top:8px;" onclick="openEditMinistrantModal(${m.id})">✏️ Edytuj Profil</button>` : ''}
-                    </div>
-                `;
+                        <p style="font-weight:700; color:var(--accent-red); margin:12px 0 6px;">${m.points} pkt</p>
+                        ${state.currentUserRole === 'admin' ? `<button class="btn btn-warning" style="width:100%; font-size:0.82rem; margin-top:8px;" onclick="openEditMinistrantModal(${m.id})">✏️ Edytuj</button>` : ''}
+                    </div>`;
             });
         }
 
@@ -663,7 +1062,10 @@
             if (!name) return alert('Wpisz imię i nazwisko!');
             if (id) {
                 const m = state.ministrants.find(item => item.id == id);
-                if (m) { m.name = name; m.photo = photo; m.phone = phone; m.degree = degree; m.rank = rank; m.desc = desc; m.points = points; }
+                if (m) {
+                    m.name = name; m.photo = photo; m.phone = phone;
+                    m.degree = degree; m.rank = rank; m.desc = desc; m.points = points;
+                }
             } else {
                 state.ministrants.push({ id: Date.now(), name, photo, phone, degree, rank, desc, points, password: "" });
             }
@@ -686,12 +1088,12 @@
             const adminMin = document.getElementById('admin-direct-min');
             const adminServ = document.getElementById('admin-direct-serv');
 
-            if(reqMin) reqMin.innerHTML = state.ministrants.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
-            if(reqServ) reqServ.innerHTML = state.services.map(s => `<option value="${s.id}">${s.name} (+${s.posPoints} / ${s.negPoints})</option>`).join('');
-            if(calServ) calServ.innerHTML = state.services.map(s => `<option value="${s.name}">${s.name}</option>`).join('');
-            if(calAssigned) calAssigned.innerHTML = state.ministrants.map(m => `<option value="${m.name}">${m.name}</option>`).join('');
-            if(adminMin) adminMin.innerHTML = state.ministrants.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
-            if(adminServ) adminServ.innerHTML = state.services.map(s => `<option value="${s.id}">${s.name} (+${s.posPoints} pkt)</option>`).join('');
+            if (reqMin) reqMin.innerHTML = state.ministrants.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
+            if (reqServ) reqServ.innerHTML = state.services.map(s => `<option value="${s.id}">${s.name} (+${s.posPoints} / ${s.negPoints})</option>`).join('');
+            if (calServ) calServ.innerHTML = state.services.map(s => `<option value="${s.name}">${s.name}</option>`).join('');
+            if (calAssigned) calAssigned.innerHTML = state.ministrants.map(m => `<option value="${m.name}">${m.name}</option>`).join('');
+            if (adminMin) adminMin.innerHTML = state.ministrants.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
+            if (adminServ) adminServ.innerHTML = state.services.map(s => `<option value="${s.id}">${s.name} (+${s.posPoints} pkt)</option>`).join('');
         }
 
         window.submitServiceRequest = function() {
@@ -702,14 +1104,14 @@
             const min = state.ministrants.find(m => m.id === minId);
             const serv = state.services.find(s => s.id === servId);
 
-            if(!state.requests) state.requests = [];
+            if (!state.requests) state.requests = [];
             state.requests.push({
                 id: Date.now(), ministrantId: min.id, ministrantName: min.name,
                 serviceId: serv.id, serviceName: serv.name, posPoints: serv.posPoints,
                 negPoints: serv.negPoints, serviceTime: time, sentAt: new Date().toLocaleString()
             });
             saveDataToFirebase();
-            alert('Zgłoszenie wysłane do Admina!');
+            alert('Zgłoszenie wysłane!');
         }
 
         window.adminDirectAddService = function() {
@@ -721,19 +1123,19 @@
             const serv = state.services.find(s => s.id === servId);
             min.points += serv.posPoints;
 
-            if(!state.serviceHistory) state.serviceHistory = [];
+            if (!state.serviceHistory) state.serviceHistory = [];
             state.serviceHistory.push({
                 id: Date.now(), ministrantId: min.id, serviceName: serv.name,
                 points: serv.posPoints, date: new Date().toLocaleDateString(), time
             });
             saveDataToFirebase();
-            alert(`Przyznano służbę "${serv.name}" (+${serv.posPoints} pkt) dla ${min.name}!`);
+            alert(`Przyznano "${serv.name}" (+${serv.posPoints} pkt) dla ${min.name}!`);
         }
 
         function renderRequests() {
             const list = document.getElementById('requests-list');
             const badge = document.getElementById('notif-badge');
-            if(!list || !badge) return;
+            if (!list || !badge) return;
             const reqs = state.requests || [];
             badge.innerText = reqs.length;
             badge.style.display = reqs.length > 0 ? 'inline-block' : 'none';
@@ -746,13 +1148,15 @@
             reqs.forEach(r => {
                 list.innerHTML += `
                     <div class="request-card">
-                        <div><strong>📩 ${r.ministrantName}</strong> zgłosił: <strong>${r.serviceName}</strong><br><small style="color:var(--text-sub);">Godzina: ${r.serviceTime}</small></div>
-                        <div style="display:flex; gap:8px;">
-                            <button class="btn btn-success" onclick="processRequest(${r.id}, true)">✅ Potwierdź (+${r.posPoints})</button>
-                            <button class="btn btn-danger" onclick="processRequest(${r.id}, false)">❌ Odrzuć (${r.negPoints})</button>
+                        <div>
+                            <strong>📩 ${r.ministrantName}</strong> zgłosił: <strong>${r.serviceName}</strong><br>
+                            <small style="color:var(--text-sub);">Godzina: ${r.serviceTime}</small>
                         </div>
-                    </div>
-                `;
+                        <div style="display:flex; gap:8px;">
+                            <button class="btn btn-success" onclick="processRequest(${r.id}, true)">✅ +${r.posPoints}</button>
+                            <button class="btn btn-danger" onclick="processRequest(${r.id}, false)">❌ ${r.negPoints}</button>
+                        </div>
+                    </div>`;
             });
         }
 
@@ -763,7 +1167,7 @@
             if (min) {
                 const pts = isApproved ? req.posPoints : req.negPoints;
                 min.points += pts;
-                if(!state.serviceHistory) state.serviceHistory = [];
+                if (!state.serviceHistory) state.serviceHistory = [];
                 state.serviceHistory.push({
                     id: Date.now(), ministrantId: min.id, serviceName: req.serviceName,
                     points: pts, date: new Date().toLocaleDateString(), time: req.serviceTime
@@ -775,17 +1179,16 @@
 
         function renderServicesSettings() {
             const tbody = document.getElementById('services-settings-body');
-            if(!tbody) return;
+            if (!tbody) return;
             tbody.innerHTML = '';
             (state.services || []).forEach(s => {
                 tbody.innerHTML += `
                     <tr>
                         <td><strong>${s.name}</strong></td>
-                        <td style="color:var(--success-color); font-weight:bold;">+${s.posPoints} pkt</td>
-                        <td style="color:var(--accent-red); font-weight:bold;">${s.negPoints} pkt</td>
-                        <td class="admin-only"><button class="btn btn-danger" style="padding:3px 8px;" onclick="deleteServiceType(${s.id})">Usuń</button></td>
-                    </tr>
-                `;
+                        <td style="color:var(--success-color); font-weight:700;">+${s.posPoints}</td>
+                        <td style="color:var(--accent-red); font-weight:700;">${s.negPoints}</td>
+                        <td class="admin-only"><button class="btn btn-danger" style="padding:4px 10px; font-size:0.8rem;" onclick="deleteServiceType(${s.id})">Usuń</button></td>
+                    </tr>`;
             });
         }
 
@@ -795,7 +1198,7 @@
             let neg = parseInt(document.getElementById('new-service-neg').value) || -10;
             if (!name) return alert('Wpisz nazwę służby!');
             if (neg > 0) neg = -neg;
-            if(!state.services) state.services = [];
+            if (!state.services) state.services = [];
             state.services.push({ id: Date.now(), name, posPoints: pos, negPoints: neg });
             saveDataToFirebase();
             document.getElementById('new-service-name').value = '';
@@ -829,10 +1232,13 @@
             const assigned = Array.from(document.getElementById('cal-assigned').selectedOptions).map(o => o.value);
 
             if (!date || !time) return alert('Wybierz datę i godzinę!');
-            if(!state.calendarEvents) state.calendarEvents = [];
+            if (!state.calendarEvents) state.calendarEvents = [];
             if (editId) {
                 const ev = state.calendarEvents.find(e => e.id == editId);
-                if (ev) { ev.serviceName = serviceName; ev.date = date; ev.time = time; ev.status = status; ev.assigned = assigned; }
+                if (ev) {
+                    ev.serviceName = serviceName; ev.date = date; ev.time = time;
+                    ev.status = status; ev.assigned = assigned;
+                }
             } else {
                 state.calendarEvents.push({ id: Date.now(), serviceName, date, time, status, assigned });
             }
@@ -862,7 +1268,7 @@
         function renderCalendar() {
             const area = document.getElementById('calendar-render-area');
             const titleEl = document.getElementById('cal-period-title');
-            if(!area || !titleEl) return;
+            if (!area || !titleEl) return;
             const year = calCurrentDate.getFullYear();
             const month = calCurrentDate.getMonth();
             const dayNum = calCurrentDate.getDate();
@@ -894,7 +1300,7 @@
                 const isToday = todayStr === dateStr;
                 html += `<div class="day-cell ${isToday ? 'today' : ''}" onclick="openDayView('${dateStr}')"><span class="day-number">${day}</span>`;
                 dayEvents.forEach(e => {
-                    let colorClass = e.status === 'yellow' ? 'cal-event-yellow' : (e.status === 'red' ? 'cal-event-red' : 'cal-event-green');
+                    const colorClass = e.status === 'yellow' ? 'cal-event-yellow' : e.status === 'red' ? 'cal-event-red' : 'cal-event-green';
                     html += `<div class="cal-event-badge ${colorClass}"><strong>${e.time}</strong> ${e.serviceName}</div>`;
                 });
                 html += `</div>`;
@@ -908,7 +1314,7 @@
             const firstDayOfWeek = curr.getDate() - curr.getDay() + (curr.getDay() === 0 ? -6 : 1);
             const startOfWeek = new Date(curr.setDate(firstDayOfWeek));
             const endOfWeek = new Date(curr.setDate(startOfWeek.getDate() + 6));
-            titleEl.innerText = `${startOfWeek.getDate()} ${monthNamesPl[startOfWeek.getMonth()]} - ${endOfWeek.getDate()} ${monthNamesPl[endOfWeek.getMonth()]} ${endOfWeek.getFullYear()}`;
+            titleEl.innerText = `${startOfWeek.getDate()} ${monthNamesPl[startOfWeek.getMonth()]} – ${endOfWeek.getDate()} ${monthNamesPl[endOfWeek.getMonth()]} ${endOfWeek.getFullYear()}`;
             let html = '<div class="month-grid">';
             ['PON', 'WT', 'ŚR', 'CZW', 'PT', 'SOB', 'NDZ'].forEach(d => html += `<div class="month-header-cell">${d}</div>`);
             const todayStr = new Date().toISOString().split('T')[0];
@@ -919,9 +1325,9 @@
                 const dateStr = d.toISOString().split('T')[0];
                 const dayEvents = (state.calendarEvents || []).filter(e => e.date === dateStr);
                 const isToday = todayStr === dateStr;
-                html += `<div class="day-cell ${isToday ? 'today' : ''}" style="min-height: 250px;" onclick="openDayView('${dateStr}')"><span class="day-number">${d.getDate()}</span>`;
+                html += `<div class="day-cell ${isToday ? 'today' : ''}" style="min-height:220px;" onclick="openDayView('${dateStr}')"><span class="day-number">${d.getDate()}</span>`;
                 dayEvents.forEach(e => {
-                    let colorClass = e.status === 'yellow' ? 'cal-event-yellow' : (e.status === 'red' ? 'cal-event-red' : 'cal-event-green');
+                    const colorClass = e.status === 'yellow' ? 'cal-event-yellow' : e.status === 'red' ? 'cal-event-red' : 'cal-event-green';
                     html += `<div class="cal-event-badge ${colorClass}"><strong>${e.time}</strong> ${e.serviceName}</div>`;
                 });
                 html += `</div>`;
@@ -933,31 +1339,29 @@
         function renderSingleDayView(year, month, day, area) {
             const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
             const dayEvents = (state.calendarEvents || []).filter(e => e.date === dateStr);
-            let html = `<div style="padding: 10px;"><h3 style="color:var(--accent-red); margin-bottom:15px;">Harmonogram na dzień: ${dateStr}</h3>`;
+            let html = `<div style="padding:6px;"><h3 style="color:var(--accent-red); margin-bottom:16px;">Harmonogram: ${dateStr}</h3>`;
             if (dayEvents.length === 0) {
-                html += '<p style="color:var(--text-sub);">Brak zaplanowanych służb w tym dniu.</p>';
+                html += '<p style="color:var(--text-sub);">Brak zaplanowanych służb.</p>';
             } else {
                 dayEvents.forEach(e => {
-                    let statusText = e.status === 'yellow' ? '🟡 Do ustalenia' : (e.status === 'red' ? '🔴 Odwołane' : '🟢 Będzie');
-                    let assignedText = e.assigned && e.assigned.length ? e.assigned.join(', ') : 'Brak wyznaczonych';
-                    let borderColor = e.status === 'red' ? 'var(--danger-color)' : (e.status === 'yellow' ? '#f39c12' : 'var(--success-color)');
+                    const statusText = e.status === 'yellow' ? '🟡 Do ustalenia' : e.status === 'red' ? '🔴 Odwołane' : '🟢 Będzie';
+                    const assignedText = e.assigned && e.assigned.length ? e.assigned.join(', ') : 'Brak wyznaczonych';
+                    const borderColor = e.status === 'red' ? 'var(--danger-color)' : e.status === 'yellow' ? '#f39c12' : 'var(--success-color)';
                     html += `
-                        <div style="background:var(--bg-card); padding:15px; border-radius:8px; margin-bottom:12px; border-left: 5px solid ${borderColor};">
+                        <div style="background:var(--bg-card); padding:16px; border-radius:12px; margin-bottom:12px; border-left:5px solid ${borderColor};">
                             <strong>${e.serviceName}</strong><br>
-                            <small style="color:var(--text-sub);">Godzina: ${e.time} | Status: <strong>${statusText}</strong></small><br>
-                            <small style="color:var(--text-main);">Wyznaczeni: ${assignedText}</small>
+                            <small style="color:var(--text-sub);">Godzina: ${e.time} · Status: <strong>${statusText}</strong></small><br>
+                            <small>Wyznaczeni: ${assignedText}</small>
                             ${state.currentUserRole === 'admin' ? `
-                                <div style="margin-top:10px; display:flex; gap:6px;">
-                                    <button class="btn btn-warning" style="padding:4px 10px; font-size:0.8rem;" onclick="editCalendarEvent(${e.id})">✏️ Edytuj</button>
-                                    <button class="btn btn-danger" style="padding:4px 10px; font-size:0.8rem;" onclick="deleteCalendarEvent(${e.id}, '${dateStr}')">🗑️ Usuń</button>
-                                </div>
-                            ` : ''}
-                        </div>
-                    `;
+                                <div style="margin-top:12px; display:flex; gap:8px;">
+                                    <button class="btn btn-warning" style="padding:5px 12px; font-size:0.8rem;" onclick="editCalendarEvent(${e.id})">✏️ Edytuj</button>
+                                    <button class="btn btn-danger" style="padding:5px 12px; font-size:0.8rem;" onclick="deleteCalendarEvent(${e.id}, '${dateStr}')">🗑️ Usuń</button>
+                                </div>` : ''}
+                        </div>`;
                 });
             }
             if (state.currentUserRole === 'admin') {
-                html += `<button class="btn" style="width:100%; margin-top:15px;" onclick="prepareAddEventForDate('${dateStr}')">+ Dodaj służbę na ten dzień</button>`;
+                html += `<button class="btn" style="width:100%; margin-top:14px;" onclick="prepareAddEventForDate('${dateStr}')">+ Dodaj służbę na ten dzień</button>`;
             }
             html += `</div>`;
             area.innerHTML = html;
@@ -967,34 +1371,32 @@
             const dayEvents = (state.calendarEvents || []).filter(e => e.date === dateStr);
             const titleEl = document.getElementById('day-view-title');
             const listEl = document.getElementById('day-view-list');
-            if(!titleEl || !listEl) return;
-            titleEl.innerText = `Służby w dniu: ${dateStr}`;
+            if (!titleEl || !listEl) return;
+            titleEl.innerText = `Służby: ${dateStr}`;
             if (dayEvents.length === 0) {
-                listEl.innerHTML = '<p style="color:var(--text-sub);">Brak zaplanowanych służb w tym dniu.</p>';
+                listEl.innerHTML = '<p style="color:var(--text-sub);">Brak zaplanowanych służb.</p>';
             } else {
                 let html = '';
                 dayEvents.forEach(e => {
-                    let statusText = e.status === 'yellow' ? '🟡 Do ustalenia' : (e.status === 'red' ? '🔴 Odwołane' : '🟢 Będzie');
-                    let assignedText = e.assigned && e.assigned.length ? e.assigned.join(', ') : 'Brak wyznaczonych';
-                    let borderColor = e.status === 'red' ? 'var(--danger-color)' : (e.status === 'yellow' ? '#f39c12' : 'var(--success-color)');
+                    const statusText = e.status === 'yellow' ? '🟡 Do ustalenia' : e.status === 'red' ? '🔴 Odwołane' : '🟢 Będzie';
+                    const assignedText = e.assigned && e.assigned.length ? e.assigned.join(', ') : 'Brak wyznaczonych';
+                    const borderColor = e.status === 'red' ? 'var(--danger-color)' : e.status === 'yellow' ? '#f39c12' : 'var(--success-color)';
                     html += `
-                        <div style="background:var(--bg-card); padding:12px; border-radius:6px; margin-bottom:10px; border-left: 4px solid ${borderColor};">
+                        <div style="background:var(--bg-card); padding:14px; border-radius:10px; margin-bottom:10px; border-left:4px solid ${borderColor};">
                             <strong>${e.serviceName}</strong><br>
-                            <small style="color:var(--text-sub);">Godzina: ${e.time} | Status: <strong>${statusText}</strong></small><br>
-                            <small style="color:var(--text-main);">Wyznaczeni: ${assignedText}</small>
+                            <small style="color:var(--text-sub);">Godzina: ${e.time} · Status: <strong>${statusText}</strong></small><br>
+                            <small>Wyznaczeni: ${assignedText}</small>
                             ${state.currentUserRole === 'admin' ? `
-                                <div style="margin-top:8px; display:flex; gap:6px;">
-                                    <button class="btn btn-warning" style="padding:3px 8px; font-size:0.75rem;" onclick="editCalendarEvent(${e.id})">✏️ Edytuj</button>
-                                    <button class="btn btn-danger" style="padding:3px 8px; font-size:0.75rem;" onclick="deleteCalendarEvent(${e.id}, '${dateStr}')">🗑️ Usuń</button>
-                                </div>
-                            ` : ''}
-                        </div>
-                    `;
+                                <div style="margin-top:10px; display:flex; gap:8px;">
+                                    <button class="btn btn-warning" style="padding:4px 10px; font-size:0.78rem;" onclick="editCalendarEvent(${e.id})">✏️</button>
+                                    <button class="btn btn-danger" style="padding:4px 10px; font-size:0.78rem;" onclick="deleteCalendarEvent(${e.id}, '${dateStr}')">🗑️</button>
+                                </div>` : ''}
+                        </div>`;
                 });
                 listEl.innerHTML = html;
             }
             if (state.currentUserRole === 'admin') {
-                listEl.innerHTML += `<button class="btn" style="width:100%; margin-top:10px;" onclick="prepareAddEventForDate('${dateStr}')">+ Dodaj kolejną służbę</button>`;
+                listEl.innerHTML += `<button class="btn" style="width:100%; margin-top:12px;" onclick="prepareAddEventForDate('${dateStr}')">+ Dodaj kolejną służbę</button>`;
             }
             openModal('modal-day-view');
         }
@@ -1030,10 +1432,10 @@
         }
 
         window.deleteCalendarEvent = function(id, dateStr) {
-            if (confirm('Czy na pewno chcesz usunąć tę służbę z kalendarza?')) {
+            if (confirm('Usunąć tę służbę z kalendarza?')) {
                 state.calendarEvents = state.calendarEvents.filter(e => e.id !== id);
                 saveDataToFirebase();
-                if(document.getElementById('modal-day-view').classList.contains('active')) openDayView(dateStr);
+                if (document.getElementById('modal-day-view').classList.contains('active')) openDayView(dateStr);
             }
         }
     </script>
