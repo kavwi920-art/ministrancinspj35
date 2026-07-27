@@ -426,12 +426,28 @@
             background: var(--bg-primary);
             color: var(--text-main);
             font-size: 0.95rem;
+            min-height: 44px;
+            box-sizing: border-box;
+        }
+        .form-group input[type="time"] {
+            -webkit-appearance: none;
+            appearance: none;
+            min-height: 44px;
+            line-height: 1.2;
+            color-scheme: dark;
+        }
+        [data-theme="light"] .form-group input[type="time"] {
+            color-scheme: light;
         }
         .form-group input:focus,
         .form-group select:focus,
         .form-group textarea:focus {
             outline: none;
             border-color: var(--accent-red);
+        }
+        .form-group textarea {
+            min-height: 80px;
+            resize: vertical;
         }
 
         /* ========== LOGIN ========== */
@@ -489,6 +505,16 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+        .history-item:hover {
+            background: rgba(255,255,255,0.05);
+        }
+        .history-item.canceled {
+            opacity: 0.55;
+            border-left-color: var(--danger-color) !important;
+            text-decoration: line-through;
         }
 
         /* ========== MOBILE MODE (tylko gdy wybrano Telefon) ========== */
@@ -875,7 +901,17 @@
                         <div class="form-group"><label>Służba</label><select id="admin-direct-serv"></select></div>
                         <div class="form-group"><label>Godzina</label><input type="time" id="admin-direct-time"></div>
                     </div>
-                    <button class="btn btn-success" style="width:100%; margin-top:12px;" onclick="adminDirectAddService()">+ Przyznaj służbę i punkty</button>
+                    <div class="form-group" style="margin-top:4px;">
+                        <label>Opis / Notatka (opcjonalnie)</label>
+                        <textarea id="admin-direct-note" rows="3" placeholder="Np. powód, uwagi, szczegóły służby..."></textarea>
+                    </div>
+                    <button class="btn btn-success" style="width:100%; margin-top:8px;" onclick="adminDirectAddService()">+ Przyznaj służbę i punkty</button>
+                </div>
+
+                <div class="card" style="margin-top:16px;">
+                    <h2 style="margin-bottom:12px;">Ostatnie przyznane służby</h2>
+                    <p style="color:var(--text-sub); font-size:0.88rem; margin-bottom:12px;">Kliknij, aby zobaczyć notatkę. Admin może anulować (odejmuje punkty).</p>
+                    <div id="admin-recent-history"></div>
                 </div>
             </div>
 
@@ -1031,6 +1067,15 @@
             <h3 id="day-view-title" style="color:var(--accent-red); margin-bottom:16px;">Wydarzenia dnia</h3>
             <div id="day-view-list" style="margin-bottom:16px; max-height:60vh; overflow-y:auto;"></div>
             <button class="btn btn-secondary" style="width:100%;" onclick="closeModal('modal-day-view')">Zamknij</button>
+        </div>
+    </div>
+
+    <div id="modal-history-detail" class="modal">
+        <div class="modal-content">
+            <h3 id="history-detail-title" style="color:var(--accent-red); margin-bottom:16px;">Szczegóły służby</h3>
+            <div id="history-detail-body" style="margin-bottom:16px;"></div>
+            <div id="history-detail-actions"></div>
+            <button class="btn btn-secondary" style="width:100%;" onclick="closeModal('modal-history-detail')">Zamknij</button>
         </div>
     </div>
 
@@ -1227,12 +1272,16 @@
             if (myHistory.length === 0) {
                 historyList.innerHTML = '<p style="color:var(--text-sub); font-size:0.9rem;">Brak historii.</p>';
             } else {
-                historyList.innerHTML = myHistory.slice().reverse().slice(0, 5).map(h => `
-                    <div class="history-item" style="border-left-color:${h.points >= 0 ? 'var(--success-color)' : 'var(--danger-color)'};">
+                historyList.innerHTML = myHistory.slice().reverse().slice(0, 5).map(h => {
+                    const canceled = h.canceled ? ' canceled' : '';
+                    const ptsColor = h.canceled ? 'var(--danger-color)' : (h.points >= 0 ? 'var(--success-color)' : 'var(--danger-color)');
+                    const ptsText = h.canceled ? 'anulowano' : (h.points >= 0 ? '+' + h.points : h.points);
+                    return `
+                    <div class="history-item${canceled}" style="border-left-color:${ptsColor};" onclick="openHistoryDetail(${h.id})">
                         <div style="font-size:0.85rem;"><strong>${h.serviceName}</strong><br><small style="color:var(--text-sub);">${h.date} ${h.time}</small></div>
-                        <div style="font-weight:700; color:${h.points >= 0 ? 'var(--success-color)' : 'var(--danger-color)'};">${h.points >= 0 ? '+' + h.points : h.points}</div>
-                    </div>
-                `).join('');
+                        <div style="font-weight:700; color:${ptsColor};">${ptsText}</div>
+                    </div>`;
+                }).join('');
             }
         }
 
@@ -1314,6 +1363,7 @@
             renderServicesSettings();
             renderCalendar();
             renderPasswordsTable();
+            renderAdminRecentHistory();
             applyPermissions();
         }
 
@@ -1492,6 +1542,7 @@
             const minId = parseInt(document.getElementById('admin-direct-min').value);
             const servId = parseInt(document.getElementById('admin-direct-serv').value);
             const time = document.getElementById('admin-direct-time').value || 'Służba';
+            const note = (document.getElementById('admin-direct-note')?.value || '').trim();
             if (!minId || !servId) return alert('Wybierz ministranta i służbę!');
             const min = state.ministrants.find(m => m.id === minId);
             const serv = state.services.find(s => s.id === servId);
@@ -1499,11 +1550,88 @@
 
             if (!state.serviceHistory) state.serviceHistory = [];
             state.serviceHistory.push({
-                id: Date.now(), ministrantId: min.id, serviceName: serv.name,
-                points: serv.posPoints, date: new Date().toLocaleDateString(), time
+                id: Date.now(),
+                ministrantId: min.id,
+                ministrantName: min.name,
+                serviceName: serv.name,
+                points: serv.posPoints,
+                date: new Date().toLocaleDateString(),
+                time,
+                note: note || '',
+                canceled: false
             });
+            // wyczyść notatkę
+            if (document.getElementById('admin-direct-note')) document.getElementById('admin-direct-note').value = '';
             saveDataToFirebase();
             alert(`Przyznano "${serv.name}" (+${serv.posPoints} pkt) dla ${min.name}!`);
+            renderAdminRecentHistory();
+        }
+
+        function renderAdminRecentHistory() {
+            const list = document.getElementById('admin-recent-history');
+            if (!list) return;
+            const hist = (state.serviceHistory || []).slice().reverse().slice(0, 15);
+            if (hist.length === 0) {
+                list.innerHTML = '<p style="color:var(--text-sub);">Brak przyznanych służb.</p>';
+                return;
+            }
+            list.innerHTML = hist.map(h => {
+                const canceled = h.canceled ? ' canceled' : '';
+                const ptsColor = h.canceled ? 'var(--danger-color)' : (h.points >= 0 ? 'var(--success-color)' : 'var(--danger-color)');
+                const ptsText = h.canceled ? 'anulowano' : (h.points >= 0 ? '+' + h.points : h.points);
+                const name = h.ministrantName || (state.ministrants.find(m => m.id === h.ministrantId)?.name || '?');
+                return `
+                <div class="history-item${canceled}" style="border-left-color:${ptsColor}; margin-bottom:10px;" onclick="openHistoryDetail(${h.id})">
+                    <div style="font-size:0.88rem;">
+                        <strong>${name}</strong> · ${h.serviceName}<br>
+                        <small style="color:var(--text-sub);">${h.date} ${h.time}${h.note ? ' · 📝' : ''}</small>
+                    </div>
+                    <div style="font-weight:700; color:${ptsColor};">${ptsText}</div>
+                </div>`;
+            }).join('');
+        }
+
+        window.openHistoryDetail = function(histId) {
+            const h = (state.serviceHistory || []).find(item => item.id === histId);
+            if (!h) return;
+            const name = h.ministrantName || (state.ministrants.find(m => m.id === h.ministrantId)?.name || '—');
+            const isAdmin = state.currentUserRole === 'admin';
+            const titleEl = document.getElementById('history-detail-title');
+            const bodyEl = document.getElementById('history-detail-body');
+            const actionsEl = document.getElementById('history-detail-actions');
+            if (!titleEl || !bodyEl) return;
+
+            titleEl.innerText = h.canceled ? 'Anulowana służba' : 'Szczegóły służby';
+            bodyEl.innerHTML = `
+                <div style="background:var(--bg-card); padding:16px; border-radius:12px; border-left:5px solid ${h.canceled ? 'var(--danger-color)' : 'var(--success-color)'};">
+                    <p style="margin-bottom:8px;"><strong>Ministrant:</strong> ${name}</p>
+                    <p style="margin-bottom:8px;"><strong>Służba:</strong> ${h.serviceName}</p>
+                    <p style="margin-bottom:8px;"><strong>Data:</strong> ${h.date}</p>
+                    <p style="margin-bottom:8px;"><strong>Godzina:</strong> ${h.time}</p>
+                    <p style="margin-bottom:8px;"><strong>Punkty:</strong> <span style="color:${h.canceled ? 'var(--danger-color)' : 'var(--success-color)'}; font-weight:700;">${h.canceled ? 'anulowano (było +' + h.points + ')' : (h.points >= 0 ? '+' + h.points : h.points)}</span></p>
+                    ${h.note ? `<p style="margin-top:14px; padding-top:12px; border-top:1px solid var(--border-color);"><strong>📝 Notatka:</strong><br><span style="color:var(--text-main); white-space:pre-wrap;">${h.note}</span></p>` : '<p style="margin-top:12px; color:var(--text-sub); font-size:0.9rem;">Brak notatki.</p>'}
+                </div>`;
+
+            if (isAdmin && !h.canceled) {
+                actionsEl.innerHTML = `<button class="btn btn-danger" style="width:100%; margin-bottom:10px;" onclick="cancelHistoryService(${h.id})">❌ Anuluj służbę (odejmij punkty)</button>`;
+            } else {
+                actionsEl.innerHTML = '';
+            }
+            openModal('modal-history-detail');
+        }
+
+        window.cancelHistoryService = function(histId) {
+            const h = (state.serviceHistory || []).find(item => item.id === histId);
+            if (!h || h.canceled) return;
+            if (!confirm(`Anulować służbę "${h.serviceName}" i odjąć ${h.points} pkt?`)) return;
+            const min = state.ministrants.find(m => m.id === h.ministrantId);
+            if (min) min.points -= h.points;
+            h.canceled = true;
+            saveDataToFirebase();
+            closeModal('modal-history-detail');
+            renderAll();
+            renderAdminRecentHistory();
+            alert('Służba anulowana, punkty odjęte.');
         }
 
         function renderRequests() {
@@ -1548,8 +1676,15 @@
                 min.points += pts;
                 if (!state.serviceHistory) state.serviceHistory = [];
                 state.serviceHistory.push({
-                    id: Date.now(), ministrantId: min.id, serviceName: req.serviceName,
-                    points: pts, date: new Date().toLocaleDateString(), time: req.serviceTime
+                    id: Date.now(),
+                    ministrantId: min.id,
+                    ministrantName: min.name,
+                    serviceName: req.serviceName,
+                    points: pts,
+                    date: new Date().toLocaleDateString(),
+                    time: req.serviceTime,
+                    note: '',
+                    canceled: false
                 });
             }
             state.requests = state.requests.filter(r => r.id !== reqId);
