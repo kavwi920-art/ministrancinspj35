@@ -567,12 +567,6 @@
             <button class="nav-btn admin-only" onclick="switchTab('hasla-uczestnikow', this)">
                 <span class="icon">🔑</span> <span>Hasła</span>
             </button>
-            <button class="nav-btn admin-only" onclick="switchTab('kody', this)">
-                <span class="icon">🎟️</span> <span>Generuj Kody</span>
-            </button>
-            <button class="nav-btn user-only" onclick="switchTab('kody', this)">
-                <span class="icon">🎟️</span> <span>Odbierz Kod</span>
-            </button>
             <button class="nav-btn" onclick="switchTab('ministranci', this)">
                 <span class="icon">👥</span> <span>Ministranci</span>
             </button>
@@ -658,63 +652,49 @@
 
             <!-- ZGŁOSZENIA -->
             <div id="tab-zgloszenia" class="tab-content">
-                <div class="card">
-                    <h2 style="margin-bottom:16px;">✍️ Zgłoś Służbę</h2>
-                    <div class="form-group">
-                        <label>Ministrant</label>
-                        <select id="req-ministrant"></select>
-                    </div>
-                    <div class="form-group">
-                        <label>Służba</label>
-                        <select id="req-service"></select>
-                    </div>
-                    <div class="form-group">
-                        <label>Godzina / opis</label>
-                        <input type="text" id="req-time" placeholder="np. 18:00 Msza">
-                    </div>
-                    <button class="btn" style="width:100%;" onclick="submitServiceRequest()">Wyślij zgłoszenie</button>
+                <div class="card" style="max-width:520px;">
+                    <h2>Zgłoś obecność na służbie</h2>
+                    <p style="color:var(--text-sub); margin:8px 0 18px; font-size:0.9rem;">Wybierz siebie, służbę oraz godzinę.</p>
+                    <div class="form-group"><label>Kim jesteś?</label><select id="req-ministrant"></select></div>
+                    <div class="form-group"><label>Jaka to była służba?</label><select id="req-service"></select></div>
+                    <div class="form-group"><label>Godzina służby</label><input type="time" id="req-time" required></div>
+                    <button class="btn" style="width:100%; margin-top:8px;" onclick="submitServiceRequest()">Wyślij zgłoszenie</button>
                 </div>
             </div>
 
             <!-- POWIADOMIENIA -->
             <div id="tab-powiadomienia" class="tab-content">
                 <div class="card">
-                    <h2 style="margin-bottom:16px;">🔔 Zgłoszenia do zatwierdzenia</h2>
-                    <div id="requests-list"></div>
+                    <h2>Oczekujące zgłoszenia</h2>
+                    <div id="requests-list" style="margin-top:16px;"></div>
                 </div>
             </div>
 
             <!-- SZYBKA SŁUŻBA -->
             <div id="tab-szybka-sluzba" class="tab-content">
-                <div class="card">
-                    <h2 style="margin-bottom:16px;">⚡ Szybka Służba (Admin)</h2>
-                    <div class="form-group">
-                        <label>Ministrant</label>
-                        <select id="admin-direct-min"></select>
+                <div class="card" style="border:1px solid var(--accent-red);">
+                    <h2>⚡ Szybkie przyznanie służby</h2>
+                    <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:14px; margin-top:14px;">
+                        <div class="form-group"><label>Ministrant</label><select id="admin-direct-min"></select></div>
+                        <div class="form-group"><label>Służba</label><select id="admin-direct-serv"></select></div>
+                        <div class="form-group"><label>Godzina</label><input type="time" id="admin-direct-time"></div>
                     </div>
-                    <div class="form-group">
-                        <label>Służba</label>
-                        <select id="admin-direct-serv"></select>
-                    </div>
-                    <div class="form-group">
-                        <label>Godzina / opis (opcjonalnie)</label>
-                        <input type="text" id="admin-direct-time" placeholder="Służba">
-                    </div>
-                    <button class="btn" style="width:100%;" onclick="adminDirectAddService()">Przyznaj punkty</button>
+                    <button class="btn btn-success" style="width:100%; margin-top:12px;" onclick="adminDirectAddService()">+ Przyznaj służbę i punkty</button>
                 </div>
             </div>
 
             <!-- HASŁA -->
             <div id="tab-hasla-uczestnikow" class="tab-content">
                 <div class="card">
-                    <h2 style="margin-bottom:16px;">🔑 Hasła uczestników</h2>
-                    <div class="table-responsive">
+                    <h2>🔑 Zarządzanie hasłami uczestników</h2>
+                    <div class="table-responsive" style="margin-top:14px;">
                         <table>
                             <thead>
                                 <tr>
                                     <th>Ministrant</th>
+                                    <th>Stopień</th>
                                     <th>Hasło</th>
-                                    <th>Akcja</th>
+                                    <th>Akcje</th>
                                 </tr>
                             </thead>
                             <tbody id="passwords-table-body"></tbody>
@@ -723,23 +703,23 @@
                 </div>
             </div>
 
-            <!-- PUNKTACJA SŁUŻB -->
+            <!-- PUNKTACJA -->
             <div id="tab-punktacja-sluzb" class="tab-content">
                 <div class="card">
-                    <h2 style="margin-bottom:16px;">📊 Punktacja służb</h2>
+                    <h2>Cennik punktów za służby</h2>
                     <div class="admin-only" style="display:flex; gap:10px; margin:16px 0; flex-wrap:wrap; background:var(--bg-card); padding:14px; border-radius:12px;">
-                        <input type="text" id="new-service-name" placeholder="Nazwa służby" style="flex:2; padding:10px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-primary); color:var(--text-main);">
-                        <input type="number" id="new-service-pos" placeholder="+pkt" style="width:90px; padding:10px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-primary); color:var(--text-main);">
-                        <input type="number" id="new-service-neg" placeholder="-pkt" style="width:90px; padding:10px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-primary); color:var(--text-main);">
+                        <input type="text" id="new-service-name" placeholder="Nazwa nowej służby..." style="flex:2; min-width:180px; padding:10px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-primary); color:var(--text-main);">
+                        <input type="number" id="new-service-pos" placeholder="+ Pkt" style="flex:1; min-width:90px; padding:10px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-primary); color:var(--text-main);">
+                        <input type="number" id="new-service-neg" placeholder="- Pkt" style="flex:1; min-width:90px; padding:10px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-primary); color:var(--text-main);">
                         <button class="btn" onclick="addNewServiceType()">Dodaj</button>
                     </div>
                     <div class="table-responsive">
                         <table>
                             <thead>
                                 <tr>
-                                    <th>Służba</th>
-                                    <th>+ Punkty</th>
-                                    <th>- Punkty</th>
+                                    <th>Nazwa służby</th>
+                                    <th>Punkty (+)</th>
+                                    <th>Punkty (-)</th>
                                     <th class="admin-only">Akcja</th>
                                 </tr>
                             </thead>
@@ -757,46 +737,10 @@
                 </div>
                 <div id="ministrants-grid" class="grid-cards" style="margin-top:8px;"></div>
             </div>
-
-            <!-- KODY (admin generuje, uczestnik odbiera) -->
-            <div id="tab-kody" class="tab-content">
-                <!-- ADMIN: generowanie -->
-                <div class="card admin-only" id="kody-admin-panel">
-                    <h2 style="margin-bottom:4px;">🎟️ Generowanie kodów</h2>
-                    <p style="color:var(--text-sub); font-size:0.9rem; margin-bottom:16px;">Kody są jednorazowe – po użyciu znikają automatycznie.</p>
-                    <div style="display:flex; flex-wrap:wrap; gap:12px; align-items:flex-end; margin-bottom:20px;">
-                        <div class="form-group" style="margin:0; flex:1; min-width:140px;">
-                            <label>Punkty za kod</label>
-                            <input type="number" id="code-points" value="10" min="1">
-                        </div>
-                        <div class="form-group" style="margin:0; flex:1; min-width:140px;">
-                            <label>Ile kodów</label>
-                            <input type="number" id="code-count" value="1" min="1" max="50">
-                        </div>
-                        <button class="btn" onclick="generateCodes()">Generuj</button>
-                    </div>
-                    <h3 style="font-size:1rem; margin-bottom:10px;">Aktywne kody</h3>
-                    <div id="active-codes-list">
-                        <p style="color:var(--text-sub);">Brak aktywnych kodów.</p>
-                    </div>
-                </div>
-
-                <!-- UCZESTNIK: odbieranie -->
-                <div class="card user-only" id="kody-user-panel">
-                    <h2 style="margin-bottom:4px;">🎟️ Odbierz kod</h2>
-                    <p style="color:var(--text-sub); font-size:0.9rem; margin-bottom:16px;">Wpisz kod otrzymany od administratora. Kod jest jednorazowy.</p>
-                    <div class="form-group">
-                        <label>Kod</label>
-                        <input type="text" id="redeem-code-input" placeholder="Wpisz kod..." style="text-transform:uppercase; letter-spacing:2px; font-size:1.1rem;">
-                    </div>
-                    <button class="btn" style="width:100%; padding:13px; font-size:1rem;" onclick="redeemCode()">Odbierz punkty</button>
-                    <div id="redeem-result" style="margin-top:14px;"></div>
-                </div>
-            </div>
         </main>
     </div>
 
-    <!-- MODALS -->
+    <!-- MODALS (bez zmian logiki) -->
     <div id="modal-ministrant" class="modal">
         <div class="modal-content">
             <h3 id="modal-min-title" style="margin-bottom:18px;">Dodaj / Edytuj Ministranta</h3>
@@ -835,10 +779,7 @@
                     <option value="red">🔴 Odwołane</option>
                 </select>
             </div>
-            <div class="form-group">
-                <label>Wyznaczeni (Ctrl+klik)</label>
-                <select id="cal-assigned" multiple size="5"></select>
-            </div>
+            <div class="form-group"><label>Wyznaczeni</label><select id="cal-assigned" multiple style="height:110px;"></select></div>
             <button class="btn" style="width:100%; margin-bottom:10px;" onclick="saveCalendarEvent()">Zapisz</button>
             <button class="btn btn-secondary" style="width:100%;" onclick="closeModal('modal-event')">Anuluj</button>
         </div>
@@ -846,37 +787,36 @@
 
     <div id="modal-day-view" class="modal">
         <div class="modal-content">
-            <h3 id="day-view-title" style="margin-bottom:16px;">Służby</h3>
-            <div id="day-view-list"></div>
-            <button class="btn btn-secondary" style="width:100%; margin-top:12px;" onclick="closeModal('modal-day-view')">Zamknij</button>
+            <h3 id="day-view-title" style="color:var(--accent-red); margin-bottom:16px;">Wydarzenia dnia</h3>
+            <div id="day-view-list" style="margin-bottom:16px; max-height:60vh; overflow-y:auto;"></div>
+            <button class="btn btn-secondary" style="width:100%;" onclick="closeModal('modal-day-view')">Zamknij</button>
         </div>
     </div>
 
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+        import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
 
         const firebaseConfig = {
-            apiKey: "AIzaSyDummyReplaceWithYourKey",
-            authDomain: "your-project.firebaseapp.com",
-            databaseURL: "https://your-project-default-rtdb.europe-west1.firebasedatabase.app",
-            projectId: "your-project",
-            storageBucket: "your-project.appspot.com",
-            messagingSenderId: "123456789",
-            appId: "1:123456789:web:abcdef"
+            apiKey: "AIzaSyB27DmgYuuOZE2u9y9HynQxD_dbxPYKsuk",
+            authDomain: "ministranci-nspj.firebaseapp.com",
+            databaseURL: "https://ministranci-nspj-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "ministranci-nspj",
+            storageBucket: "ministranci-nspj.firebasestorage.app",
+            messagingSenderId: "918307132010",
+            appId: "1:918307132010:web:6a26c4753b44a3c9feb013",
+            measurementId: "G-968B2L6BRT"
         };
-
-        // UWAGA: Zastąp powyższy config swoim z Firebase Console!
-        // Jeśli masz już działający config w starej wersji – wklej go tutaj.
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        const ADMIN_HASH = "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918"; // admin
-        const ALL_PASS = "wszyscy";
+        const ADMIN_HASH = "25b1d98c3a5d7892b92afa49cc9ec98b341fddade508e78b19f1c10e3443a05a";
+        const ALL_PASS = "nspj";
 
         const defaultServices = [
-            "Msza święta", "Nabożeństwo", "Adoracja", "Różaniec", "Droga Krzyżowa",
+            "Msza Święta", "Chrzest Święty", "Nabożeństwo pierwszoobwodowe", "Pogrzeb", "Ślub po mszy", "Ślub", "Zbiórka",
+            "Nabożeństwo", "Gorzkie Żale", "Droga Krzyżowa", "Różaniec", "Wydarzenie specjalne", "Kolęda", "Pasterka",
             "Pomoc animatorowi/księdzu", "Ćwiczenie do Świąt", "Triduum", "Czuwanie", "Rekolekcje", "Msza fatimska",
             "Majowe", "Udział w turnieju/konkursie", "Wygrana w turnieju/konkursie", "Zbiórka specjalna", "Bierzmowanie",
             "Procesja Bożego Ciała", "Święcenie pokarmów", "Święcenia aut", "Święto Trzech Króli", "Służba zakończeniowa rok",
@@ -891,8 +831,7 @@
             services: [],
             requests: [],
             calendarEvents: [],
-            serviceHistory: [],
-            codes: []
+            serviceHistory: []
         };
 
         let calCurrentDate = new Date();
@@ -906,7 +845,6 @@
                 state.requests = data.requests || [];
                 state.calendarEvents = data.calendarEvents || [];
                 state.serviceHistory = data.serviceHistory || [];
-                state.codes = data.codes || [];
             } else {
                 state.ministrants = [
                     { id: 1, name: "Kamil Gawenda", degree: "Ministrant", points: 10, password: "", phone: "123-456-789", rank: "Prezes", desc: "", photo: "" }
@@ -928,8 +866,7 @@
                 services: state.services,
                 requests: state.requests,
                 calendarEvents: state.calendarEvents,
-                serviceHistory: state.serviceHistory,
-                codes: state.codes
+                serviceHistory: state.serviceHistory
             }).catch(error => {
                 console.error("Błąd zapisu:", error);
                 alert("Nie udało się zapisać!");
@@ -943,16 +880,16 @@
             return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
         }
 
-        function populateLoginUsers() {
-            const sel = document.getElementById('login-user-id');
-            if (!sel) return;
-            sel.innerHTML = state.ministrants.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
+        window.populateLoginUsers = function() {
+            const select = document.getElementById('login-user-id');
+            if (!select) return;
+            select.innerHTML = state.ministrants.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
         }
 
         window.toggleUserSelect = function() {
             const role = document.getElementById('login-role')?.value;
             const group = document.getElementById('user-select-group');
-            if (group) group.style.display = (role === 'user') ? 'block' : 'none';
+            if (group) group.style.display = role === 'user' ? 'block' : 'none';
         }
 
         window.login = async function() {
@@ -1006,7 +943,6 @@
             const isUser = state.currentUserRole === 'user';
             document.querySelectorAll('.admin-only').forEach(el => el.style.display = isAdmin ? '' : 'none');
             document.querySelectorAll('.user-admin-only').forEach(el => el.style.display = (isAdmin || isUser) ? '' : 'none');
-            document.querySelectorAll('.user-only').forEach(el => el.style.display = isUser ? '' : 'none');
             const addServBtn = document.getElementById('add-serv-cal-btn');
             if (addServBtn) addServBtn.style.display = isAdmin ? 'inline-block' : 'none';
 
@@ -1017,7 +953,6 @@
             } else {
                 userStats.style.display = 'none';
             }
-            renderCodesPanel();
         }
 
         function renderUserPersonalStats() {
@@ -1056,6 +991,7 @@
             if (target) target.classList.add('active');
             if (btn) btn.classList.add('active');
 
+            // Zmiana tytułu w topbar
             const titles = {
                 tabela: 'Tabela & Moje Konto',
                 kalendarz: 'Kalendarz Służb',
@@ -1064,8 +1000,7 @@
                 'szybka-sluzba': 'Szybka Służba',
                 'hasla-uczestnikow': 'Hasła Uczestników',
                 'punktacja-sluzb': 'Punktacja Służb',
-                ministranci: 'Lista Ministrantów',
-                kody: state.currentUserRole === 'admin' ? 'Generuj Kody' : 'Odbierz Kod'
+                ministranci: 'Lista Ministrantów'
             };
             document.getElementById('page-title').innerText = titles[tabId] || 'MINISTRANCI-NSPJ';
         }
@@ -1082,96 +1017,6 @@
             renderCalendar();
             renderPasswordsTable();
             applyPermissions();
-        }
-
-        function generateRandomCode(length = 6) {
-            const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-            let result = '';
-            for (let i = 0; i < length; i++) result += chars.charAt(Math.floor(Math.random() * chars.length));
-            return result;
-        }
-
-        window.generateCodes = function() {
-            if (state.currentUserRole !== 'admin') return;
-            const points = parseInt(document.getElementById('code-points').value) || 10;
-            const count = Math.min(50, Math.max(1, parseInt(document.getElementById('code-count').value) || 1));
-            if (!state.codes) state.codes = [];
-            const newCodes = [];
-            for (let i = 0; i < count; i++) {
-                let code;
-                do { code = generateRandomCode(); } while (state.codes.some(c => c.code === code) || newCodes.some(c => c.code === code));
-                newCodes.push({ code, points, createdAt: new Date().toLocaleString() });
-            }
-            state.codes.push(...newCodes);
-            saveDataToFirebase();
-            renderCodesPanel();
-            alert(`Wygenerowano ${count} kod(ów) po ${points} pkt.`);
-        }
-
-        window.redeemCode = function() {
-            if (state.currentUserRole !== 'user' || !state.currentUserId) {
-                alert('Musisz być zalogowany jako uczestnik!');
-                return;
-            }
-            const input = document.getElementById('redeem-code-input');
-            const codeStr = (input.value || '').trim().toUpperCase();
-            const resultEl = document.getElementById('redeem-result');
-            if (!codeStr) {
-                resultEl.innerHTML = '<p style="color:var(--danger-color);">Wpisz kod.</p>';
-                return;
-            }
-            if (!state.codes) state.codes = [];
-            const idx = state.codes.findIndex(c => c.code === codeStr);
-            if (idx === -1) {
-                resultEl.innerHTML = '<p style="color:var(--danger-color);">Nieprawidłowy lub już użyty kod.</p>';
-                return;
-            }
-            const codeObj = state.codes[idx];
-            const min = state.ministrants.find(m => m.id === state.currentUserId);
-            if (!min) return;
-            min.points += codeObj.points;
-            if (!state.serviceHistory) state.serviceHistory = [];
-            state.serviceHistory.push({
-                id: Date.now(),
-                ministrantId: min.id,
-                serviceName: `Kod: ${codeObj.code}`,
-                points: codeObj.points,
-                date: new Date().toLocaleDateString(),
-                time: new Date().toLocaleTimeString()
-            });
-            state.codes.splice(idx, 1);
-            saveDataToFirebase();
-            input.value = '';
-            resultEl.innerHTML = `<p style="color:var(--success-color); font-weight:700;">✅ Otrzymałeś +${codeObj.points} punktów!</p>`;
-            renderUserPersonalStats();
-            renderPointsTable();
-            renderCodesPanel();
-        }
-
-        function renderCodesPanel() {
-            const list = document.getElementById('active-codes-list');
-            if (!list) return;
-            const codes = state.codes || [];
-            if (codes.length === 0) {
-                list.innerHTML = '<p style="color:var(--text-sub);">Brak aktywnych kodów.</p>';
-                return;
-            }
-            list.innerHTML = codes.map(c => `
-                <div class="request-card" style="margin-bottom:8px;">
-                    <div>
-                        <strong style="font-size:1.15rem; letter-spacing:2px; color:var(--accent-red);">${c.code}</strong>
-                        <br><small style="color:var(--text-sub);">+${c.points} pkt · ${c.createdAt || ''}</small>
-                    </div>
-                    <button class="btn btn-danger" style="padding:5px 12px; font-size:0.8rem;" onclick="deleteCode('${c.code}')">Usuń</button>
-                </div>
-            `).join('');
-        }
-
-        window.deleteCode = function(code) {
-            if (state.currentUserRole !== 'admin') return;
-            state.codes = (state.codes || []).filter(c => c.code !== code);
-            saveDataToFirebase();
-            renderCodesPanel();
         }
 
         function renderPointsTable() {
@@ -1204,32 +1049,111 @@
                 tbody.innerHTML += `
                     <tr>
                         <td><strong>${m.name}</strong></td>
-                        <td><input type="text" value="${m.password || ''}" id="pass-${m.id}" style="width:140px; padding:6px; border-radius:6px; border:1px solid var(--border-color); background:var(--bg-primary); color:var(--text-main);"></td>
-                        <td><button class="btn" style="padding:5px 12px; font-size:0.8rem;" onclick="savePassword(${m.id})">Zapisz</button></td>
+                        <td>${m.degree}</td>
+                        <td><input type="text" id="pass-input-${m.id}" value="${m.password || ''}" placeholder="Brak hasła" style="padding:7px 10px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-primary); color:var(--text-main); width:140px;"></td>
+                        <td>
+                            <button class="btn btn-success" style="padding:5px 10px; font-size:0.8rem;" onclick="saveUserPassword(${m.id})">💾</button>
+                            <button class="btn btn-secondary" style="padding:5px 10px; font-size:0.8rem;" onclick="generateUserPassword(${m.id})">🎲</button>
+                        </td>
                     </tr>`;
             });
         }
 
-        window.savePassword = function(id) {
-            const min = state.ministrants.find(m => m.id === id);
-            if (!min) return;
-            min.password = document.getElementById(`pass-${id}`).value;
-            saveDataToFirebase();
-            alert('Hasło zapisane!');
+        window.saveUserPassword = function(id) {
+            const input = document.getElementById(`pass-input-${id}`);
+            const m = state.ministrants.find(item => item.id === id);
+            if (m && input) {
+                m.password = input.value.trim();
+                saveDataToFirebase();
+                alert(`Zapisano hasło dla: ${m.name}`);
+            }
+        }
+
+        window.generateUserPassword = function(id) {
+            const randomPass = Math.floor(1000 + Math.random() * 9000).toString();
+            const input = document.getElementById(`pass-input-${id}`);
+            if (input) {
+                input.value = randomPass;
+                saveUserPassword(id);
+            }
         }
 
         function renderMinistrantsGrid() {
             const grid = document.getElementById('ministrants-grid');
             if (!grid) return;
-            grid.innerHTML = state.ministrants.map(m => `
-                <div class="ministrant-card">
-                    <div class="avatar">${m.photo ? `<img src="${m.photo}" alt="${m.name}">` : '👤'}</div>
-                    <h3 style="margin-bottom:4px;">${m.name}</h3>
-                    <div style="color:var(--text-sub); font-size:0.9rem;">${m.degree}</div>
-                    ${m.rank ? `<span class="role-tag">${m.rank}</span>` : ''}
-                    <div style="margin-top:12px; font-weight:700; color:var(--success-color); font-size:1.2rem;">${m.points} pkt</div>
-                </div>
-            `).join('');
+            grid.innerHTML = '';
+            state.ministrants.forEach(m => {
+                const avatarContent = m.photo ? `<img src="${m.photo}" alt="${m.name}">` : `👤`;
+                grid.innerHTML += `
+                    <div class="ministrant-card">
+                        <div class="avatar">${avatarContent}</div>
+                        <h3 style="font-size:1.1rem;">${m.name}</h3>
+                        ${m.rank ? `<div class="role-tag">${m.rank}</div>` : ''}
+                        <p style="color:var(--text-main); font-weight:600; margin-top:8px;">${m.degree}</p>
+                        ${m.phone ? `<p style="font-size:0.85rem; color:var(--text-sub); margin-top:4px;">📞 ${m.phone}</p>` : ''}
+                        <p style="font-weight:700; color:var(--accent-red); margin:12px 0 6px;">${m.points} pkt</p>
+                        ${state.currentUserRole === 'admin' ? `<button class="btn btn-warning" style="width:100%; font-size:0.82rem; margin-top:8px;" onclick="openEditMinistrantModal(${m.id})">✏️ Edytuj</button>` : ''}
+                    </div>`;
+            });
+        }
+
+        window.openAddMinistrantModal = function() {
+            document.getElementById('m-edit-id').value = '';
+            document.getElementById('m-name').value = '';
+            document.getElementById('m-photo').value = '';
+            document.getElementById('m-phone').value = '';
+            document.getElementById('m-degree').value = 'Kandydat';
+            document.getElementById('m-rank').value = '';
+            document.getElementById('m-desc').value = '';
+            document.getElementById('m-points').value = '0';
+            document.getElementById('modal-min-title').innerText = 'Dodaj Nowego Ministranta';
+            openModal('modal-ministrant');
+        }
+
+        window.openEditMinistrantModal = function(id) {
+            const m = state.ministrants.find(item => item.id === id);
+            if (!m) return;
+            document.getElementById('m-edit-id').value = m.id;
+            document.getElementById('m-name').value = m.name;
+            document.getElementById('m-photo').value = m.photo || '';
+            document.getElementById('m-phone').value = m.phone || '';
+            document.getElementById('m-degree').value = m.degree;
+            document.getElementById('m-rank').value = m.rank || '';
+            document.getElementById('m-desc').value = m.desc || '';
+            document.getElementById('m-points').value = m.points;
+            document.getElementById('modal-min-title').innerText = `Edycja: ${m.name}`;
+            openModal('modal-ministrant');
+        }
+
+        window.saveMinistrant = function() {
+            const id = document.getElementById('m-edit-id').value;
+            const name = document.getElementById('m-name').value;
+            const photo = document.getElementById('m-photo').value;
+            const phone = document.getElementById('m-phone').value;
+            const degree = document.getElementById('m-degree').value;
+            const rank = document.getElementById('m-rank').value;
+            const desc = document.getElementById('m-desc').value;
+            const points = parseInt(document.getElementById('m-points').value) || 0;
+
+            if (!name) return alert('Wpisz imię i nazwisko!');
+            if (id) {
+                const m = state.ministrants.find(item => item.id == id);
+                if (m) {
+                    m.name = name; m.photo = photo; m.phone = phone;
+                    m.degree = degree; m.rank = rank; m.desc = desc; m.points = points;
+                }
+            } else {
+                state.ministrants.push({ id: Date.now(), name, photo, phone, degree, rank, desc, points, password: "" });
+            }
+            saveDataToFirebase();
+            closeModal('modal-ministrant');
+        }
+
+        window.deleteMinistrant = function(id) {
+            if (confirm('Usunąć tego ministranta?')) {
+                state.ministrants = state.ministrants.filter(m => m.id !== id);
+                saveDataToFirebase();
+            }
         }
 
         function renderServiceDropdowns() {
@@ -1361,64 +1285,6 @@
         window.deleteServiceType = function(id) {
             state.services = state.services.filter(s => s.id !== id);
             saveDataToFirebase();
-        }
-
-        window.openAddMinistrantModal = function() {
-            document.getElementById('m-edit-id').value = '';
-            document.getElementById('modal-min-title').innerText = 'Dodaj Ministranta';
-            document.getElementById('m-name').value = '';
-            document.getElementById('m-photo').value = '';
-            document.getElementById('m-phone').value = '';
-            document.getElementById('m-degree').value = 'Ministrant';
-            document.getElementById('m-rank').value = '';
-            document.getElementById('m-desc').value = '';
-            document.getElementById('m-points').value = '0';
-            openModal('modal-ministrant');
-        }
-
-        window.openEditMinistrantModal = function(id) {
-            const m = state.ministrants.find(x => x.id === id);
-            if (!m) return;
-            document.getElementById('m-edit-id').value = m.id;
-            document.getElementById('modal-min-title').innerText = 'Edytuj Ministranta';
-            document.getElementById('m-name').value = m.name;
-            document.getElementById('m-photo').value = m.photo || '';
-            document.getElementById('m-phone').value = m.phone || '';
-            document.getElementById('m-degree').value = m.degree || 'Ministrant';
-            document.getElementById('m-rank').value = m.rank || '';
-            document.getElementById('m-desc').value = m.desc || '';
-            document.getElementById('m-points').value = m.points || 0;
-            openModal('modal-ministrant');
-        }
-
-        window.saveMinistrant = function() {
-            const editId = document.getElementById('m-edit-id').value;
-            const name = document.getElementById('m-name').value.trim();
-            if (!name) return alert('Podaj imię i nazwisko!');
-            const data = {
-                name,
-                photo: document.getElementById('m-photo').value,
-                phone: document.getElementById('m-phone').value,
-                degree: document.getElementById('m-degree').value,
-                rank: document.getElementById('m-rank').value,
-                desc: document.getElementById('m-desc').value,
-                points: parseInt(document.getElementById('m-points').value) || 0
-            };
-            if (editId) {
-                const m = state.ministrants.find(x => x.id == editId);
-                if (m) Object.assign(m, data);
-            } else {
-                state.ministrants.push({ id: Date.now(), password: '', ...data });
-            }
-            saveDataToFirebase();
-            closeModal('modal-ministrant');
-        }
-
-        window.deleteMinistrant = function(id) {
-            if (confirm('Na pewno usunąć tego ministranta?')) {
-                state.ministrants = state.ministrants.filter(m => m.id !== id);
-                saveDataToFirebase();
-            }
         }
 
         window.openAddEventModal = function() {
