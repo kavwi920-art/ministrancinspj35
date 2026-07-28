@@ -296,6 +296,7 @@
         .btn-success { background: var(--success-color); }
         .btn-danger { background: var(--danger-color); }
         .btn-warning { background: #f59e0b; color: #000; }
+        .btn-info { background: #3b82f6; }
         .btn-secondary {
             background: var(--bg-card);
             border: 1px solid var(--border-color);
@@ -515,6 +516,10 @@
             opacity: 0.55;
             border-left-color: var(--danger-color) !important;
             text-decoration: line-through;
+        }
+        .history-item.justified {
+            border-left-color: #3b82f6 !important;
+            opacity: 0.85;
         }
 
         /* ========== MOBILE MODE (tylko gdy wybrano Telefon) ========== */
@@ -882,6 +887,17 @@
                     <div class="form-group"><label>Godzina służby</label><input type="time" id="req-time" required></div>
                     <button class="btn" style="width:100%; margin-top:8px;" onclick="submitServiceRequest()">Wyślij zgłoszenie</button>
                 </div>
+
+                <!-- NOWE: Prośba o usprawiedliwienie (tylko uczestnik) -->
+                <div class="card" style="max-width:520px; margin-top:20px; border:1px solid #3b82f6;">
+                    <h2 style="color:#3b82f6;">📝 Prośba o usprawiedliwienie</h2>
+                    <p style="color:var(--text-sub); margin:8px 0 18px; font-size:0.9rem;">Wyślij prośbę do administratora. Za usprawiedliwioną służbę nie dostaniesz ujemnych punktów.</p>
+                    <div class="form-group"><label>Kim jesteś?</label><select id="just-ministrant"></select></div>
+                    <div class="form-group"><label>Jaka służba?</label><select id="just-service"></select></div>
+                    <div class="form-group"><label>Godzina służby</label><input type="time" id="just-time"></div>
+                    <div class="form-group"><label>Powód / Notatka (opcjonalnie)</label><textarea id="just-note" rows="3" placeholder="Np. choroba, wyjazd, inne..."></textarea></div>
+                    <button class="btn btn-info" style="width:100%; margin-top:8px;" onclick="submitJustificationRequest()">Wyślij prośbę o usprawiedliwienie</button>
+                </div>
             </div>
 
             <!-- POWIADOMIENIA -->
@@ -910,7 +926,7 @@
 
                 <div class="card" style="margin-top:16px;">
                     <h2 style="margin-bottom:12px;">Ostatnie przyznane służby</h2>
-                    <p style="color:var(--text-sub); font-size:0.88rem; margin-bottom:12px;">Kliknij, aby zobaczyć notatkę. Admin może anulować (odejmuje punkty).</p>
+                    <p style="color:var(--text-sub); font-size:0.88rem; margin-bottom:12px;">Kliknij, aby zobaczyć notatkę. Admin może anulować (odejmuje punkty) lub usprawiedliwić (0 pkt).</p>
                     <div id="admin-recent-history"></div>
                 </div>
             </div>
@@ -1273,11 +1289,22 @@
                 historyList.innerHTML = '<p style="color:var(--text-sub); font-size:0.9rem;">Brak historii.</p>';
             } else {
                 historyList.innerHTML = myHistory.slice().reverse().slice(0, 5).map(h => {
-                    const canceled = h.canceled ? ' canceled' : '';
-                    const ptsColor = h.canceled ? 'var(--danger-color)' : (h.points >= 0 ? 'var(--success-color)' : 'var(--danger-color)');
-                    const ptsText = h.canceled ? 'anulowano' : (h.points >= 0 ? '+' + h.points : h.points);
+                    let extraClass = '';
+                    let ptsColor = h.points >= 0 ? 'var(--success-color)' : 'var(--danger-color)';
+                    let ptsText = h.points >= 0 ? '+' + h.points : h.points;
+
+                    if (h.canceled) {
+                        extraClass = ' canceled';
+                        ptsColor = 'var(--danger-color)';
+                        ptsText = 'anulowano';
+                    } else if (h.justified) {
+                        extraClass = ' justified';
+                        ptsColor = '#3b82f6';
+                        ptsText = 'usprawiedliwiono';
+                    }
+
                     return `
-                    <div class="history-item${canceled}" style="border-left-color:${ptsColor};" onclick="openHistoryDetail(${h.id})">
+                    <div class="history-item${extraClass}" style="border-left-color:${ptsColor};" onclick="openHistoryDetail(${h.id})">
                         <div style="font-size:0.85rem;"><strong>${h.serviceName}</strong><br><small style="color:var(--text-sub);">${h.date} ${h.time}</small></div>
                         <div style="font-weight:700; color:${ptsColor};">${ptsText}</div>
                     </div>`;
@@ -1511,6 +1538,8 @@
             const calAssigned = document.getElementById('cal-assigned');
             const adminMin = document.getElementById('admin-direct-min');
             const adminServ = document.getElementById('admin-direct-serv');
+            const justMin = document.getElementById('just-ministrant');
+            const justServ = document.getElementById('just-service');
 
             if (reqMin) reqMin.innerHTML = state.ministrants.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
             if (reqServ) reqServ.innerHTML = state.services.map(s => `<option value="${s.id}">${s.name} (+${s.posPoints} / ${s.negPoints})</option>`).join('');
@@ -1518,6 +1547,8 @@
             if (calAssigned) calAssigned.innerHTML = state.ministrants.map(m => `<option value="${m.name}">${m.name}</option>`).join('');
             if (adminMin) adminMin.innerHTML = state.ministrants.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
             if (adminServ) adminServ.innerHTML = state.services.map(s => `<option value="${s.id}">${s.name} (+${s.posPoints} pkt)</option>`).join('');
+            if (justMin) justMin.innerHTML = state.ministrants.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
+            if (justServ) justServ.innerHTML = state.services.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
         }
 
         window.submitServiceRequest = function() {
@@ -1530,12 +1561,49 @@
 
             if (!state.requests) state.requests = [];
             state.requests.push({
-                id: Date.now(), ministrantId: min.id, ministrantName: min.name,
-                serviceId: serv.id, serviceName: serv.name, posPoints: serv.posPoints,
-                negPoints: serv.negPoints, serviceTime: time, sentAt: new Date().toLocaleString()
+                id: Date.now(),
+                type: 'attendance',
+                ministrantId: min.id,
+                ministrantName: min.name,
+                serviceId: serv.id,
+                serviceName: serv.name,
+                posPoints: serv.posPoints,
+                negPoints: serv.negPoints,
+                serviceTime: time,
+                note: '',
+                sentAt: new Date().toLocaleString()
             });
             saveDataToFirebase();
             alert('Zgłoszenie wysłane!');
+        }
+
+        // NOWE: prośba o usprawiedliwienie
+        window.submitJustificationRequest = function() {
+            const minId = parseInt(document.getElementById('just-ministrant').value);
+            const servId = parseInt(document.getElementById('just-service').value);
+            const time = document.getElementById('just-time').value || '—';
+            const note = (document.getElementById('just-note')?.value || '').trim();
+            if (!minId || !servId) return alert('Wybierz ministranta i służbę!');
+            const min = state.ministrants.find(m => m.id === minId);
+            const serv = state.services.find(s => s.id === servId);
+
+            if (!state.requests) state.requests = [];
+            state.requests.push({
+                id: Date.now(),
+                type: 'justification',
+                ministrantId: min.id,
+                ministrantName: min.name,
+                serviceId: serv.id,
+                serviceName: serv.name,
+                posPoints: 0,
+                negPoints: serv.negPoints,
+                serviceTime: time,
+                note: note,
+                sentAt: new Date().toLocaleString()
+            });
+            saveDataToFirebase();
+            document.getElementById('just-note').value = '';
+            alert('Prośba o usprawiedliwienie wysłana do administratora!');
         }
 
         window.adminDirectAddService = function() {
@@ -1558,9 +1626,9 @@
                 date: new Date().toLocaleDateString(),
                 time,
                 note: note || '',
-                canceled: false
+                canceled: false,
+                justified: false
             });
-            // wyczyść notatkę
             if (document.getElementById('admin-direct-note')) document.getElementById('admin-direct-note').value = '';
             saveDataToFirebase();
             alert(`Przyznano "${serv.name}" (+${serv.posPoints} pkt) dla ${min.name}!`);
@@ -1576,12 +1644,23 @@
                 return;
             }
             list.innerHTML = hist.map(h => {
-                const canceled = h.canceled ? ' canceled' : '';
-                const ptsColor = h.canceled ? 'var(--danger-color)' : (h.points >= 0 ? 'var(--success-color)' : 'var(--danger-color)');
-                const ptsText = h.canceled ? 'anulowano' : (h.points >= 0 ? '+' + h.points : h.points);
+                let extraClass = '';
+                let ptsColor = h.points >= 0 ? 'var(--success-color)' : 'var(--danger-color)';
+                let ptsText = h.points >= 0 ? '+' + h.points : h.points;
+
+                if (h.canceled) {
+                    extraClass = ' canceled';
+                    ptsColor = 'var(--danger-color)';
+                    ptsText = 'anulowano';
+                } else if (h.justified) {
+                    extraClass = ' justified';
+                    ptsColor = '#3b82f6';
+                    ptsText = 'usprawiedliwiono';
+                }
+
                 const name = h.ministrantName || (state.ministrants.find(m => m.id === h.ministrantId)?.name || '?');
                 return `
-                <div class="history-item${canceled}" style="border-left-color:${ptsColor}; margin-bottom:10px;" onclick="openHistoryDetail(${h.id})">
+                <div class="history-item${extraClass}" style="border-left-color:${ptsColor}; margin-bottom:10px;" onclick="openHistoryDetail(${h.id})">
                     <div style="font-size:0.88rem;">
                         <strong>${name}</strong> · ${h.serviceName}<br>
                         <small style="color:var(--text-sub);">${h.date} ${h.time}${h.note ? ' · 📝' : ''}</small>
@@ -1601,19 +1680,38 @@
             const actionsEl = document.getElementById('history-detail-actions');
             if (!titleEl || !bodyEl) return;
 
-            titleEl.innerText = h.canceled ? 'Anulowana służba' : 'Szczegóły służby';
+            let statusLabel = '';
+            let borderColor = 'var(--success-color)';
+            if (h.canceled) {
+                statusLabel = 'Anulowana służba';
+                borderColor = 'var(--danger-color)';
+            } else if (h.justified) {
+                statusLabel = 'Usprawiedliwiona służba';
+                borderColor = '#3b82f6';
+            } else {
+                statusLabel = 'Szczegóły służby';
+            }
+
+            titleEl.innerText = statusLabel;
             bodyEl.innerHTML = `
-                <div style="background:var(--bg-card); padding:16px; border-radius:12px; border-left:5px solid ${h.canceled ? 'var(--danger-color)' : 'var(--success-color)'};">
+                <div style="background:var(--bg-card); padding:16px; border-radius:12px; border-left:5px solid ${borderColor};">
                     <p style="margin-bottom:8px;"><strong>Ministrant:</strong> ${name}</p>
                     <p style="margin-bottom:8px;"><strong>Służba:</strong> ${h.serviceName}</p>
                     <p style="margin-bottom:8px;"><strong>Data:</strong> ${h.date}</p>
                     <p style="margin-bottom:8px;"><strong>Godzina:</strong> ${h.time}</p>
-                    <p style="margin-bottom:8px;"><strong>Punkty:</strong> <span style="color:${h.canceled ? 'var(--danger-color)' : 'var(--success-color)'}; font-weight:700;">${h.canceled ? 'anulowano (było +' + h.points + ')' : (h.points >= 0 ? '+' + h.points : h.points)}</span></p>
+                    <p style="margin-bottom:8px;"><strong>Punkty:</strong> <span style="color:${borderColor}; font-weight:700;">
+                        ${h.canceled ? 'anulowano (było +' + h.points + ')' : 
+                          h.justified ? 'usprawiedliwiono (0 pkt)' : 
+                          (h.points >= 0 ? '+' + h.points : h.points)}
+                    </span></p>
                     ${h.note ? `<p style="margin-top:14px; padding-top:12px; border-top:1px solid var(--border-color);"><strong>📝 Notatka:</strong><br><span style="color:var(--text-main); white-space:pre-wrap;">${h.note}</span></p>` : '<p style="margin-top:12px; color:var(--text-sub); font-size:0.9rem;">Brak notatki.</p>'}
                 </div>`;
 
-            if (isAdmin && !h.canceled) {
-                actionsEl.innerHTML = `<button class="btn btn-danger" style="width:100%; margin-bottom:10px;" onclick="cancelHistoryService(${h.id})">❌ Anuluj służbę (odejmij punkty)</button>`;
+            if (isAdmin && !h.canceled && !h.justified) {
+                actionsEl.innerHTML = `
+                    <button class="btn btn-danger" style="width:100%; margin-bottom:10px;" onclick="cancelHistoryService(${h.id})">❌ Anuluj służbę (odejmij punkty)</button>
+                    <button class="btn btn-info" style="width:100%; margin-bottom:10px;" onclick="justifyHistoryService(${h.id})">📝 Usprawiedliw służbę (0 pkt)</button>
+                `;
             } else {
                 actionsEl.innerHTML = '';
             }
@@ -1622,16 +1720,32 @@
 
         window.cancelHistoryService = function(histId) {
             const h = (state.serviceHistory || []).find(item => item.id === histId);
-            if (!h || h.canceled) return;
+            if (!h || h.canceled || h.justified) return;
             if (!confirm(`Anulować służbę "${h.serviceName}" i odjąć ${h.points} pkt?`)) return;
             const min = state.ministrants.find(m => m.id === h.ministrantId);
             if (min) min.points -= h.points;
             h.canceled = true;
+            h.justified = false;
             saveDataToFirebase();
             closeModal('modal-history-detail');
             renderAll();
             renderAdminRecentHistory();
             alert('Służba anulowana, punkty odjęte.');
+        }
+
+        // NOWE: usprawiedliwienie (bez odejmowania punktów)
+        window.justifyHistoryService = function(histId) {
+            const h = (state.serviceHistory || []).find(item => item.id === histId);
+            if (!h || h.canceled || h.justified) return;
+            if (!confirm(`Usprawiedliwić służbę "${h.serviceName}"? Punkty NIE zostaną odjęte.`)) return;
+            h.justified = true;
+            h.canceled = false;
+            // nie odejmujemy punktów
+            saveDataToFirebase();
+            closeModal('modal-history-detail');
+            renderAll();
+            renderAdminRecentHistory();
+            alert('Służba usprawiedliwiona (0 pkt).');
         }
 
         function renderRequests() {
@@ -1653,40 +1767,67 @@
             }
             list.innerHTML = '';
             reqs.forEach(r => {
+                const isJust = r.type === 'justification';
                 list.innerHTML += `
-                    <div class="request-card">
+                    <div class="request-card" style="${isJust ? 'border-left:4px solid #3b82f6;' : ''}">
                         <div>
-                            <strong>📩 ${r.ministrantName}</strong> zgłosił: <strong>${r.serviceName}</strong><br>
-                            <small style="color:var(--text-sub);">Godzina: ${r.serviceTime}</small>
+                            <strong>${isJust ? '📝 ' : '📩 '}${r.ministrantName}</strong> 
+                            ${isJust ? 'prosi o usprawiedliwienie' : 'zgłosił'}: <strong>${r.serviceName}</strong><br>
+                            <small style="color:var(--text-sub);">Godzina: ${r.serviceTime}${r.note ? ' · 📝 ' + r.note : ''}</small>
                         </div>
-                        <div style="display:flex; gap:8px;">
-                            <button class="btn btn-success" onclick="processRequest(${r.id}, true)">✅ +${r.posPoints}</button>
-                            <button class="btn btn-danger" onclick="processRequest(${r.id}, false)">❌ ${r.negPoints}</button>
+                        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                            ${isJust ? `
+                                <button class="btn btn-info" onclick="processRequest(${r.id}, 'justify')">✅ Usprawiedliw (0)</button>
+                                <button class="btn btn-danger" onclick="processRequest(${r.id}, false)">❌ Odrzuć (${r.negPoints})</button>
+                            ` : `
+                                <button class="btn btn-success" onclick="processRequest(${r.id}, true)">✅ +${r.posPoints}</button>
+                                <button class="btn btn-danger" onclick="processRequest(${r.id}, false)">❌ ${r.negPoints}</button>
+                            `}
                         </div>
                     </div>`;
             });
         }
 
-        window.processRequest = function(reqId, isApproved) {
+        window.processRequest = function(reqId, action) {
             const req = state.requests.find(r => r.id === reqId);
             if (!req) return;
             const min = state.ministrants.find(m => m.id === req.ministrantId);
-            if (min) {
-                const pts = isApproved ? req.posPoints : req.negPoints;
-                min.points += pts;
-                if (!state.serviceHistory) state.serviceHistory = [];
-                state.serviceHistory.push({
-                    id: Date.now(),
-                    ministrantId: min.id,
-                    ministrantName: min.name,
-                    serviceName: req.serviceName,
-                    points: pts,
-                    date: new Date().toLocaleDateString(),
-                    time: req.serviceTime,
-                    note: '',
-                    canceled: false
-                });
+            if (!min) return;
+
+            let pts = 0;
+            let justified = false;
+            let canceled = false;
+
+            if (req.type === 'justification') {
+                if (action === 'justify') {
+                    // usprawiedliwienie – 0 punktów
+                    pts = 0;
+                    justified = true;
+                } else {
+                    // odrzucenie – odejmujemy punkty ujemne
+                    pts = req.negPoints;
+                }
+            } else {
+                // zwykłe zgłoszenie obecności
+                pts = action === true ? req.posPoints : req.negPoints;
             }
+
+            min.points += pts;
+
+            if (!state.serviceHistory) state.serviceHistory = [];
+            state.serviceHistory.push({
+                id: Date.now(),
+                ministrantId: min.id,
+                ministrantName: min.name,
+                serviceName: req.serviceName,
+                points: pts,
+                date: new Date().toLocaleDateString(),
+                time: req.serviceTime,
+                note: req.note || '',
+                canceled: false,
+                justified: justified
+            });
+
             state.requests = state.requests.filter(r => r.id !== reqId);
             saveDataToFirebase();
         }
