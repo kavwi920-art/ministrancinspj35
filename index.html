@@ -46,7 +46,6 @@
             transition: background 0.3s, color 0.3s;
         }
 
-        /* ========== SIDEBAR (desktop) ========== */
         .sidebar {
             width: var(--sidebar-width);
             background: var(--bg-sidebar);
@@ -54,9 +53,7 @@
             display: flex;
             flex-direction: column;
             position: fixed;
-            top: 0;
-            left: 0;
-            bottom: 0;
+            top: 0; left: 0; bottom: 0;
             z-index: 100;
             padding: 20px 14px;
         }
@@ -113,7 +110,6 @@
             border-top: 1px solid var(--border-color);
         }
 
-        /* ========== MAIN AREA ========== */
         .main-wrapper {
             margin-left: var(--sidebar-width);
             flex: 1;
@@ -122,7 +118,6 @@
             min-height: 100vh;
         }
 
-        /* ========== TOP BAR ========== */
         .topbar {
             background: var(--bg-secondary);
             border-bottom: 1px solid var(--border-color);
@@ -156,7 +151,6 @@
             gap: 8px;
         }
 
-        /* ========== CONTENT ========== */
         main {
             flex: 1;
             padding: 24px;
@@ -176,7 +170,6 @@
             box-shadow: var(--shadow);
         }
 
-        /* ========== PERSONAL CARD ========== */
         .personal-card {
             display: grid;
             grid-template-columns: auto 1fr auto;
@@ -189,8 +182,7 @@
             margin-bottom: 24px;
         }
         .personal-avatar {
-            width: 100px;
-            height: 100px;
+            width: 100px; height: 100px;
             border-radius: 50%;
             background: var(--bg-card);
             border: 3px solid var(--accent-red);
@@ -212,7 +204,6 @@
         }
         .points-label { font-size: 0.95rem; color: var(--text-sub); margin-top: 2px; }
 
-        /* ========== TABLE ========== */
         .table-responsive { overflow-x: auto; }
         table { width: 100%; border-collapse: collapse; min-width: 520px; }
         th, td { padding: 13px 16px; text-align: left; border-bottom: 1px solid var(--border-color); }
@@ -229,8 +220,7 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            width: 32px;
-            height: 32px;
+            width: 32px; height: 32px;
             border-radius: 50%;
             font-weight: 800;
             font-size: 0.9rem;
@@ -240,7 +230,6 @@
         .rank-3 { background: linear-gradient(135deg,#d97706,#b45309); color: #fff; }
         .rank-other { background: var(--bg-card); color: var(--text-sub); border: 1px solid var(--border-color); }
 
-        /* ========== GRID ========== */
         .grid-cards {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
@@ -256,8 +245,7 @@
         }
         .ministrant-card:hover { transform: translateY(-4px); box-shadow: var(--shadow); }
         .avatar {
-            width: 90px;
-            height: 90px;
+            width: 90px; height: 90px;
             border-radius: 50%;
             margin: 0 auto 14px;
             background: var(--bg-card);
@@ -280,7 +268,6 @@
             margin-top: 6px;
         }
 
-        /* ========== BUTTONS ========== */
         .btn {
             background: var(--accent-red);
             color: white;
@@ -304,7 +291,6 @@
         }
         .btn-secondary:hover { background: var(--border-color); }
 
-        /* ========== CALENDAR ========== */
         .cal-nav-bar {
             display: flex;
             justify-content: space-between;
@@ -359,8 +345,7 @@
             font-size: 0.82rem;
             font-weight: 700;
             color: var(--text-sub);
-            width: 26px;
-            height: 26px;
+            width: 26px; height: 26px;
             line-height: 26px;
             text-align: center;
             border-radius: 50%;
@@ -386,7 +371,6 @@
         .cal-event-yellow { background: rgba(245,158,11,0.25); border-left-color: #f59e0b; }
         .cal-event-red { background: rgba(239,68,68,0.25); border-left-color: #ef4444; }
 
-        /* ========== FORMS & MODALS ========== */
         .modal {
             display: none;
             position: fixed;
@@ -451,7 +435,6 @@
             resize: vertical;
         }
 
-        /* ========== LOGIN ========== */
         #login-overlay {
             position: fixed;
             inset: 0;
@@ -522,10 +505,7 @@
             opacity: 0.85;
         }
 
-        /* ========== MOBILE MODE (tylko gdy wybrano Telefon) ========== */
-        body.mobile-mode .sidebar {
-            display: none !important;
-        }
+        body.mobile-mode .sidebar { display: none !important; }
         body.mobile-mode .main-wrapper {
             margin-left: 0 !important;
             padding-bottom: var(--bottom-nav-height);
@@ -547,12 +527,8 @@
             content: "⚜️";
             font-size: 1.2rem;
         }
-        body.mobile-mode .user-chip {
-            display: none;
-        }
-        body.mobile-mode main {
-            padding: 12px 12px 20px;
-        }
+        body.mobile-mode .user-chip { display: none; }
+        body.mobile-mode main { padding: 12px 12px 20px; }
         body.mobile-mode .personal-card {
             grid-template-columns: 1fr;
             text-align: center;
@@ -561,13 +537,10 @@
         }
         body.mobile-mode .personal-avatar {
             margin: 0 auto;
-            width: 80px;
-            height: 80px;
+            width: 80px; height: 80px;
             font-size: 2rem;
         }
-        body.mobile-mode .points-big {
-            font-size: 2.4rem;
-        }
+        body.mobile-mode .points-big { font-size: 2.4rem; }
         body.mobile-mode .card {
             padding: 16px;
             border-radius: 16px;
@@ -577,20 +550,15 @@
             grid-template-columns: 1fr;
             gap: 12px;
         }
-        body.mobile-mode .ministrant-card {
-            padding: 16px;
-        }
-        body.mobile-mode .month-grid {
-            border-radius: 12px;
-        }
+        body.mobile-mode .ministrant-card { padding: 16px; }
+        body.mobile-mode .month-grid { border-radius: 12px; }
         body.mobile-mode .day-cell {
             min-height: 72px;
             padding: 4px;
         }
         body.mobile-mode .day-number {
             font-size: 0.75rem;
-            width: 22px;
-            height: 22px;
+            width: 22px; height: 22px;
             line-height: 22px;
         }
         body.mobile-mode .cal-event-badge {
@@ -611,7 +579,6 @@
             font-size: 1.15rem !important;
         }
 
-        /* Górne zakładki kalendarza w stylu aplikacji (tylko mobile) */
         body.mobile-mode .cal-view-tabs {
             display: flex;
             gap: 0;
@@ -638,13 +605,10 @@
             background: var(--bg-card);
         }
 
-        /* Dolny pasek nawigacji */
         .bottom-nav {
             display: none;
             position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
+            bottom: 0; left: 0; right: 0;
             height: var(--bottom-nav-height);
             background: #0a0a0a;
             border-top: 1px solid #222;
@@ -654,9 +618,7 @@
             padding: 0 4px;
             padding-bottom: env(safe-area-inset-bottom);
         }
-        body.mobile-mode .bottom-nav {
-            display: flex;
-        }
+        body.mobile-mode .bottom-nav { display: flex; }
         .bottom-nav-item {
             display: flex;
             flex-direction: column;
@@ -679,13 +641,10 @@
             font-size: 1.35rem;
             line-height: 1;
         }
-        .bottom-nav-item.active {
-            color: var(--accent-red);
-        }
+        .bottom-nav-item.active { color: var(--accent-red); }
         .bottom-nav-item .bn-badge {
             position: absolute;
-            top: 2px;
-            right: 12px;
+            top: 2px; right: 12px;
             background: var(--accent-red);
             color: #fff;
             font-size: 0.6rem;
@@ -696,18 +655,10 @@
             text-align: center;
         }
 
-        /* Ukryj klasyczne przyciski widoku kalendarza na mobile (zastąpione zakładkami) */
-        body.mobile-mode .cal-desktop-views {
-            display: none !important;
-        }
-        body.mobile-mode .cal-mobile-views {
-            display: flex !important;
-        }
-        .cal-mobile-views {
-            display: none;
-        }
+        body.mobile-mode .cal-desktop-views { display: none !important; }
+        body.mobile-mode .cal-mobile-views { display: flex !important; }
+        .cal-mobile-views { display: none; }
 
-        /* Desktop – zostaw jak było */
         @media (max-width: 900px) {
             body:not(.mobile-mode) .sidebar {
                 width: 70px;
@@ -730,7 +681,6 @@
         <div class="login-box">
             <h1>MINISTRANCI-NSPJ</h1>
             <h3>Logowanie do systemu</h3>
-            
             <div class="form-group">
                 <label>Wybierz Rolę</label>
                 <select id="login-role" onchange="toggleUserSelect()">
@@ -758,7 +708,7 @@
         </div>
     </div>
 
-    <!-- SIDEBAR (desktop) -->
+    <!-- SIDEBAR -->
     <aside class="sidebar">
         <div class="sidebar-logo">⚜️ MINISTRANCI-NSPJ</div>
         <nav class="sidebar-nav">
@@ -772,7 +722,10 @@
                 <span class="icon">✍️</span> <span>Zgłoś Służbę</span>
             </button>
             <button class="nav-btn user-admin-only" onclick="switchTab('punktacja-sluzb', this)">
-                <span class="icon">📊</span> <span>Punktacja</span>
+                <span class="icon">📊</span> <span>Punkty za służbę</span>
+            </button>
+            <button class="nav-btn user-admin-only" onclick="switchTab('punkty', this)">
+                <span class="icon">⭐</span> <span>Punkty</span>
             </button>
             <button class="nav-btn admin-only" onclick="switchTab('powiadomienia', this)">
                 <span class="icon">🔔</span> <span>Powiadomienia</span>
@@ -825,7 +778,6 @@
                         </div>
                     </div>
                 </div>
-
                 <div class="card">
                     <h2 style="margin-bottom:4px;">🏆 Ranking Ministrantów</h2>
                     <p style="color:var(--text-sub); font-size:0.9rem; margin-bottom:16px;">Aktualna tabela punktowa</p>
@@ -857,22 +809,17 @@
                             <button class="cal-pill-btn" onclick="calChangePeriod(1)">〉</button>
                         </div>
                         <h2 id="cal-period-title" style="font-size:1.25rem; color:var(--accent-red);">Kalendarz Służb</h2>
-                        
-                        <!-- Desktop views -->
                         <div class="cal-desktop-views" style="display:flex; gap:6px;">
                             <button class="cal-pill-btn active" id="view-btn-month" onclick="calSetView('month')">Miesiąc</button>
                             <button class="cal-pill-btn" id="view-btn-week" onclick="calSetView('week')">Tydzień</button>
                             <button class="cal-pill-btn" id="view-btn-day" onclick="calSetView('day')">Dzień</button>
                         </div>
                     </div>
-
-                    <!-- Mobile tabs (Miesiąc / Tydzień / Dzień) – w stylu aplikacji -->
                     <div class="cal-view-tabs cal-mobile-views">
                         <button class="cal-pill-btn active" id="mview-btn-month" onclick="calSetView('month')">Miesiąc</button>
                         <button class="cal-pill-btn" id="mview-btn-week" onclick="calSetView('week')">Tydzień</button>
                         <button class="cal-pill-btn" id="mview-btn-day" onclick="calSetView('day')">Dzień</button>
                     </div>
-
                     <div id="calendar-render-area"></div>
                 </div>
             </div>
@@ -887,8 +834,6 @@
                     <div class="form-group"><label>Godzina służby</label><input type="time" id="req-time" required></div>
                     <button class="btn" style="width:100%; margin-top:8px;" onclick="submitServiceRequest()">Wyślij zgłoszenie</button>
                 </div>
-
-                <!-- NOWE: Prośba o usprawiedliwienie (tylko uczestnik) -->
                 <div class="card" style="max-width:520px; margin-top:20px; border:1px solid #3b82f6;">
                     <h2 style="color:#3b82f6;">📝 Prośba o usprawiedliwienie</h2>
                     <p style="color:var(--text-sub); margin:8px 0 18px; font-size:0.9rem;">Wyślij prośbę do administratora. Za usprawiedliwioną służbę nie dostaniesz ujemnych punktów.</p>
@@ -923,7 +868,6 @@
                     </div>
                     <button class="btn btn-success" style="width:100%; margin-top:8px;" onclick="adminDirectAddService()">+ Przyznaj służbę i punkty</button>
                 </div>
-
                 <div class="card" style="margin-top:16px;">
                     <h2 style="margin-bottom:12px;">Ostatnie przyznane służby</h2>
                     <p style="color:var(--text-sub); font-size:0.88rem; margin-bottom:12px;">Kliknij, aby zobaczyć notatkę. Admin może anulować (odejmuje punkty) lub usprawiedliwić (0 pkt).</p>
@@ -951,20 +895,19 @@
                 </div>
             </div>
 
-            <!-- PUNKTACJA -->
+            <!-- PUNKTY ZA SŁUŻBĘ (tylko służby liturgiczne) -->
             <div id="tab-punktacja-sluzb" class="tab-content">
                 <div class="card">
-                    <h2>Cennik punktów za służby</h2>
-                    <p style="color:var(--text-sub); font-size:0.9rem; margin-bottom:12px;">Lista wszystkich służb i punktów. Tylko administrator może edytować i usuwać.</p>
-                    
-                    <!-- Formularz dodawania – tylko admin -->
+                    <h2>📊 Punkty za służbę</h2>
+                    <p style="color:var(--text-sub); font-size:0.9rem; margin-bottom:12px;">
+                        Lista służb liturgicznych. Te pozycje pojawiają się w zakładce „Zgłoś obecność”. Tylko administrator może edytować.
+                    </p>
                     <div class="admin-only" style="display:flex; gap:10px; margin:16px 0; flex-wrap:wrap; background:var(--bg-card); padding:14px; border-radius:12px;">
                         <input type="text" id="new-service-name" placeholder="Nazwa nowej służby..." style="flex:2; min-width:180px; padding:10px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-primary); color:var(--text-main);">
                         <input type="number" id="new-service-pos" placeholder="+ Pkt" style="flex:1; min-width:90px; padding:10px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-primary); color:var(--text-main);">
                         <input type="number" id="new-service-neg" placeholder="- Pkt" style="flex:1; min-width:90px; padding:10px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-primary); color:var(--text-main);">
                         <button class="btn" onclick="addNewServiceType()">Dodaj</button>
                     </div>
-
                     <div class="table-responsive">
                         <table>
                             <thead>
@@ -981,6 +924,56 @@
                 </div>
             </div>
 
+            <!-- NOWA ZAKŁADKA: PUNKTY (dodatkowe / zachowanie) -->
+            <div id="tab-punkty" class="tab-content">
+                <div class="card">
+                    <h2>⭐ Punkty dodatkowe</h2>
+                    <p style="color:var(--text-sub); font-size:0.9rem; margin-bottom:12px;">
+                        Punkty za zachowanie, pomoc, kary itp. <strong>Nie pojawiają się</strong> w „Zgłoś obecność”. Tylko administrator może przyznawać.
+                    </p>
+
+                    <!-- Formularz dodawania typu punktów – tylko admin -->
+                    <div class="admin-only" style="display:flex; gap:10px; margin:16px 0; flex-wrap:wrap; background:var(--bg-card); padding:14px; border-radius:12px;">
+                        <input type="text" id="new-point-name" placeholder="Nazwa (np. Złe zachowanie)..." style="flex:2; min-width:180px; padding:10px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-primary); color:var(--text-main);">
+                        <input type="number" id="new-point-pos" placeholder="+ Pkt" style="flex:1; min-width:90px; padding:10px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-primary); color:var(--text-main);">
+                        <input type="number" id="new-point-neg" placeholder="- Pkt" style="flex:1; min-width:90px; padding:10px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-primary); color:var(--text-main);">
+                        <button class="btn" onclick="addNewPointType()">Dodaj</button>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Nazwa</th>
+                                    <th>Punkty (+)</th>
+                                    <th>Punkty (−)</th>
+                                    <th class="admin-only">Akcje</th>
+                                </tr>
+                            </thead>
+                            <tbody id="point-types-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Przyznawanie punktów – tylko admin -->
+                <div class="card admin-only" style="border:1px solid var(--accent-red);">
+                    <h2>🎯 Przyznaj punkty uczestnikowi</h2>
+                    <p style="color:var(--text-sub); font-size:0.9rem; margin:8px 0 16px;">Wybierz ministranta, rodzaj punktów i przyznaj + lub −.</p>
+                    <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:14px;">
+                        <div class="form-group"><label>Ministrant</label><select id="award-min"></select></div>
+                        <div class="form-group"><label>Rodzaj punktów</label><select id="award-type"></select></div>
+                    </div>
+                    <div class="form-group">
+                        <label>Notatka (opcjonalnie)</label>
+                        <textarea id="award-note" rows="2" placeholder="Np. powód przyznania..."></textarea>
+                    </div>
+                    <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                        <button class="btn btn-success" style="flex:1;" onclick="awardExtraPoints(true)">✅ Przyznaj punkty (+)</button>
+                        <button class="btn btn-danger" style="flex:1;" onclick="awardExtraPoints(false)">❌ Odejmij punkty (−)</button>
+                    </div>
+                </div>
+            </div>
+
             <!-- MINISTRANCI -->
             <div id="tab-ministranci" class="tab-content">
                 <div class="card" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
@@ -992,39 +985,35 @@
         </main>
     </div>
 
-    <!-- DOLNY PASEK (tylko mobile) -->
+    <!-- DOLNY PASEK (mobile) -->
     <nav class="bottom-nav" id="bottom-nav">
         <button class="bottom-nav-item active" data-tab="tabela" onclick="switchTabMobile('tabela', this)">
-            <span class="bn-icon">🏠</span>
-            <span>Tabela</span>
+            <span class="bn-icon">🏠</span><span>Tabela</span>
         </button>
         <button class="bottom-nav-item" data-tab="kalendarz" onclick="switchTabMobile('kalendarz', this)">
-            <span class="bn-icon">📅</span>
-            <span>Kalendarz</span>
+            <span class="bn-icon">📅</span><span>Kalendarz</span>
         </button>
         <button class="bottom-nav-item user-admin-only" data-tab="zgloszenia" onclick="switchTabMobile('zgloszenia', this)">
-            <span class="bn-icon">✍️</span>
-            <span>Zgłoś</span>
+            <span class="bn-icon">✍️</span><span>Zgłoś</span>
         </button>
         <button class="bottom-nav-item admin-only" data-tab="powiadomienia" onclick="switchTabMobile('powiadomienia', this)">
-            <span class="bn-icon">🔔</span>
-            <span>Powiad.</span>
+            <span class="bn-icon">🔔</span><span>Powiad.</span>
             <span id="bn-notif-badge" class="bn-badge" style="display:none;">0</span>
         </button>
         <button class="bottom-nav-item" data-tab="ministranci" onclick="switchTabMobile('ministranci', this)">
-            <span class="bn-icon">👥</span>
-            <span>Lista</span>
+            <span class="bn-icon">👥</span><span>Lista</span>
         </button>
         <button class="bottom-nav-item" data-tab="more" onclick="toggleMoreMenu()">
-            <span class="bn-icon">☰</span>
-            <span>Więcej</span>
+            <span class="bn-icon">☰</span><span>Więcej</span>
         </button>
     </nav>
 
-    <!-- Menu "Więcej" na mobile -->
     <div id="more-menu" style="display:none; position:fixed; bottom:calc(var(--bottom-nav-height) + 8px); left:12px; right:12px; background:var(--bg-secondary); border:1px solid var(--border-color); border-radius:16px; padding:12px; z-index:160; box-shadow:0 10px 40px rgba(0,0,0,0.5);">
         <button class="nav-btn user-admin-only" style="width:100%; margin-bottom:6px;" onclick="switchTabMobile('punktacja-sluzb'); closeMoreMenu();">
-            <span class="icon">📊</span> <span>Punktacja</span>
+            <span class="icon">📊</span> <span>Punkty za służbę</span>
+        </button>
+        <button class="nav-btn user-admin-only" style="width:100%; margin-bottom:6px;" onclick="switchTabMobile('punkty'); closeMoreMenu();">
+            <span class="icon">⭐</span> <span>Punkty</span>
         </button>
         <button class="nav-btn admin-only" style="width:100%; margin-bottom:6px;" onclick="switchTabMobile('szybka-sluzba'); closeMoreMenu();">
             <span class="icon">⚡</span> <span>Szybka Służba</span>
@@ -1135,6 +1124,7 @@
             currentDevice: null,
             ministrants: [],
             services: [],
+            pointTypes: [],
             requests: [],
             calendarEvents: [],
             serviceHistory: []
@@ -1148,6 +1138,7 @@
             if (data) {
                 state.ministrants = data.ministrants || [];
                 state.services = data.services || defaultServices;
+                state.pointTypes = data.pointTypes || [];
                 state.requests = data.requests || [];
                 state.calendarEvents = data.calendarEvents || [];
                 state.serviceHistory = data.serviceHistory || [];
@@ -1156,6 +1147,7 @@
                     { id: 1, name: "Kamil Gawenda", degree: "Ministrant", points: 10, password: "", phone: "123-456-789", rank: "Prezes", desc: "", photo: "" }
                 ];
                 state.services = defaultServices;
+                state.pointTypes = [];
                 saveDataToFirebase();
             }
             populateLoginUsers();
@@ -1170,6 +1162,7 @@
             set(ref(db, 'lso_data'), {
                 ministrants: state.ministrants,
                 services: state.services,
+                pointTypes: state.pointTypes,
                 requests: state.requests,
                 calendarEvents: state.calendarEvents,
                 serviceHistory: state.serviceHistory
@@ -1223,7 +1216,6 @@
                 state.currentUserId = selectedUserId;
             }
 
-            // Włącz tryb mobilny jeśli wybrano Telefon
             if (state.currentDevice === 'Telefon') {
                 document.body.classList.add('mobile-mode');
             } else {
@@ -1238,12 +1230,9 @@
             } else if (state.currentUserRole === 'all') displayName = 'WSZYSCY';
 
             document.getElementById('role-display').innerText = `${displayName} · ${state.currentDevice}`;
-            
-            // Ustaw tytuł w topbarze
             if (state.currentDevice === 'Telefon') {
                 document.getElementById('page-title').innerText = 'Ministranci-NSPJ';
             }
-            
             switchTab('tabela', document.querySelector('.sidebar-nav .nav-btn'));
             applyPermissions();
             renderAll();
@@ -1283,7 +1272,6 @@
             document.getElementById('my-user-name').innerText = user.name;
             document.getElementById('my-user-points').innerText = user.points;
             document.getElementById('my-user-degree').innerText = user.degree;
-
             const avatarEl = document.getElementById('my-avatar');
             avatarEl.innerHTML = user.photo ? `<img src="${user.photo}" alt="${user.name}">` : '👤';
 
@@ -1296,17 +1284,8 @@
                     let extraClass = '';
                     let ptsColor = h.points >= 0 ? 'var(--success-color)' : 'var(--danger-color)';
                     let ptsText = h.points >= 0 ? '+' + h.points : h.points;
-
-                    if (h.canceled) {
-                        extraClass = ' canceled';
-                        ptsColor = 'var(--danger-color)';
-                        ptsText = 'anulowano';
-                    } else if (h.justified) {
-                        extraClass = ' justified';
-                        ptsColor = '#3b82f6';
-                        ptsText = 'usprawiedliwiono';
-                    }
-
+                    if (h.canceled) { extraClass = ' canceled'; ptsColor = 'var(--danger-color)'; ptsText = 'anulowano'; }
+                    else if (h.justified) { extraClass = ' justified'; ptsColor = '#3b82f6'; ptsText = 'usprawiedliwiono'; }
                     return `
                     <div class="history-item${extraClass}" style="border-left-color:${ptsColor};" onclick="openHistoryDetail(${h.id})">
                         <div style="font-size:0.85rem;"><strong>${h.serviceName}</strong><br><small style="color:var(--text-sub);">${h.date} ${h.time}</small></div>
@@ -1335,21 +1314,18 @@
                 powiadomienia: 'Powiadomienia',
                 'szybka-sluzba': 'Szybka Służba',
                 'hasla-uczestnikow': 'Hasła Uczestników',
-                'punktacja-sluzb': 'Punktacja Służb',
+                'punktacja-sluzb': 'Punkty za służbę',
+                punkty: 'Punkty dodatkowe',
                 ministranci: 'Lista Ministrantów'
             };
-            
-            // Na telefonie zawsze pokazuj nazwę aplikacji w topbarze
             if (document.body.classList.contains('mobile-mode')) {
                 document.getElementById('page-title').innerText = 'Ministranci-NSPJ';
             } else {
                 document.getElementById('page-title').innerText = titles[tabId] || 'MINISTRANCI-NSPJ';
             }
-            
             updateBottomNavActive(tabId);
         }
 
-        // Przełączanie z dolnego paska
         window.switchTabMobile = function(tabId, btn) {
             closeMoreMenu();
             switchTab(tabId, null);
@@ -1374,7 +1350,6 @@
             document.getElementById('more-menu').style.display = 'none';
         }
 
-        // Zamknij menu "Więcej" po kliknięciu poza
         document.addEventListener('click', function(e) {
             const menu = document.getElementById('more-menu');
             const moreBtn = document.querySelector('.bottom-nav-item[data-tab="more"]');
@@ -1392,6 +1367,8 @@
             renderServiceDropdowns();
             renderRequests();
             renderServicesSettings();
+            renderPointTypesSettings();
+            renderAwardDropdowns();
             renderCalendar();
             renderPasswordsTable();
             renderAdminRecentHistory();
@@ -1513,7 +1490,6 @@
             const rank = document.getElementById('m-rank').value;
             const desc = document.getElementById('m-desc').value;
             const points = parseInt(document.getElementById('m-points').value) || 0;
-
             if (!name) return alert('Wpisz imię i nazwisko!');
             if (id) {
                 const m = state.ministrants.find(item => item.id == id);
@@ -1555,6 +1531,13 @@
             if (justServ) justServ.innerHTML = state.services.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
         }
 
+        function renderAwardDropdowns() {
+            const awardMin = document.getElementById('award-min');
+            const awardType = document.getElementById('award-type');
+            if (awardMin) awardMin.innerHTML = state.ministrants.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
+            if (awardType) awardType.innerHTML = (state.pointTypes || []).map(p => `<option value="${p.id}">${p.name} (+${p.posPoints} / ${p.negPoints})</option>`).join('');
+        }
+
         window.submitServiceRequest = function() {
             const minId = parseInt(document.getElementById('req-ministrant').value);
             const servId = parseInt(document.getElementById('req-service').value);
@@ -1562,7 +1545,6 @@
             if (!minId || !servId || !time) return alert('Uzupełnij wszystkie pola!');
             const min = state.ministrants.find(m => m.id === minId);
             const serv = state.services.find(s => s.id === servId);
-
             if (!state.requests) state.requests = [];
             state.requests.push({
                 id: Date.now(),
@@ -1581,7 +1563,6 @@
             alert('Zgłoszenie wysłane!');
         }
 
-        // NOWE: prośba o usprawiedliwienie
         window.submitJustificationRequest = function() {
             const minId = parseInt(document.getElementById('just-ministrant').value);
             const servId = parseInt(document.getElementById('just-service').value);
@@ -1590,7 +1571,6 @@
             if (!minId || !servId) return alert('Wybierz ministranta i służbę!');
             const min = state.ministrants.find(m => m.id === minId);
             const serv = state.services.find(s => s.id === servId);
-
             if (!state.requests) state.requests = [];
             state.requests.push({
                 id: Date.now(),
@@ -1619,7 +1599,6 @@
             const min = state.ministrants.find(m => m.id === minId);
             const serv = state.services.find(s => s.id === servId);
             min.points += serv.posPoints;
-
             if (!state.serviceHistory) state.serviceHistory = [];
             state.serviceHistory.push({
                 id: Date.now(),
@@ -1651,17 +1630,8 @@
                 let extraClass = '';
                 let ptsColor = h.points >= 0 ? 'var(--success-color)' : 'var(--danger-color)';
                 let ptsText = h.points >= 0 ? '+' + h.points : h.points;
-
-                if (h.canceled) {
-                    extraClass = ' canceled';
-                    ptsColor = 'var(--danger-color)';
-                    ptsText = 'anulowano';
-                } else if (h.justified) {
-                    extraClass = ' justified';
-                    ptsColor = '#3b82f6';
-                    ptsText = 'usprawiedliwiono';
-                }
-
+                if (h.canceled) { extraClass = ' canceled'; ptsColor = 'var(--danger-color)'; ptsText = 'anulowano'; }
+                else if (h.justified) { extraClass = ' justified'; ptsColor = '#3b82f6'; ptsText = 'usprawiedliwiono'; }
                 const name = h.ministrantName || (state.ministrants.find(m => m.id === h.ministrantId)?.name || '?');
                 return `
                 <div class="history-item${extraClass}" style="border-left-color:${ptsColor}; margin-bottom:10px;" onclick="openHistoryDetail(${h.id})">
@@ -1686,21 +1656,15 @@
 
             let statusLabel = '';
             let borderColor = 'var(--success-color)';
-            if (h.canceled) {
-                statusLabel = 'Anulowana służba';
-                borderColor = 'var(--danger-color)';
-            } else if (h.justified) {
-                statusLabel = 'Usprawiedliwiona służba';
-                borderColor = '#3b82f6';
-            } else {
-                statusLabel = 'Szczegóły służby';
-            }
+            if (h.canceled) { statusLabel = 'Anulowana służba'; borderColor = 'var(--danger-color)'; }
+            else if (h.justified) { statusLabel = 'Usprawiedliwiona służba'; borderColor = '#3b82f6'; }
+            else { statusLabel = 'Szczegóły służby'; }
 
             titleEl.innerText = statusLabel;
             bodyEl.innerHTML = `
                 <div style="background:var(--bg-card); padding:16px; border-radius:12px; border-left:5px solid ${borderColor};">
                     <p style="margin-bottom:8px;"><strong>Ministrant:</strong> ${name}</p>
-                    <p style="margin-bottom:8px;"><strong>Służba:</strong> ${h.serviceName}</p>
+                    <p style="margin-bottom:8px;"><strong>Służba / Punkty:</strong> ${h.serviceName}</p>
                     <p style="margin-bottom:8px;"><strong>Data:</strong> ${h.date}</p>
                     <p style="margin-bottom:8px;"><strong>Godzina:</strong> ${h.time}</p>
                     <p style="margin-bottom:8px;"><strong>Punkty:</strong> <span style="color:${borderColor}; font-weight:700;">
@@ -1713,8 +1677,8 @@
 
             if (isAdmin && !h.canceled && !h.justified) {
                 actionsEl.innerHTML = `
-                    <button class="btn btn-danger" style="width:100%; margin-bottom:10px;" onclick="cancelHistoryService(${h.id})">❌ Anuluj służbę (odejmij punkty)</button>
-                    <button class="btn btn-info" style="width:100%; margin-bottom:10px;" onclick="justifyHistoryService(${h.id})">📝 Usprawiedliw służbę (0 pkt)</button>
+                    <button class="btn btn-danger" style="width:100%; margin-bottom:10px;" onclick="cancelHistoryService(${h.id})">❌ Anuluj (odejmij punkty)</button>
+                    <button class="btn btn-info" style="width:100%; margin-bottom:10px;" onclick="justifyHistoryService(${h.id})">📝 Usprawiedliw (0 pkt)</button>
                 `;
             } else {
                 actionsEl.innerHTML = '';
@@ -1725,7 +1689,7 @@
         window.cancelHistoryService = function(histId) {
             const h = (state.serviceHistory || []).find(item => item.id === histId);
             if (!h || h.canceled || h.justified) return;
-            if (!confirm(`Anulować służbę "${h.serviceName}" i odjąć ${h.points} pkt?`)) return;
+            if (!confirm(`Anulować "${h.serviceName}" i odjąć ${h.points} pkt?`)) return;
             const min = state.ministrants.find(m => m.id === h.ministrantId);
             if (min) min.points -= h.points;
             h.canceled = true;
@@ -1734,22 +1698,20 @@
             closeModal('modal-history-detail');
             renderAll();
             renderAdminRecentHistory();
-            alert('Służba anulowana, punkty odjęte.');
+            alert('Anulowano, punkty odjęte.');
         }
 
-        // NOWE: usprawiedliwienie (bez odejmowania punktów)
         window.justifyHistoryService = function(histId) {
             const h = (state.serviceHistory || []).find(item => item.id === histId);
             if (!h || h.canceled || h.justified) return;
-            if (!confirm(`Usprawiedliwić służbę "${h.serviceName}"? Punkty NIE zostaną odjęte.`)) return;
+            if (!confirm(`Usprawiedliwić "${h.serviceName}"? Punkty NIE zostaną odjęte.`)) return;
             h.justified = true;
             h.canceled = false;
-            // nie odejmujemy punktów
             saveDataToFirebase();
             closeModal('modal-history-detail');
             renderAll();
             renderAdminRecentHistory();
-            alert('Służba usprawiedliwiona (0 pkt).');
+            alert('Usprawiedliwiono (0 pkt).');
         }
 
         function renderRequests() {
@@ -1764,7 +1726,6 @@
                 bnBadge.innerText = reqs.length;
                 bnBadge.style.display = reqs.length > 0 ? 'inline-block' : 'none';
             }
-
             if (reqs.length === 0) {
                 list.innerHTML = '<p style="color:var(--text-sub);">Brak nowych zgłoszeń.</p>';
                 return;
@@ -1797,27 +1758,15 @@
             if (!req) return;
             const min = state.ministrants.find(m => m.id === req.ministrantId);
             if (!min) return;
-
             let pts = 0;
             let justified = false;
-            let canceled = false;
-
             if (req.type === 'justification') {
-                if (action === 'justify') {
-                    // usprawiedliwienie – 0 punktów
-                    pts = 0;
-                    justified = true;
-                } else {
-                    // odrzucenie – odejmujemy punkty ujemne
-                    pts = req.negPoints;
-                }
+                if (action === 'justify') { pts = 0; justified = true; }
+                else { pts = req.negPoints; }
             } else {
-                // zwykłe zgłoszenie obecności
                 pts = action === true ? req.posPoints : req.negPoints;
             }
-
             min.points += pts;
-
             if (!state.serviceHistory) state.serviceHistory = [];
             state.serviceHistory.push({
                 id: Date.now(),
@@ -1831,21 +1780,18 @@
                 canceled: false,
                 justified: justified
             });
-
             state.requests = state.requests.filter(r => r.id !== reqId);
             saveDataToFirebase();
         }
 
-        // ========== PUNKTACJA – EDYCJA DLA ADMINA ==========
+        // ========== PUNKTY ZA SŁUŻBĘ ==========
         function renderServicesSettings() {
             const tbody = document.getElementById('services-settings-body');
             if (!tbody) return;
             const isAdmin = state.currentUserRole === 'admin';
             tbody.innerHTML = '';
-
             (state.services || []).forEach(s => {
                 if (isAdmin) {
-                    // Admin widzi pola do edycji
                     tbody.innerHTML += `
                         <tr>
                             <td>
@@ -1861,12 +1807,11 @@
                                     style="width:90px; padding:8px 10px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-primary); color:var(--text-main); font-size:0.9rem;">
                             </td>
                             <td style="white-space:nowrap;">
-                                <button class="btn btn-success" style="padding:5px 10px; font-size:0.8rem;" onclick="updateServiceType(${s.id})" title="Zapisz zmiany">💾</button>
-                                <button class="btn btn-danger" style="padding:5px 10px; font-size:0.8rem;" onclick="deleteServiceType(${s.id})" title="Usuń">Usuń</button>
+                                <button class="btn btn-success" style="padding:5px 10px; font-size:0.8rem;" onclick="updateServiceType(${s.id})">💾</button>
+                                <button class="btn btn-danger" style="padding:5px 10px; font-size:0.8rem;" onclick="deleteServiceType(${s.id})">Usuń</button>
                             </td>
                         </tr>`;
                 } else {
-                    // Uczestnik / WSZYSCY – tylko podgląd
                     tbody.innerHTML += `
                         <tr>
                             <td><strong>${s.name}</strong></td>
@@ -1881,34 +1826,23 @@
         window.updateServiceType = function(id) {
             const s = state.services.find(item => item.id === id);
             if (!s) return;
-
             const nameInput = document.getElementById(`serv-name-${id}`);
             const posInput = document.getElementById(`serv-pos-${id}`);
             const negInput = document.getElementById(`serv-neg-${id}`);
-
             if (!nameInput || !posInput || !negInput) return;
-
             const name = nameInput.value.trim();
             let pos = parseInt(posInput.value);
             let neg = parseInt(negInput.value);
-
-            if (!name) {
-                alert('Nazwa służby nie może być pusta!');
-                return;
-            }
+            if (!name) return alert('Nazwa służby nie może być pusta!');
             if (isNaN(pos)) pos = 0;
             if (isNaN(neg)) neg = 0;
-
-            // Upewnij się, że punkty ujemne są rzeczywiście ujemne
             if (neg > 0) neg = -neg;
-
             s.name = name;
             s.posPoints = pos;
             s.negPoints = neg;
-
             saveDataToFirebase();
-            renderServiceDropdowns(); // odśwież dropdowny (zgłoszenia, szybka służba itd.)
-            alert(`Zapisano zmiany: "${name}" (+${pos} / ${neg})`);
+            renderServiceDropdowns();
+            alert(`Zapisano: "${name}" (+${pos} / ${neg})`);
         }
 
         window.addNewServiceType = function() {
@@ -1935,6 +1869,126 @@
             renderServiceDropdowns();
         }
 
+        // ========== PUNKTY DODATKOWE ==========
+        function renderPointTypesSettings() {
+            const tbody = document.getElementById('point-types-body');
+            if (!tbody) return;
+            const isAdmin = state.currentUserRole === 'admin';
+            tbody.innerHTML = '';
+            if (!(state.pointTypes || []).length) {
+                tbody.innerHTML = `<tr><td colspan="4" style="color:var(--text-sub);">Brak zdefiniowanych punktów dodatkowych.</td></tr>`;
+                return;
+            }
+            (state.pointTypes || []).forEach(p => {
+                if (isAdmin) {
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>
+                                <input type="text" id="pt-name-${p.id}" value="${p.name.replace(/"/g, '&quot;')}" 
+                                    style="width:100%; min-width:160px; padding:8px 10px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-primary); color:var(--text-main); font-size:0.9rem;">
+                            </td>
+                            <td>
+                                <input type="number" id="pt-pos-${p.id}" value="${p.posPoints}" 
+                                    style="width:90px; padding:8px 10px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-primary); color:var(--text-main); font-size:0.9rem;">
+                            </td>
+                            <td>
+                                <input type="number" id="pt-neg-${p.id}" value="${p.negPoints}" 
+                                    style="width:90px; padding:8px 10px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-primary); color:var(--text-main); font-size:0.9rem;">
+                            </td>
+                            <td style="white-space:nowrap;">
+                                <button class="btn btn-success" style="padding:5px 10px; font-size:0.8rem;" onclick="updatePointType(${p.id})">💾</button>
+                                <button class="btn btn-danger" style="padding:5px 10px; font-size:0.8rem;" onclick="deletePointType(${p.id})">Usuń</button>
+                            </td>
+                        </tr>`;
+                } else {
+                    tbody.innerHTML += `
+                        <tr>
+                            <td><strong>${p.name}</strong></td>
+                            <td style="color:var(--success-color); font-weight:700;">+${p.posPoints}</td>
+                            <td style="color:var(--accent-red); font-weight:700;">${p.negPoints}</td>
+                            <td></td>
+                        </tr>`;
+                }
+            });
+        }
+
+        window.updatePointType = function(id) {
+            const p = state.pointTypes.find(item => item.id === id);
+            if (!p) return;
+            const nameInput = document.getElementById(`pt-name-${id}`);
+            const posInput = document.getElementById(`pt-pos-${id}`);
+            const negInput = document.getElementById(`pt-neg-${id}`);
+            if (!nameInput || !posInput || !negInput) return;
+            const name = nameInput.value.trim();
+            let pos = parseInt(posInput.value);
+            let neg = parseInt(negInput.value);
+            if (!name) return alert('Nazwa nie może być pusta!');
+            if (isNaN(pos)) pos = 0;
+            if (isNaN(neg)) neg = 0;
+            if (neg > 0) neg = -neg;
+            p.name = name;
+            p.posPoints = pos;
+            p.negPoints = neg;
+            saveDataToFirebase();
+            renderAwardDropdowns();
+            alert(`Zapisano: "${name}" (+${pos} / ${neg})`);
+        }
+
+        window.addNewPointType = function() {
+            const name = document.getElementById('new-point-name').value.trim();
+            const pos = parseInt(document.getElementById('new-point-pos').value) || 0;
+            let neg = parseInt(document.getElementById('new-point-neg').value) || 0;
+            if (!name) return alert('Wpisz nazwę!');
+            if (neg > 0) neg = -neg;
+            if (!state.pointTypes) state.pointTypes = [];
+            state.pointTypes.push({ id: Date.now(), name, posPoints: pos, negPoints: neg });
+            saveDataToFirebase();
+            document.getElementById('new-point-name').value = '';
+            document.getElementById('new-point-pos').value = '';
+            document.getElementById('new-point-neg').value = '';
+            renderPointTypesSettings();
+            renderAwardDropdowns();
+        }
+
+        window.deletePointType = function(id) {
+            if (!confirm('Na pewno usunąć ten rodzaj punktów?')) return;
+            state.pointTypes = state.pointTypes.filter(p => p.id !== id);
+            saveDataToFirebase();
+            renderPointTypesSettings();
+            renderAwardDropdowns();
+        }
+
+        window.awardExtraPoints = function(isPositive) {
+            const minId = parseInt(document.getElementById('award-min').value);
+            const typeId = parseInt(document.getElementById('award-type').value);
+            const note = (document.getElementById('award-note')?.value || '').trim();
+            if (!minId || !typeId) return alert('Wybierz ministranta i rodzaj punktów!');
+            const min = state.ministrants.find(m => m.id === minId);
+            const pt = state.pointTypes.find(p => p.id === typeId);
+            if (!min || !pt) return;
+            const pts = isPositive ? pt.posPoints : pt.negPoints;
+            if (pts === 0) return alert('Wybrany rodzaj ma 0 punktów w tym kierunku!');
+            min.points += pts;
+            if (!state.serviceHistory) state.serviceHistory = [];
+            state.serviceHistory.push({
+                id: Date.now(),
+                ministrantId: min.id,
+                ministrantName: min.name,
+                serviceName: pt.name,
+                points: pts,
+                date: new Date().toLocaleDateString(),
+                time: new Date().toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' }),
+                note: note || '',
+                canceled: false,
+                justified: false
+            });
+            if (document.getElementById('award-note')) document.getElementById('award-note').value = '';
+            saveDataToFirebase();
+            alert(`Przyznano "${pt.name}" (${pts >= 0 ? '+' : ''}${pts} pkt) dla ${min.name}!`);
+            renderAll();
+        }
+
+        // ========== KALENDARZ ==========
         window.openAddEventModal = function() {
             if (state.currentUserRole !== 'admin') return;
             document.getElementById('cal-edit-id').value = '';
@@ -1954,7 +2008,6 @@
             const time = document.getElementById('cal-time').value;
             const status = document.getElementById('cal-status').value;
             const assigned = Array.from(document.getElementById('cal-assigned').selectedOptions).map(o => o.value);
-
             if (!date || !time) return alert('Wybierz datę i godzinę!');
             if (!state.calendarEvents) state.calendarEvents = [];
             if (editId) {
@@ -1975,11 +2028,9 @@
 
         window.calSetView = function(view) {
             calCurrentView = view;
-            // Desktop buttons
             document.getElementById('view-btn-month')?.classList.toggle('active', view === 'month');
             document.getElementById('view-btn-week')?.classList.toggle('active', view === 'week');
             document.getElementById('view-btn-day')?.classList.toggle('active', view === 'day');
-            // Mobile tabs
             document.getElementById('mview-btn-month')?.classList.toggle('active', view === 'month');
             document.getElementById('mview-btn-week')?.classList.toggle('active', view === 'week');
             document.getElementById('mview-btn-day')?.classList.toggle('active', view === 'day');
@@ -2001,7 +2052,6 @@
             const year = calCurrentDate.getFullYear();
             const month = calCurrentDate.getMonth();
             const dayNum = calCurrentDate.getDate();
-
             if (calCurrentView === 'month') {
                 titleEl.innerText = `${monthNamesPl[month]} ${year}`;
                 renderMonthView(year, month, area);
@@ -2022,7 +2072,6 @@
             if (startingDay === -1) startingDay = 6;
             for (let i = 0; i < startingDay; i++) html += `<div class="day-cell other-month"></div>`;
             const todayStr = new Date().toISOString().split('T')[0];
-
             for (let day = 1; day <= lastDay.getDate(); day++) {
                 const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
                 const dayEvents = (state.calendarEvents || []).filter(e => e.date === dateStr);
@@ -2047,7 +2096,6 @@
             let html = '<div class="month-grid">';
             ['PON', 'WT', 'ŚR', 'CZW', 'PT', 'SOB', 'NDZ'].forEach(d => html += `<div class="month-header-cell">${d}</div>`);
             const todayStr = new Date().toISOString().split('T')[0];
-
             for (let i = 0; i < 7; i++) {
                 const d = new Date(startOfWeek);
                 d.setDate(startOfWeek.getDate() + i);
