@@ -955,20 +955,24 @@
             <div id="tab-punktacja-sluzb" class="tab-content">
                 <div class="card">
                     <h2>Cennik punktów za służby</h2>
+                    <p style="color:var(--text-sub); font-size:0.9rem; margin-bottom:12px;">Lista wszystkich służb i punktów. Tylko administrator może edytować i usuwać.</p>
+                    
+                    <!-- Formularz dodawania – tylko admin -->
                     <div class="admin-only" style="display:flex; gap:10px; margin:16px 0; flex-wrap:wrap; background:var(--bg-card); padding:14px; border-radius:12px;">
                         <input type="text" id="new-service-name" placeholder="Nazwa nowej służby..." style="flex:2; min-width:180px; padding:10px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-primary); color:var(--text-main);">
                         <input type="number" id="new-service-pos" placeholder="+ Pkt" style="flex:1; min-width:90px; padding:10px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-primary); color:var(--text-main);">
                         <input type="number" id="new-service-neg" placeholder="- Pkt" style="flex:1; min-width:90px; padding:10px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-primary); color:var(--text-main);">
                         <button class="btn" onclick="addNewServiceType()">Dodaj</button>
                     </div>
+
                     <div class="table-responsive">
                         <table>
                             <thead>
                                 <tr>
                                     <th>Nazwa służby</th>
                                     <th>Punkty (+)</th>
-                                    <th>Punkty (-)</th>
-                                    <th class="admin-only">Akcja</th>
+                                    <th>Punkty (−)</th>
+                                    <th class="admin-only">Akcje</th>
                                 </tr>
                             </thead>
                             <tbody id="services-settings-body"></tbody>
@@ -1832,23 +1836,83 @@
             saveDataToFirebase();
         }
 
+        // ========== PUNKTACJA – EDYCJA DLA ADMINA ==========
         function renderServicesSettings() {
             const tbody = document.getElementById('services-settings-body');
             if (!tbody) return;
+            const isAdmin = state.currentUserRole === 'admin';
             tbody.innerHTML = '';
+
             (state.services || []).forEach(s => {
-                tbody.innerHTML += `
-                    <tr>
-                        <td><strong>${s.name}</strong></td>
-                        <td style="color:var(--success-color); font-weight:700;">+${s.posPoints}</td>
-                        <td style="color:var(--accent-red); font-weight:700;">${s.negPoints}</td>
-                        <td class="admin-only"><button class="btn btn-danger" style="padding:4px 10px; font-size:0.8rem;" onclick="deleteServiceType(${s.id})">Usuń</button></td>
-                    </tr>`;
+                if (isAdmin) {
+                    // Admin widzi pola do edycji
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>
+                                <input type="text" id="serv-name-${s.id}" value="${s.name.replace(/"/g, '&quot;')}" 
+                                    style="width:100%; min-width:160px; padding:8px 10px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-primary); color:var(--text-main); font-size:0.9rem;">
+                            </td>
+                            <td>
+                                <input type="number" id="serv-pos-${s.id}" value="${s.posPoints}" 
+                                    style="width:90px; padding:8px 10px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-primary); color:var(--text-main); font-size:0.9rem;">
+                            </td>
+                            <td>
+                                <input type="number" id="serv-neg-${s.id}" value="${s.negPoints}" 
+                                    style="width:90px; padding:8px 10px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-primary); color:var(--text-main); font-size:0.9rem;">
+                            </td>
+                            <td style="white-space:nowrap;">
+                                <button class="btn btn-success" style="padding:5px 10px; font-size:0.8rem;" onclick="updateServiceType(${s.id})" title="Zapisz zmiany">💾</button>
+                                <button class="btn btn-danger" style="padding:5px 10px; font-size:0.8rem;" onclick="deleteServiceType(${s.id})" title="Usuń">Usuń</button>
+                            </td>
+                        </tr>`;
+                } else {
+                    // Uczestnik / WSZYSCY – tylko podgląd
+                    tbody.innerHTML += `
+                        <tr>
+                            <td><strong>${s.name}</strong></td>
+                            <td style="color:var(--success-color); font-weight:700;">+${s.posPoints}</td>
+                            <td style="color:var(--accent-red); font-weight:700;">${s.negPoints}</td>
+                            <td></td>
+                        </tr>`;
+                }
             });
         }
 
+        window.updateServiceType = function(id) {
+            const s = state.services.find(item => item.id === id);
+            if (!s) return;
+
+            const nameInput = document.getElementById(`serv-name-${id}`);
+            const posInput = document.getElementById(`serv-pos-${id}`);
+            const negInput = document.getElementById(`serv-neg-${id}`);
+
+            if (!nameInput || !posInput || !negInput) return;
+
+            const name = nameInput.value.trim();
+            let pos = parseInt(posInput.value);
+            let neg = parseInt(negInput.value);
+
+            if (!name) {
+                alert('Nazwa służby nie może być pusta!');
+                return;
+            }
+            if (isNaN(pos)) pos = 0;
+            if (isNaN(neg)) neg = 0;
+
+            // Upewnij się, że punkty ujemne są rzeczywiście ujemne
+            if (neg > 0) neg = -neg;
+
+            s.name = name;
+            s.posPoints = pos;
+            s.negPoints = neg;
+
+            saveDataToFirebase();
+            renderServiceDropdowns(); // odśwież dropdowny (zgłoszenia, szybka służba itd.)
+            alert(`Zapisano zmiany: "${name}" (+${pos} / ${neg})`);
+        }
+
         window.addNewServiceType = function() {
-            const name = document.getElementById('new-service-name').value;
+            const name = document.getElementById('new-service-name').value.trim();
             const pos = parseInt(document.getElementById('new-service-pos').value) || 10;
             let neg = parseInt(document.getElementById('new-service-neg').value) || -10;
             if (!name) return alert('Wpisz nazwę służby!');
@@ -1859,11 +1923,16 @@
             document.getElementById('new-service-name').value = '';
             document.getElementById('new-service-pos').value = '';
             document.getElementById('new-service-neg').value = '';
+            renderServicesSettings();
+            renderServiceDropdowns();
         }
 
         window.deleteServiceType = function(id) {
+            if (!confirm('Na pewno usunąć tę służbę z cennika?')) return;
             state.services = state.services.filter(s => s.id !== id);
             saveDataToFirebase();
+            renderServicesSettings();
+            renderServiceDropdowns();
         }
 
         window.openAddEventModal = function() {
