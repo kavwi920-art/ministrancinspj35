@@ -153,33 +153,43 @@
     <div class="login-box">
         <h1>MINISTRANCI-NSPJ</h1>
         <h3>Logowanie do systemu</h3>
+
+        <!-- blokada autofill przeglądarki -->
+        <input type="text" name="fake-user" style="display:none" tabindex="-1" autocomplete="username">
+        <input type="password" name="fake-pass" style="display:none" tabindex="-1" autocomplete="current-password">
+
         <div class="form-group">
             <label>Wybierz Rolę</label>
-            <select id="login-role" onchange="toggleUserSelect()">
+            <select id="login-role" onchange="toggleUserSelect()" autocomplete="off">
                 <option value="user">Uczestnik (Ministrant)</option>
                 <option value="all">WSZYSCY</option>
                 <option value="admin">Administrator</option>
             </select>
         </div>
+
         <div class="form-group" id="user-select-group">
             <label>Wybierz kim jesteś</label>
-            <select id="login-user-id"></select>
+            <select id="login-user-id" autocomplete="off"></select>
         </div>
+
         <div class="form-group" id="admin-email-group" style="display:none;">
             <label>E-mail admina</label>
-            <input type="email" id="login-admin-email" placeholder="admin@ministranci-nspj.pl" autocomplete="username">
+            <input type="email" id="login-admin-email" placeholder="np. admin@ministranci.pl" autocomplete="off">
         </div>
+
         <div class="form-group">
             <label>Wybierz Urządzenie</label>
-            <select id="login-device">
+            <select id="login-device" autocomplete="off">
                 <option value="Komputer">💻 Komputer</option>
                 <option value="Telefon">📱 Telefon</option>
             </select>
         </div>
+
         <div class="form-group">
             <label>Hasło</label>
-            <input type="password" id="login-pass" placeholder="Wpisz hasło..." autocomplete="current-password">
+            <input type="password" id="login-pass" placeholder="Wpisz hasło..." autocomplete="new-password">
         </div>
+
         <button class="btn" style="width:100%; margin-top:12px; padding:13px; font-size:1rem;" onclick="login()">Zaloguj się</button>
     </div>
 </div>
@@ -493,7 +503,6 @@ function saveDataToFirebase() {
     });
 }
 
-// Zgłoszenia uczestników – zapis tylko do requests (działa bez logowania admina)
 function saveRequestsOnly() {
     set(ref(db, 'lso_data/requests'), state.requests).catch(error => {
         console.error(error);
@@ -1051,7 +1060,6 @@ window.awardExtraPoints = function(isPositive) {
     renderAll();
 }
 
-// KALENDARZ
 window.openAddEventModal = function() {
     if (state.currentUserRole !== 'admin') return;
     document.getElementById('cal-edit-id').value = '';
@@ -1215,6 +1223,11 @@ window.deleteCalendarEvent = function(id, dateStr) {
         if (document.getElementById('modal-day-view').classList.contains('active')) openDayView(dateStr);
     }
 }
+
+// wyczyść pola logowania przy starcie (blokada autofill)
+document.getElementById('login-pass').value = '';
+const emailEl = document.getElementById('login-admin-email');
+if (emailEl) emailEl.value = '';
 </script>
 </body>
 </html>
