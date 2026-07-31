@@ -76,10 +76,13 @@ tr:hover td{background:rgba(255,255,255,.025)}
 .form-group{margin-bottom:1.15rem}
 .form-group label{display:block;margin-bottom:6px;color:var(--text-sub);font-size:.9rem;font-weight:500}
 .form-group input,.form-group select,.form-group textarea{width:100%;padding:11px 13px;border-radius:10px;border:1px solid var(--border-color);background:var(--bg-primary);color:var(--text-main);font-size:.95rem;min-height:44px;box-sizing:border-box}
-.form-group input[type=time]{-webkit-appearance:none;appearance:none;min-height:44px;line-height:1.2;color-scheme:dark}
-[data-theme=light] .form-group input[type=time]{color-scheme:light}
+.form-group input[type=time],.form-group input[type=date]{-webkit-appearance:none;appearance:none;min-height:44px;line-height:1.2;color-scheme:dark}
+[data-theme=light] .form-group input[type=time],[data-theme=light] .form-group input[type=date]{color-scheme:light}
 .form-group input:focus,.form-group select:focus,.form-group textarea:focus{outline:none;border-color:var(--accent-red)}
 .form-group textarea{min-height:80px;resize:vertical}
+.pass-wrap{position:relative}
+.pass-wrap input{padding-right:48px}
+.pass-toggle{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-sub);cursor:pointer;font-size:1.2rem;padding:4px}
 #login-overlay{position:fixed;inset:0;background:var(--bg-primary);display:flex;justify-content:center;align-items:center;z-index:3000;padding:20px}
 .login-box{background:var(--bg-secondary);padding:2.5rem;border-radius:18px;border:2px solid var(--accent-red);width:100%;max-width:400px;text-align:center;box-shadow:var(--shadow)}
 .login-box h1{color:var(--accent-red);font-size:1.9rem;font-weight:800;margin-bottom:4px}
@@ -141,7 +144,8 @@ body.mobile-mode .bottom-nav{display:flex}
 </div>
 <div class="form-group" id="user-select-group">
 <label>Wybierz kim jesteś</label>
-<select id="login-user-id" autocomplete="off"></select>
+<input type="text" id="login-user-search" placeholder="Wpisz imię..." autocomplete="off" oninput="filterLoginUsers()">
+<select id="login-user-id" autocomplete="off" size="5" style="margin-top:8px;height:auto;max-height:160px"></select>
 </div>
 <div class="form-group" id="admin-email-group" style="display:none">
 <label>E-mail admina</label>
@@ -156,7 +160,10 @@ body.mobile-mode .bottom-nav{display:flex}
 </div>
 <div class="form-group">
 <label>Hasło</label>
+<div class="pass-wrap">
 <input type="password" id="login-pass" placeholder="Wpisz hasło..." value="" autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly')">
+<button type="button" class="pass-toggle" onclick="togglePassVisibility()" title="Pokaż/ukryj hasło">👁️</button>
+</div>
 </div>
 <button class="btn" style="width:100%;margin-top:12px;padding:13px;font-size:1rem" onclick="login()">Zaloguj się</button>
 </div>
@@ -235,9 +242,10 @@ body.mobile-mode .bottom-nav{display:flex}
 <div id="tab-zgloszenia" class="tab-content">
 <div class="card" style="max-width:520px">
 <h2>Zgłoś obecność na służbie</h2>
-<p style="color:var(--text-sub);margin:8px 0 18px;font-size:.9rem">Wybierz siebie, służbę oraz godzinę.</p>
+<p style="color:var(--text-sub);margin:8px 0 18px;font-size:.9rem">Wybierz służbę, dzień i godzinę.</p>
 <div class="form-group"><label>Kim jesteś?</label><select id="req-ministrant"></select></div>
 <div class="form-group"><label>Jaka to była służba?</label><select id="req-service"></select></div>
+<div class="form-group"><label>Dzień służby</label><input type="date" id="req-date"></div>
 <div class="form-group"><label>Godzina służby</label><input type="time" id="req-time" required></div>
 <button class="btn" style="width:100%;margin-top:8px" onclick="submitServiceRequest()">Wyślij zgłoszenie</button>
 </div>
@@ -246,6 +254,7 @@ body.mobile-mode .bottom-nav{display:flex}
 <p style="color:var(--text-sub);margin:8px 0 18px;font-size:.9rem">Wyślij prośbę do administratora.</p>
 <div class="form-group"><label>Kim jesteś?</label><select id="just-ministrant"></select></div>
 <div class="form-group"><label>Jaka służba?</label><select id="just-service"></select></div>
+<div class="form-group"><label>Dzień służby</label><input type="date" id="just-date"></div>
 <div class="form-group"><label>Godzina służby</label><input type="time" id="just-time"></div>
 <div class="form-group"><label>Powód / Notatka</label><textarea id="just-note" rows="3" placeholder="Np. choroba..."></textarea></div>
 <button class="btn btn-info" style="width:100%;margin-top:8px" onclick="submitJustificationRequest()">Wyślij prośbę</button>
@@ -359,7 +368,11 @@ body.mobile-mode .bottom-nav{display:flex}
 <div class="form-group"><label>Imię i Nazwisko</label><input type="text" id="m-name"></div>
 <div class="form-group"><label>Zdjęcie (URL)</label><input type="text" id="m-photo"></div>
 <div class="form-group"><label>Telefon</label><input type="text" id="m-phone"></div>
-<div class="form-group"><label>Stopień</label><select id="m-degree"><option>Kandydat</option><option>Ministrant</option><option>Lektor młodszy</option><option>Lektor starszy</option><option>Lektor</option><option>Ceremoniarz</option><option>Animator</option><option>Starsi</option></select></div>
+<div class="form-group"><label>Stopień (można zaznaczyć kilka – Ctrl/Cmd)</label>
+<select id="m-degree" multiple style="height:140px">
+<option>Kandydat</option><option>Ministrant</option><option>Lektor młodszy</option><option>Lektor starszy</option>
+<option>Lektor</option><option>Ceremoniarz</option><option>Animator</option><option>Starsi</option>
+</select></div>
 <div class="form-group"><label>Ranga</label><input type="text" id="m-rank"></div>
 <div class="form-group"><label>Opis</label><textarea id="m-desc" rows="3"></textarea></div>
 <div class="form-group"><label>Punkty</label><input type="number" id="m-points" value="0"></div>
@@ -374,7 +387,11 @@ body.mobile-mode .bottom-nav{display:flex}
 <div class="form-group"><label>Data</label><input type="date" id="cal-date"></div>
 <div class="form-group"><label>Godzina</label><input type="time" id="cal-time"></div>
 <div class="form-group"><label>Status</label><select id="cal-status"><option value="green">🟢 Będzie</option><option value="yellow">🟡 Do ustalenia</option><option value="red">🔴 Odwołane</option></select></div>
-<div class="form-group"><label>Wyznaczeni</label><select id="cal-assigned" multiple style="height:110px"></select></div>
+<div class="form-group">
+<label>Wyznaczeni (Ctrl/Cmd = wiele)</label>
+<button type="button" class="btn btn-secondary" style="width:100%;margin-bottom:8px;font-size:.85rem" onclick="selectAllAssigned()">✅ Zaznacz wszystkich</button>
+<select id="cal-assigned" multiple style="height:140px"></select>
+</div>
 <button class="btn" style="width:100%;margin-bottom:10px" onclick="saveCalendarEvent()">Zapisz</button>
 <button class="btn btn-secondary" style="width:100%" onclick="closeModal('modal-event')">Anuluj</button>
 </div></div>
@@ -452,7 +469,16 @@ set(ref(db,'lso_data/requests'),state.requests).catch(error=>{console.error(erro
 
 window.populateLoginUsers=function(){
 const select=document.getElementById('login-user-id');
-if(select)select.innerHTML=state.ministrants.map(m=>`<option value="${m.id}">${m.name}</option>`).join('');
+if(!select)return;
+const q=(document.getElementById('login-user-search')?.value||'').toLowerCase().trim();
+const list=q?state.ministrants.filter(m=>m.name.toLowerCase().includes(q)):state.ministrants;
+select.innerHTML=list.map(m=>`<option value="${m.id}">${m.name}</option>`).join('');
+};
+window.filterLoginUsers=function(){populateLoginUsers();};
+window.togglePassVisibility=function(){
+const inp=document.getElementById('login-pass');
+if(!inp)return;
+inp.type=inp.type==='password'?'text':'password';
 };
 window.toggleUserSelect=function(){
 const role=document.getElementById('login-role')?.value;
@@ -510,6 +536,8 @@ document.getElementById('login-overlay').style.display='flex';
 document.getElementById('login-pass').value='';
 const emailInput=document.getElementById('login-admin-email');
 if(emailInput)emailInput.value='';
+const search=document.getElementById('login-user-search');
+if(search)search.value='';
 closeMoreMenu();populateLoginUsers();
 };
 
@@ -527,7 +555,7 @@ function renderUserPersonalStats(){
 const user=state.ministrants.find(m=>m.id===state.currentUserId);if(!user)return;
 document.getElementById('my-user-name').innerText=user.name;
 document.getElementById('my-user-points').innerText=user.points;
-document.getElementById('my-user-degree').innerText=user.degree;
+document.getElementById('my-user-degree').innerText=Array.isArray(user.degree)?user.degree.join(', '):user.degree;
 document.getElementById('my-avatar').innerHTML=user.photo?`<img src="${user.photo}" alt="">`:'👤';
 const historyList=document.getElementById('my-history-list');
 const myHistory=(state.serviceHistory||[]).filter(h=>h.ministrantId===user.id);
@@ -560,39 +588,91 @@ window.closeModal=id=>document.getElementById(id).classList.remove('active');
 
 function renderAll(){renderPointsTable();renderMinistrantsGrid();renderServiceDropdowns();renderRequests();renderServicesSettings();renderPointTypesSettings();renderAwardDropdowns();renderCalendar();renderPasswordsTable();renderAdminRecentHistory();applyPermissions();}
 
+function degreeText(d){return Array.isArray(d)?d.join(', '):(d||'—');}
+
 function renderPointsTable(){
 const tbody=document.getElementById('points-table-body');if(!tbody)return;tbody.innerHTML='';
 [...state.ministrants].sort((a,b)=>b.points-a.points).forEach((m,i)=>{
 const rank=i+1,rc=rank===1?'rank-1':rank===2?'rank-2':rank===3?'rank-3':'rank-other';
-tbody.innerHTML+=`<tr><td style="text-align:center"><span class="rank-badge ${rc}">${rank}</span></td><td><strong>${m.name}</strong></td><td>${m.degree}</td><td style="font-weight:700;color:${m.points>=0?'var(--success-color)':'var(--accent-red)'}">${m.points} pkt</td><td class="admin-only"><button class="btn btn-warning" style="padding:4px 10px;font-size:.78rem" onclick="openEditMinistrantModal(${m.id})">✏️</button> <button class="btn btn-danger" style="padding:4px 10px;font-size:.78rem" onclick="deleteMinistrant(${m.id})">Usuń</button></td></tr>`;
+tbody.innerHTML+=`<tr><td style="text-align:center"><span class="rank-badge ${rc}">${rank}</span></td><td><strong>${m.name}</strong></td><td>${degreeText(m.degree)}</td><td style="font-weight:700;color:${m.points>=0?'var(--success-color)':'var(--accent-red)'}">${m.points} pkt</td><td class="admin-only"><button class="btn btn-warning" style="padding:4px 10px;font-size:.78rem" onclick="openEditMinistrantModal(${m.id})">✏️</button> <button class="btn btn-danger" style="padding:4px 10px;font-size:.78rem" onclick="deleteMinistrant(${m.id})">Usuń</button></td></tr>`;
 });
 }
 function renderPasswordsTable(){
 const tbody=document.getElementById('passwords-table-body');if(!tbody)return;
-tbody.innerHTML=state.ministrants.map(m=>`<tr><td><strong>${m.name}</strong></td><td>${m.degree}</td><td><input type="text" id="pass-input-${m.id}" value="${m.password||''}" placeholder="Brak hasła" style="padding:7px 10px;border-radius:8px;border:1px solid var(--border-color);background:var(--bg-primary);color:var(--text-main);width:140px"></td><td><button class="btn btn-success" style="padding:5px 10px;font-size:.8rem" onclick="saveUserPassword(${m.id})">💾</button> <button class="btn btn-secondary" style="padding:5px 10px;font-size:.8rem" onclick="generateUserPassword(${m.id})">🎲</button></td></tr>`).join('');
+tbody.innerHTML=state.ministrants.map(m=>`<tr><td><strong>${m.name}</strong></td><td>${degreeText(m.degree)}</td><td><input type="text" id="pass-input-${m.id}" value="${m.password||''}" placeholder="Brak hasła" style="padding:7px 10px;border-radius:8px;border:1px solid var(--border-color);background:var(--bg-primary);color:var(--text-main);width:140px"></td><td><button class="btn btn-success" style="padding:5px 10px;font-size:.8rem" onclick="saveUserPassword(${m.id})">💾</button> <button class="btn btn-secondary" style="padding:5px 10px;font-size:.8rem" onclick="generateUserPassword(${m.id})">🎲</button></td></tr>`).join('');
 }
 window.saveUserPassword=function(id){const input=document.getElementById(`pass-input-${id}`);const m=state.ministrants.find(x=>x.id===id);if(m&&input){m.password=input.value.trim();saveDataToFirebase();alert('Zapisano hasło dla: '+m.name);}};
 window.generateUserPassword=function(id){const p=Math.floor(1000+Math.random()*9000).toString();const input=document.getElementById(`pass-input-${id}`);if(input){input.value=p;saveUserPassword(id);}};
 function renderMinistrantsGrid(){
 const grid=document.getElementById('ministrants-grid');if(!grid)return;
-grid.innerHTML=state.ministrants.map(m=>`<div class="ministrant-card"><div class="avatar">${m.photo?`<img src="${m.photo}" alt="">`:'👤'}</div><h3 style="font-size:1.1rem">${m.name}</h3>${m.rank?`<div class="role-tag">${m.rank}</div>`:''}<p style="font-weight:600;margin-top:8px">${m.degree}</p>${m.phone?`<p style="font-size:.85rem;color:var(--text-sub);margin-top:4px">📞 ${m.phone}</p>`:''}<p style="font-weight:700;color:var(--accent-red);margin:12px 0 6px">${m.points} pkt</p>${state.currentUserRole==='admin'?`<button class="btn btn-warning" style="width:100%;font-size:.82rem;margin-top:8px" onclick="openEditMinistrantModal(${m.id})">✏️ Edytuj</button>`:''}</div>`).join('');
+grid.innerHTML=state.ministrants.map(m=>`<div class="ministrant-card"><div class="avatar">${m.photo?`<img src="${m.photo}" alt="">`:'👤'}</div><h3 style="font-size:1.1rem">${m.name}</h3>${m.rank?`<div class="role-tag">${m.rank}</div>`:''}<p style="font-weight:600;margin-top:8px">${degreeText(m.degree)}</p>${m.phone?`<p style="font-size:.85rem;color:var(--text-sub);margin-top:4px">📞 ${m.phone}</p>`:''}<p style="font-weight:700;color:var(--accent-red);margin:12px 0 6px">${m.points} pkt</p>${state.currentUserRole==='admin'?`<button class="btn btn-warning" style="width:100%;font-size:.82rem;margin-top:8px" onclick="openEditMinistrantModal(${m.id})">✏️ Edytuj</button>`:''}</div>`).join('');
 }
-window.openAddMinistrantModal=function(){document.getElementById('m-edit-id').value='';['m-name','m-photo','m-phone','m-rank','m-desc'].forEach(id=>document.getElementById(id).value='');document.getElementById('m-degree').value='Kandydat';document.getElementById('m-points').value='0';document.getElementById('modal-min-title').innerText='Dodaj Nowego Ministranta';openModal('modal-ministrant');};
-window.openEditMinistrantModal=function(id){const m=state.ministrants.find(x=>x.id===id);if(!m)return;document.getElementById('m-edit-id').value=m.id;document.getElementById('m-name').value=m.name;document.getElementById('m-photo').value=m.photo||'';document.getElementById('m-phone').value=m.phone||'';document.getElementById('m-degree').value=m.degree;document.getElementById('m-rank').value=m.rank||'';document.getElementById('m-desc').value=m.desc||'';document.getElementById('m-points').value=m.points;document.getElementById('modal-min-title').innerText='Edycja: '+m.name;openModal('modal-ministrant');};
-window.saveMinistrant=function(){const id=document.getElementById('m-edit-id').value;const name=document.getElementById('m-name').value;if(!name)return alert('Wpisz imię i nazwisko!');const data={name,photo:document.getElementById('m-photo').value,phone:document.getElementById('m-phone').value,degree:document.getElementById('m-degree').value,rank:document.getElementById('m-rank').value,desc:document.getElementById('m-desc').value,points:parseInt(document.getElementById('m-points').value)||0};if(id){const m=state.ministrants.find(x=>x.id==id);if(m)Object.assign(m,data);}else state.ministrants.push({id:Date.now(),...data,password:""});saveDataToFirebase();closeModal('modal-ministrant');};
+window.openAddMinistrantModal=function(){
+document.getElementById('m-edit-id').value='';
+['m-name','m-photo','m-phone','m-rank','m-desc'].forEach(id=>document.getElementById(id).value='');
+const deg=document.getElementById('m-degree');
+for(let i=0;i<deg.options.length;i++)deg.options[i].selected=false;
+deg.options[0].selected=true;
+document.getElementById('m-points').value='0';
+document.getElementById('modal-min-title').innerText='Dodaj Nowego Ministranta';
+openModal('modal-ministrant');
+};
+window.openEditMinistrantModal=function(id){
+const m=state.ministrants.find(x=>x.id===id);if(!m)return;
+document.getElementById('m-edit-id').value=m.id;
+document.getElementById('m-name').value=m.name;
+document.getElementById('m-photo').value=m.photo||'';
+document.getElementById('m-phone').value=m.phone||'';
+const deg=document.getElementById('m-degree');
+const degrees=Array.isArray(m.degree)?m.degree:[m.degree].filter(Boolean);
+for(let i=0;i<deg.options.length;i++)deg.options[i].selected=degrees.includes(deg.options[i].value);
+document.getElementById('m-rank').value=m.rank||'';
+document.getElementById('m-desc').value=m.desc||'';
+document.getElementById('m-points').value=m.points;
+document.getElementById('modal-min-title').innerText='Edycja: '+m.name;
+openModal('modal-ministrant');
+};
+window.saveMinistrant=function(){
+const id=document.getElementById('m-edit-id').value;
+const name=document.getElementById('m-name').value;
+if(!name)return alert('Wpisz imię i nazwisko!');
+const degSel=document.getElementById('m-degree');
+const degrees=Array.from(degSel.selectedOptions).map(o=>o.value);
+if(!degrees.length)return alert('Wybierz przynajmniej jeden stopień!');
+const data={name,photo:document.getElementById('m-photo').value,phone:document.getElementById('m-phone').value,degree:degrees.length===1?degrees[0]:degrees,rank:document.getElementById('m-rank').value,desc:document.getElementById('m-desc').value,points:parseInt(document.getElementById('m-points').value)||0};
+if(id){const m=state.ministrants.find(x=>x.id==id);if(m)Object.assign(m,data);}
+else state.ministrants.push({id:Date.now(),...data,password:""});
+saveDataToFirebase();closeModal('modal-ministrant');
+};
 window.deleteMinistrant=function(id){if(confirm('Usunąć tego ministranta?')){state.ministrants=state.ministrants.filter(m=>m.id!==id);saveDataToFirebase();}};
 
 function renderServiceDropdowns(){
 const set=(id,html)=>{const el=document.getElementById(id);if(el)el.innerHTML=html;};
+const isUser=state.currentUserRole==='user'&&state.currentUserId;
+if(isUser){
+const me=state.ministrants.find(m=>m.id===state.currentUserId);
+const onlyMe=me?`<option value="${me.id}">${me.name}</option>`:'';
+set('req-ministrant',onlyMe);
+set('just-ministrant',onlyMe);
+}else{
 set('req-ministrant',state.ministrants.map(m=>`<option value="${m.id}">${m.name}</option>`).join(''));
+set('just-ministrant',state.ministrants.map(m=>`<option value="${m.id}">${m.name}</option>`).join(''));
+}
 set('req-service',state.services.map(s=>`<option value="${s.id}">${s.name} (+${s.posPoints} / ${s.negPoints})</option>`).join(''));
 set('cal-service-type',state.services.map(s=>`<option value="${s.name}">${s.name}</option>`).join(''));
 set('cal-assigned',state.ministrants.map(m=>`<option value="${m.name}">${m.name}</option>`).join(''));
 set('admin-direct-min',state.ministrants.map(m=>`<option value="${m.id}">${m.name}</option>`).join(''));
 set('admin-direct-serv',state.services.map(s=>`<option value="${s.id}">${s.name} (+${s.posPoints} pkt)</option>`).join(''));
-set('just-ministrant',state.ministrants.map(m=>`<option value="${m.id}">${m.name}</option>`).join(''));
 set('just-service',state.services.map(s=>`<option value="${s.id}">${s.name}</option>`).join(''));
+const today=new Date().toISOString().split('T')[0];
+const rd=document.getElementById('req-date');if(rd&&!rd.value)rd.value=today;
+const jd=document.getElementById('just-date');if(jd&&!jd.value)jd.value=today;
 }
+window.selectAllAssigned=function(){
+const sel=document.getElementById('cal-assigned');
+if(!sel)return;
+for(let i=0;i<sel.options.length;i++)sel.options[i].selected=true;
+};
 function renderAwardDropdowns(){
 const a=document.getElementById('award-min'),t=document.getElementById('award-type');
 if(a)a.innerHTML=state.ministrants.map(m=>`<option value="${m.id}">${m.name}</option>`).join('');
@@ -600,19 +680,34 @@ if(t)t.innerHTML=(state.pointTypes||[]).map(p=>`<option value="${p.id}">${p.name
 }
 
 window.submitServiceRequest=function(){
-const minId=parseInt(document.getElementById('req-ministrant').value),servId=parseInt(document.getElementById('req-service').value),time=document.getElementById('req-time').value;
+const minId=parseInt(document.getElementById('req-ministrant').value);
+const servId=parseInt(document.getElementById('req-service').value);
+const date=document.getElementById('req-date').value;
+const time=document.getElementById('req-time').value;
 if(!minId||!servId||!time)return alert('Uzupełnij wszystkie pola!');
+if(!date)return alert('Wybierz dzień służby!');
 const min=state.ministrants.find(m=>m.id===minId),serv=state.services.find(s=>s.id===servId);
 if(!state.requests)state.requests=[];
-state.requests.push({id:Date.now(),type:'attendance',ministrantId:min.id,ministrantName:min.name,serviceId:serv.id,serviceName:serv.name,posPoints:serv.posPoints,negPoints:serv.negPoints,serviceTime:time,note:'',sentAt:new Date().toLocaleString()});
-saveRequestsOnly();alert('Zgłoszenie wysłane!');
+state.requests.push({id:Date.now(),type:'attendance',ministrantId:min.id,ministrantName:min.name,serviceId:serv.id,serviceName:serv.name,posPoints:serv.posPoints,negPoints:serv.negPoints,serviceDate:date,serviceTime:time,note:'',sentAt:new Date().toLocaleString()});
+if(!state.calendarEvents)state.calendarEvents=[];
+const exists=state.calendarEvents.some(e=>e.date===date&&e.time===time&&e.serviceName===serv.name);
+if(!exists){
+state.calendarEvents.push({id:Date.now()+1,serviceName:serv.name,date,time,status:'yellow',assigned:[min.name]});
+}
+saveRequestsOnly();
+set(ref(db,'lso_data/calendarEvents'),state.calendarEvents).catch(()=>{});
+alert('Zgłoszenie wysłane! (dzień: '+date+')');
 };
 window.submitJustificationRequest=function(){
-const minId=parseInt(document.getElementById('just-ministrant').value),servId=parseInt(document.getElementById('just-service').value),time=document.getElementById('just-time').value||'—',note=(document.getElementById('just-note')?.value||'').trim();
+const minId=parseInt(document.getElementById('just-ministrant').value);
+const servId=parseInt(document.getElementById('just-service').value);
+const date=document.getElementById('just-date').value||'—';
+const time=document.getElementById('just-time').value||'—';
+const note=(document.getElementById('just-note')?.value||'').trim();
 if(!minId||!servId)return alert('Wybierz ministranta i służbę!');
 const min=state.ministrants.find(m=>m.id===minId),serv=state.services.find(s=>s.id===servId);
 if(!state.requests)state.requests=[];
-state.requests.push({id:Date.now(),type:'justification',ministrantId:min.id,ministrantName:min.name,serviceId:serv.id,serviceName:serv.name,posPoints:0,negPoints:serv.negPoints,serviceTime:time,note,sentAt:new Date().toLocaleString()});
+state.requests.push({id:Date.now(),type:'justification',ministrantId:min.id,ministrantName:min.name,serviceId:serv.id,serviceName:serv.name,posPoints:0,negPoints:serv.negPoints,serviceDate:date,serviceTime:time,note,sentAt:new Date().toLocaleString()});
 saveRequestsOnly();document.getElementById('just-note').value='';alert('Prośba wysłana!');
 };
 window.adminDirectAddService=function(){
@@ -650,7 +745,13 @@ if(!list||!badge)return;const reqs=state.requests||[];
 badge.innerText=reqs.length;badge.style.display=reqs.length?'inline-block':'none';
 if(bnBadge){bnBadge.innerText=reqs.length;bnBadge.style.display=reqs.length?'inline-block':'none';}
 if(!reqs.length){list.innerHTML='<p style="color:var(--text-sub)">Brak nowych zgłoszeń.</p>';return;}
-list.innerHTML=reqs.map(r=>{const isJust=r.type==='justification';return `<div class="request-card" style="${isJust?'border-left:4px solid #3b82f6':''}"><div><strong>${isJust?'📝 ':'📩 '}${r.ministrantName}</strong> ${isJust?'prosi o usprawiedliwienie':'zgłosił'}: <strong>${r.serviceName}</strong><br><small style="color:var(--text-sub)">Godzina: ${r.serviceTime}${r.note?' · 📝 '+r.note:''}</small></div><div style="display:flex;gap:8px;flex-wrap:wrap">${isJust?`<button class="btn btn-info" onclick="processRequest(${r.id},'justify')">✅ Usprawiedliw (0)</button><button class="btn btn-danger" onclick="processRequest(${r.id},false)">❌ Odrzuć (${r.negPoints})</button>`:`<button class="btn btn-success" onclick="processRequest(${r.id},true)">✅ +${r.posPoints}</button><button class="btn btn-danger" onclick="processRequest(${r.id},false)">❌ ${r.negPoints}</button>`}</div></div>`;}).join('');
+list.innerHTML=reqs.map(r=>{
+const isJust=r.type==='justification';
+const dayInfo=r.serviceDate?` · 📅 ${r.serviceDate}`:'';
+return `<div class="request-card" style="${isJust?'border-left:4px solid #3b82f6':''}"><div><strong>${isJust?'📝 ':'📩 '}${r.ministrantName}</strong> ${isJust?'prosi o usprawiedliwienie':'zgłosił'}: <strong>${r.serviceName}</strong><br>
+<small style="color:var(--text-sub)">Godzina: ${r.serviceTime}${dayInfo}${r.note?' · 📝 '+r.note:''}<br>Wysłano: ${r.sentAt||'—'}</small></div>
+<div style="display:flex;gap:8px;flex-wrap:wrap">${isJust?`<button class="btn btn-info" onclick="processRequest(${r.id},'justify')">✅ Usprawiedliw (0)</button><button class="btn btn-danger" onclick="processRequest(${r.id},false)">❌ Odrzuć (${r.negPoints})</button>`:`<button class="btn btn-success" onclick="processRequest(${r.id},true)">✅ +${r.posPoints}</button><button class="btn btn-danger" onclick="processRequest(${r.id},false)">❌ ${r.negPoints}</button>`}</div></div>`;
+}).join('');
 }
 window.processRequest=function(reqId,action){
 const req=state.requests.find(r=>r.id===reqId);if(!req)return;
@@ -660,7 +761,12 @@ if(req.type==='justification'){if(action==='justify'){pts=0;justified=true;}else
 else pts=action===true?req.posPoints:req.negPoints;
 min.points+=pts;
 if(!state.serviceHistory)state.serviceHistory=[];
-state.serviceHistory.push({id:Date.now(),ministrantId:min.id,ministrantName:min.name,serviceName:req.serviceName,points:pts,date:new Date().toLocaleDateString(),time:req.serviceTime,note:req.note||'',canceled:false,justified});
+state.serviceHistory.push({id:Date.now(),ministrantId:min.id,ministrantName:min.name,serviceName:req.serviceName,points:pts,date:req.serviceDate||new Date().toLocaleDateString(),time:req.serviceTime,note:req.note||'',canceled:false,justified});
+if(req.type==='attendance'&&action===true&&req.serviceDate){
+if(!state.calendarEvents)state.calendarEvents=[];
+const ev=state.calendarEvents.find(e=>e.date===req.serviceDate&&e.serviceName===req.serviceName&&e.time===req.serviceTime);
+if(ev){ev.status='green';if(!ev.assigned.includes(min.name))ev.assigned.push(min.name);}
+}
 state.requests=state.requests.filter(r=>r.id!==reqId);saveDataToFirebase();
 };
 
