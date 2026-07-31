@@ -143,10 +143,6 @@ body.mobile-mode .bottom-nav{display:flex}
 <label>Wybierz kim jesteś</label>
 <select id="login-user-id" autocomplete="off"></select>
 </div>
-<div class="form-group" id="admin-email-group" style="display:none">
-<label>E-mail admina</label>
-<input type="text" id="login-admin-email" placeholder="ministrancinspj35@gmail.com" autocomplete="off" readonly onfocus="this.removeAttribute('readonly')">
-</div>
 <div class="form-group">
 <label>Wybierz Urządzenie</label>
 <select id="login-device" autocomplete="off">
@@ -412,6 +408,7 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 const auth = getAuth(app);
 const ALL_PASS = "nspj";
+const ADMIN_EMAIL = "ministrancinspj35@gmail.com";
 
 const defaultServices = [
 "Msza Święta","Chrzest Święty","Nabożeństwo pierwszoobwodowe","Pogrzeb","Ślub po mszy","Ślub","Zbiórka",
@@ -457,9 +454,7 @@ if(select)select.innerHTML=state.ministrants.map(m=>`<option value="${m.id}">${m
 window.toggleUserSelect=function(){
 const role=document.getElementById('login-role')?.value;
 const userGroup=document.getElementById('user-select-group');
-const adminEmailGroup=document.getElementById('admin-email-group');
 if(userGroup)userGroup.style.display=role==='user'?'block':'none';
-if(adminEmailGroup)adminEmailGroup.style.display=role==='admin'?'block':'none';
 };
 
 window.login=async function(){
@@ -467,10 +462,8 @@ const role=document.getElementById('login-role').value;
 const pass=document.getElementById('login-pass').value;
 state.currentDevice=document.getElementById('login-device').value;
 if(role==='admin'){
-const adminEmail=document.getElementById('login-admin-email').value.trim();
-if(!adminEmail)return alert('Wpisz e-mail administratora!');
 try{
-await signInWithEmailAndPassword(auth,adminEmail,pass);
+await signInWithEmailAndPassword(auth,ADMIN_EMAIL,pass);
 state.currentUserRole='admin';state.currentUserId=null;
 }catch(e){
 console.error(e);
@@ -504,8 +497,6 @@ state.currentUserRole=null;state.currentUserId=null;
 document.body.classList.remove('mobile-mode');
 document.getElementById('login-overlay').style.display='flex';
 document.getElementById('login-pass').value='';
-const emailInput=document.getElementById('login-admin-email');
-if(emailInput)emailInput.value='';
 closeMoreMenu();populateLoginUsers();
 };
 
@@ -702,8 +693,6 @@ window.editCalendarEvent=function(id){const ev=(state.calendarEvents||[]).find(e
 window.deleteCalendarEvent=function(id,dateStr){if(confirm('Usunąć tę służbę?')){state.calendarEvents=state.calendarEvents.filter(e=>e.id!==id);saveDataToFirebase();if(document.getElementById('modal-day-view').classList.contains('active'))openDayView(dateStr);}};
 
 document.getElementById('login-pass').value='';
-const emailEl=document.getElementById('login-admin-email');
-if(emailEl)emailEl.value='';
 </script>
 </body>
 </html>
