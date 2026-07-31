@@ -153,11 +153,8 @@
     <div class="login-box">
         <h1>MINISTRANCI-NSPJ</h1>
         <h3>Logowanie do systemu</h3>
-
-        <!-- blokada autofill przeglądarki -->
         <input type="text" name="fake-user" style="display:none" tabindex="-1" autocomplete="username">
         <input type="password" name="fake-pass" style="display:none" tabindex="-1" autocomplete="current-password">
-
         <div class="form-group">
             <label>Wybierz Rolę</label>
             <select id="login-role" onchange="toggleUserSelect()" autocomplete="off">
@@ -166,17 +163,14 @@
                 <option value="admin">Administrator</option>
             </select>
         </div>
-
         <div class="form-group" id="user-select-group">
             <label>Wybierz kim jesteś</label>
             <select id="login-user-id" autocomplete="off"></select>
         </div>
-
         <div class="form-group" id="admin-email-group" style="display:none;">
             <label>E-mail admina</label>
-            <input type="email" id="login-admin-email" placeholder="np. admin@ministranci.pl" autocomplete="off">
+            <input type="email" id="login-admin-email" placeholder="ministrancinspj35@gmail.com" autocomplete="off">
         </div>
-
         <div class="form-group">
             <label>Wybierz Urządzenie</label>
             <select id="login-device" autocomplete="off">
@@ -184,12 +178,10 @@
                 <option value="Telefon">📱 Telefon</option>
             </select>
         </div>
-
         <div class="form-group">
             <label>Hasło</label>
             <input type="password" id="login-pass" placeholder="Wpisz hasło..." autocomplete="new-password">
         </div>
-
         <button class="btn" style="width:100%; margin-top:12px; padding:13px; font-size:1rem;" onclick="login()">Zaloguj się</button>
     </div>
 </div>
@@ -245,7 +237,6 @@
                 </div>
             </div>
         </div>
-
         <div id="tab-kalendarz" class="tab-content">
             <div class="card">
                 <div class="cal-nav-bar">
@@ -270,7 +261,6 @@
                 <div id="calendar-render-area"></div>
             </div>
         </div>
-
         <div id="tab-zgloszenia" class="tab-content">
             <div class="card" style="max-width:520px;">
                 <h2>Zgłoś obecność na służbie</h2>
@@ -290,11 +280,9 @@
                 <button class="btn btn-info" style="width:100%; margin-top:8px;" onclick="submitJustificationRequest()">Wyślij prośbę</button>
             </div>
         </div>
-
         <div id="tab-powiadomienia" class="tab-content">
             <div class="card"><h2>Oczekujące zgłoszenia</h2><div id="requests-list" style="margin-top:16px;"></div></div>
         </div>
-
         <div id="tab-szybka-sluzba" class="tab-content">
             <div class="card" style="border:1px solid var(--accent-red);">
                 <h2>⚡ Szybkie przyznanie służby</h2>
@@ -308,7 +296,6 @@
             </div>
             <div class="card" style="margin-top:16px;"><h2 style="margin-bottom:12px;">Ostatnie przyznane służby</h2><div id="admin-recent-history"></div></div>
         </div>
-
         <div id="tab-hasla-uczestnikow" class="tab-content">
             <div class="card">
                 <h2>🔑 Zarządzanie hasłami uczestników</h2>
@@ -318,7 +305,6 @@
                 </div>
             </div>
         </div>
-
         <div id="tab-punktacja-sluzb" class="tab-content">
             <div class="card">
                 <h2>📊 Punkty za służbę</h2>
@@ -335,7 +321,6 @@
                 </div>
             </div>
         </div>
-
         <div id="tab-punkty" class="tab-content">
             <div class="card">
                 <h2>⭐ Punkty dodatkowe</h2>
@@ -364,7 +349,6 @@
                 </div>
             </div>
         </div>
-
         <div id="tab-ministranci" class="tab-content">
             <div class="card" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
                 <h2>Lista Ministrantów</h2>
@@ -490,19 +474,14 @@ onValue(ref(db, 'lso_data'), (snapshot) => {
 
 function saveDataToFirebase() {
     set(ref(db, 'lso_data'), {
-        ministrants: state.ministrants,
-        services: state.services,
-        pointTypes: state.pointTypes,
-        requests: state.requests,
-        calendarEvents: state.calendarEvents,
-        serviceHistory: state.serviceHistory
+        ministrants: state.ministrants, services: state.services, pointTypes: state.pointTypes,
+        requests: state.requests, calendarEvents: state.calendarEvents, serviceHistory: state.serviceHistory
     }).catch(error => {
         console.error(error);
         if (error.code === 'PERMISSION_DENIED') alert("Brak uprawnień do zapisu. Zaloguj się jako administrator.");
         else alert("Nie udało się zapisać!");
     });
 }
-
 function saveRequestsOnly() {
     set(ref(db, 'lso_data/requests'), state.requests).catch(error => {
         console.error(error);
@@ -514,7 +493,6 @@ window.populateLoginUsers = function() {
     const select = document.getElementById('login-user-id');
     if (select) select.innerHTML = state.ministrants.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
 }
-
 window.toggleUserSelect = function() {
     const role = document.getElementById('login-role')?.value;
     const userGroup = document.getElementById('user-select-group');
@@ -537,7 +515,9 @@ window.login = async function() {
             state.currentUserId = null;
         } catch (e) {
             console.error(e);
-            return alert('Niepoprawny e-mail lub hasło administratora!');
+            const kod = e.code || 'brak';
+            const msg = e.message || '';
+            return alert('Błąd logowania:\n' + kod + '\n' + msg);
         }
     } else if (role === 'all') {
         if (pass !== ALL_PASS) return alert('Niepoprawne hasło dla roli WSZYSCY!');
@@ -618,7 +598,6 @@ function renderUserPersonalStats() {
 window.toggleTheme = function() {
     document.body.setAttribute('data-theme', document.body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
 }
-
 window.switchTab = function(tabId, btn) {
     document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
     document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
@@ -628,7 +607,6 @@ window.switchTab = function(tabId, btn) {
     document.getElementById('page-title').innerText = document.body.classList.contains('mobile-mode') ? 'Ministranci-NSPJ' : (titles[tabId] || 'MINISTRANCI-NSPJ');
     updateBottomNavActive(tabId);
 }
-
 window.switchTabMobile = function(tabId, btn) {
     closeMoreMenu(); switchTab(tabId, null); updateBottomNavActive(tabId);
     if (btn) { document.querySelectorAll('.bottom-nav-item').forEach(b => b.classList.remove('active')); btn.classList.add('active'); }
@@ -672,7 +650,6 @@ function renderPointsTable() {
             </td></tr>`;
     });
 }
-
 function renderPasswordsTable() {
     const tbody = document.getElementById('passwords-table-body');
     if (!tbody) return;
@@ -694,7 +671,6 @@ window.generateUserPassword = function(id) {
     const input = document.getElementById(`pass-input-${id}`);
     if (input) { input.value = p; saveUserPassword(id); }
 }
-
 function renderMinistrantsGrid() {
     const grid = document.getElementById('ministrants-grid');
     if (!grid) return;
@@ -709,7 +685,6 @@ function renderMinistrantsGrid() {
             ${state.currentUserRole === 'admin' ? `<button class="btn btn-warning" style="width:100%; font-size:0.82rem; margin-top:8px;" onclick="openEditMinistrantModal(${m.id})">✏️ Edytuj</button>` : ''}
         </div>`).join('');
 }
-
 window.openAddMinistrantModal = function() {
     document.getElementById('m-edit-id').value = '';
     ['m-name','m-photo','m-phone','m-rank','m-desc'].forEach(id => document.getElementById(id).value = '');
@@ -737,27 +712,17 @@ window.saveMinistrant = function() {
     const name = document.getElementById('m-name').value;
     if (!name) return alert('Wpisz imię i nazwisko!');
     const data = {
-        name, photo: document.getElementById('m-photo').value,
-        phone: document.getElementById('m-phone').value,
-        degree: document.getElementById('m-degree').value,
-        rank: document.getElementById('m-rank').value,
-        desc: document.getElementById('m-desc').value,
-        points: parseInt(document.getElementById('m-points').value) || 0
+        name, photo: document.getElementById('m-photo').value, phone: document.getElementById('m-phone').value,
+        degree: document.getElementById('m-degree').value, rank: document.getElementById('m-rank').value,
+        desc: document.getElementById('m-desc').value, points: parseInt(document.getElementById('m-points').value) || 0
     };
-    if (id) {
-        const m = state.ministrants.find(x => x.id == id);
-        if (m) Object.assign(m, data);
-    } else state.ministrants.push({ id: Date.now(), ...data, password: "" });
-    saveDataToFirebase();
-    closeModal('modal-ministrant');
+    if (id) { const m = state.ministrants.find(x => x.id == id); if (m) Object.assign(m, data); }
+    else state.ministrants.push({ id: Date.now(), ...data, password: "" });
+    saveDataToFirebase(); closeModal('modal-ministrant');
 }
 window.deleteMinistrant = function(id) {
-    if (confirm('Usunąć tego ministranta?')) {
-        state.ministrants = state.ministrants.filter(m => m.id !== id);
-        saveDataToFirebase();
-    }
+    if (confirm('Usunąć tego ministranta?')) { state.ministrants = state.ministrants.filter(m => m.id !== id); saveDataToFirebase(); }
 }
-
 function renderServiceDropdowns() {
     const set = (id, html) => { const el = document.getElementById(id); if (el) el.innerHTML = html; };
     set('req-ministrant', state.ministrants.map(m => `<option value="${m.id}">${m.name}</option>`).join(''));
@@ -775,7 +740,6 @@ function renderAwardDropdowns() {
     if (a) a.innerHTML = state.ministrants.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
     if (t) t.innerHTML = (state.pointTypes || []).map(p => `<option value="${p.id}">${p.name} (+${p.posPoints} / ${p.negPoints})</option>`).join('');
 }
-
 window.submitServiceRequest = function() {
     const minId = parseInt(document.getElementById('req-ministrant').value);
     const servId = parseInt(document.getElementById('req-service').value);
@@ -784,17 +748,9 @@ window.submitServiceRequest = function() {
     const min = state.ministrants.find(m => m.id === minId);
     const serv = state.services.find(s => s.id === servId);
     if (!state.requests) state.requests = [];
-    state.requests.push({
-        id: Date.now(), type: 'attendance',
-        ministrantId: min.id, ministrantName: min.name,
-        serviceId: serv.id, serviceName: serv.name,
-        posPoints: serv.posPoints, negPoints: serv.negPoints,
-        serviceTime: time, note: '', sentAt: new Date().toLocaleString()
-    });
-    saveRequestsOnly();
-    alert('Zgłoszenie wysłane!');
+    state.requests.push({ id: Date.now(), type: 'attendance', ministrantId: min.id, ministrantName: min.name, serviceId: serv.id, serviceName: serv.name, posPoints: serv.posPoints, negPoints: serv.negPoints, serviceTime: time, note: '', sentAt: new Date().toLocaleString() });
+    saveRequestsOnly(); alert('Zgłoszenie wysłane!');
 }
-
 window.submitJustificationRequest = function() {
     const minId = parseInt(document.getElementById('just-ministrant').value);
     const servId = parseInt(document.getElementById('just-service').value);
@@ -804,18 +760,9 @@ window.submitJustificationRequest = function() {
     const min = state.ministrants.find(m => m.id === minId);
     const serv = state.services.find(s => s.id === servId);
     if (!state.requests) state.requests = [];
-    state.requests.push({
-        id: Date.now(), type: 'justification',
-        ministrantId: min.id, ministrantName: min.name,
-        serviceId: serv.id, serviceName: serv.name,
-        posPoints: 0, negPoints: serv.negPoints,
-        serviceTime: time, note, sentAt: new Date().toLocaleString()
-    });
-    saveRequestsOnly();
-    document.getElementById('just-note').value = '';
-    alert('Prośba wysłana!');
+    state.requests.push({ id: Date.now(), type: 'justification', ministrantId: min.id, ministrantName: min.name, serviceId: serv.id, serviceName: serv.name, posPoints: 0, negPoints: serv.negPoints, serviceTime: time, note, sentAt: new Date().toLocaleString() });
+    saveRequestsOnly(); document.getElementById('just-note').value = ''; alert('Prośba wysłana!');
 }
-
 window.adminDirectAddService = function() {
     const minId = parseInt(document.getElementById('admin-direct-min').value);
     const servId = parseInt(document.getElementById('admin-direct-serv').value);
@@ -826,17 +773,10 @@ window.adminDirectAddService = function() {
     const serv = state.services.find(s => s.id === servId);
     min.points += serv.posPoints;
     if (!state.serviceHistory) state.serviceHistory = [];
-    state.serviceHistory.push({
-        id: Date.now(), ministrantId: min.id, ministrantName: min.name,
-        serviceName: serv.name, points: serv.posPoints,
-        date: new Date().toLocaleDateString(), time, note,
-        canceled: false, justified: false
-    });
+    state.serviceHistory.push({ id: Date.now(), ministrantId: min.id, ministrantName: min.name, serviceName: serv.name, points: serv.posPoints, date: new Date().toLocaleDateString(), time, note, canceled: false, justified: false });
     document.getElementById('admin-direct-note').value = '';
-    saveDataToFirebase();
-    alert(`Przyznano "${serv.name}" (+${serv.posPoints} pkt) dla ${min.name}!`);
+    saveDataToFirebase(); alert(`Przyznano "${serv.name}" (+${serv.posPoints} pkt) dla ${min.name}!`);
 }
-
 function renderAdminRecentHistory() {
     const list = document.getElementById('admin-recent-history');
     if (!list) return;
@@ -853,7 +793,6 @@ function renderAdminRecentHistory() {
             <div style="font-weight:700; color:${color};">${txt}</div></div>`;
     }).join('');
 }
-
 window.openHistoryDetail = function(histId) {
     const h = (state.serviceHistory || []).find(x => x.id === histId);
     if (!h) return;
@@ -871,8 +810,7 @@ window.openHistoryDetail = function(histId) {
     </div>`;
     const actions = document.getElementById('history-detail-actions');
     if (state.currentUserRole === 'admin' && !h.canceled && !h.justified) {
-        actions.innerHTML = `
-            <button class="btn btn-danger" style="width:100%; margin-bottom:10px;" onclick="cancelHistoryService(${h.id})">❌ Anuluj (odejmij punkty)</button>
+        actions.innerHTML = `<button class="btn btn-danger" style="width:100%; margin-bottom:10px;" onclick="cancelHistoryService(${h.id})">❌ Anuluj (odejmij punkty)</button>
             <button class="btn btn-info" style="width:100%; margin-bottom:10px;" onclick="justifyHistoryService(${h.id})">📝 Usprawiedliw (0 pkt)</button>`;
     } else actions.innerHTML = '';
     openModal('modal-history-detail');
@@ -893,15 +831,13 @@ window.justifyHistoryService = function(histId) {
     h.justified = true; h.canceled = false;
     saveDataToFirebase(); closeModal('modal-history-detail'); renderAll();
 }
-
 function renderRequests() {
     const list = document.getElementById('requests-list');
     const badge = document.getElementById('notif-badge');
     const bnBadge = document.getElementById('bn-notif-badge');
     if (!list || !badge) return;
     const reqs = state.requests || [];
-    badge.innerText = reqs.length;
-    badge.style.display = reqs.length ? 'inline-block' : 'none';
+    badge.innerText = reqs.length; badge.style.display = reqs.length ? 'inline-block' : 'none';
     if (bnBadge) { bnBadge.innerText = reqs.length; bnBadge.style.display = reqs.length ? 'inline-block' : 'none'; }
     if (!reqs.length) { list.innerHTML = '<p style="color:var(--text-sub);">Brak nowych zgłoszeń.</p>'; return; }
     list.innerHTML = reqs.map(r => {
@@ -923,22 +859,14 @@ window.processRequest = function(reqId, action) {
     const min = state.ministrants.find(m => m.id === req.ministrantId);
     if (!min) return;
     let pts = 0, justified = false;
-    if (req.type === 'justification') {
-        if (action === 'justify') { pts = 0; justified = true; }
-        else pts = req.negPoints;
-    } else pts = action === true ? req.posPoints : req.negPoints;
+    if (req.type === 'justification') { if (action === 'justify') { pts = 0; justified = true; } else pts = req.negPoints; }
+    else pts = action === true ? req.posPoints : req.negPoints;
     min.points += pts;
     if (!state.serviceHistory) state.serviceHistory = [];
-    state.serviceHistory.push({
-        id: Date.now(), ministrantId: min.id, ministrantName: min.name,
-        serviceName: req.serviceName, points: pts,
-        date: new Date().toLocaleDateString(), time: req.serviceTime,
-        note: req.note || '', canceled: false, justified
-    });
+    state.serviceHistory.push({ id: Date.now(), ministrantId: min.id, ministrantName: min.name, serviceName: req.serviceName, points: pts, date: new Date().toLocaleDateString(), time: req.serviceTime, note: req.note || '', canceled: false, justified });
     state.requests = state.requests.filter(r => r.id !== reqId);
     saveDataToFirebase();
 }
-
 function renderServicesSettings() {
     const tbody = document.getElementById('services-settings-body');
     if (!tbody) return;
@@ -950,10 +878,7 @@ function renderServicesSettings() {
         <td style="white-space:nowrap;">
             <button class="btn btn-success" style="padding:5px 10px; font-size:0.8rem;" onclick="updateServiceType(${s.id})">💾</button>
             <button class="btn btn-danger" style="padding:5px 10px; font-size:0.8rem;" onclick="deleteServiceType(${s.id})">Usuń</button>
-        </td></tr>` : `<tr>
-        <td><strong>${s.name}</strong></td>
-        <td style="color:var(--success-color); font-weight:700;">+${s.posPoints}</td>
-        <td style="color:var(--accent-red); font-weight:700;">${s.negPoints}</td><td></td></tr>`).join('');
+        </td></tr>` : `<tr><td><strong>${s.name}</strong></td><td style="color:var(--success-color); font-weight:700;">+${s.posPoints}</td><td style="color:var(--accent-red); font-weight:700;">${s.negPoints}</td><td></td></tr>`).join('');
 }
 window.updateServiceType = function(id) {
     const s = state.services.find(x => x.id === id);
@@ -974,9 +899,7 @@ window.addNewServiceType = function() {
     if (neg > 0) neg = -neg;
     state.services.push({ id: Date.now(), name, posPoints: pos, negPoints: neg });
     saveDataToFirebase();
-    document.getElementById('new-service-name').value = '';
-    document.getElementById('new-service-pos').value = '';
-    document.getElementById('new-service-neg').value = '';
+    document.getElementById('new-service-name').value = ''; document.getElementById('new-service-pos').value = ''; document.getElementById('new-service-neg').value = '';
     renderServicesSettings(); renderServiceDropdowns();
 }
 window.deleteServiceType = function(id) {
@@ -984,15 +907,11 @@ window.deleteServiceType = function(id) {
     state.services = state.services.filter(s => s.id !== id);
     saveDataToFirebase(); renderServicesSettings(); renderServiceDropdowns();
 }
-
 function renderPointTypesSettings() {
     const tbody = document.getElementById('point-types-body');
     if (!tbody) return;
     const isAdmin = state.currentUserRole === 'admin';
-    if (!(state.pointTypes || []).length) {
-        tbody.innerHTML = `<tr><td colspan="4" style="color:var(--text-sub);">Brak zdefiniowanych punktów dodatkowych.</td></tr>`;
-        return;
-    }
+    if (!(state.pointTypes || []).length) { tbody.innerHTML = `<tr><td colspan="4" style="color:var(--text-sub);">Brak zdefiniowanych punktów dodatkowych.</td></tr>`; return; }
     tbody.innerHTML = state.pointTypes.map(p => isAdmin ? `<tr>
         <td><input type="text" id="pt-name-${p.id}" value="${p.name.replace(/"/g,'&quot;')}" style="width:100%; min-width:160px; padding:8px 10px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-primary); color:var(--text-main);"></td>
         <td><input type="number" id="pt-pos-${p.id}" value="${p.posPoints}" style="width:90px; padding:8px 10px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-primary); color:var(--text-main);"></td>
@@ -1000,10 +919,7 @@ function renderPointTypesSettings() {
         <td style="white-space:nowrap;">
             <button class="btn btn-success" style="padding:5px 10px; font-size:0.8rem;" onclick="updatePointType(${p.id})">💾</button>
             <button class="btn btn-danger" style="padding:5px 10px; font-size:0.8rem;" onclick="deletePointType(${p.id})">Usuń</button>
-        </td></tr>` : `<tr>
-        <td><strong>${p.name}</strong></td>
-        <td style="color:var(--success-color); font-weight:700;">+${p.posPoints}</td>
-        <td style="color:var(--accent-red); font-weight:700;">${p.negPoints}</td><td></td></tr>`).join('');
+        </td></tr>` : `<tr><td><strong>${p.name}</strong></td><td style="color:var(--success-color); font-weight:700;">+${p.posPoints}</td><td style="color:var(--accent-red); font-weight:700;">${p.negPoints}</td><td></td></tr>`).join('');
 }
 window.updatePointType = function(id) {
     const p = state.pointTypes.find(x => x.id === id);
@@ -1025,9 +941,7 @@ window.addNewPointType = function() {
     if (!state.pointTypes) state.pointTypes = [];
     state.pointTypes.push({ id: Date.now(), name, posPoints: pos, negPoints: neg });
     saveDataToFirebase();
-    document.getElementById('new-point-name').value = '';
-    document.getElementById('new-point-pos').value = '';
-    document.getElementById('new-point-neg').value = '';
+    document.getElementById('new-point-name').value = ''; document.getElementById('new-point-pos').value = ''; document.getElementById('new-point-neg').value = '';
     renderPointTypesSettings(); renderAwardDropdowns();
 }
 window.deletePointType = function(id) {
@@ -1047,19 +961,12 @@ window.awardExtraPoints = function(isPositive) {
     if (pts === 0) return alert('Ten rodzaj ma 0 punktów w tym kierunku!');
     min.points += pts;
     if (!state.serviceHistory) state.serviceHistory = [];
-    state.serviceHistory.push({
-        id: Date.now(), ministrantId: min.id, ministrantName: min.name,
-        serviceName: pt.name, points: pts,
-        date: new Date().toLocaleDateString(),
-        time: new Date().toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' }),
-        note, canceled: false, justified: false
-    });
+    state.serviceHistory.push({ id: Date.now(), ministrantId: min.id, ministrantName: min.name, serviceName: pt.name, points: pts, date: new Date().toLocaleDateString(), time: new Date().toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' }), note, canceled: false, justified: false });
     document.getElementById('award-note').value = '';
     saveDataToFirebase();
     alert(`Przyznano "${pt.name}" (${pts >= 0 ? '+' : ''}${pts} pkt) dla ${min.name}!`);
     renderAll();
 }
-
 window.openAddEventModal = function() {
     if (state.currentUserRole !== 'admin') return;
     document.getElementById('cal-edit-id').value = '';
@@ -1084,8 +991,7 @@ window.saveCalendarEvent = function() {
         const ev = state.calendarEvents.find(e => e.id == editId);
         if (ev) { ev.serviceName = serviceName; ev.date = date; ev.time = time; ev.status = status; ev.assigned = assigned; }
     } else state.calendarEvents.push({ id: Date.now(), serviceName, date, time, status, assigned });
-    saveDataToFirebase();
-    closeModal('modal-event'); closeModal('modal-day-view');
+    saveDataToFirebase(); closeModal('modal-event'); closeModal('modal-day-view');
 }
 const monthNamesPl = ["Styczeń","Luty","Marzec","Kwiecień","Maj","Czerwiec","Lipiec","Sierpień","Wrzesień","Październik","Listopad","Grudzień"];
 window.calSetView = function(view) {
@@ -1224,7 +1130,6 @@ window.deleteCalendarEvent = function(id, dateStr) {
     }
 }
 
-// wyczyść pola logowania przy starcie (blokada autofill)
 document.getElementById('login-pass').value = '';
 const emailEl = document.getElementById('login-admin-email');
 if (emailEl) emailEl.value = '';
