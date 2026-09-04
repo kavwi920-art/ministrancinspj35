@@ -951,7 +951,8 @@ function populateAvailableRequests(){
     const end=new Date(evTime.getTime()+after);
     if(now>=start&&now<=end){
       matchedWindow++;
-      serviceOptions+=`<option value="${ev.id}">${ev.date} ${ev.time} – ${ev.serviceName}</option>`;
+      const key=encodeURIComponent((ev.date||'')+'|'+(ev.time||'')+'|'+(ev.serviceName||''));
+      serviceOptions+=`<option value="${key}">${ev.date} ${ev.time} – ${ev.serviceName}</option>`;
     }
   });
 
@@ -989,19 +990,38 @@ window.fillRequestFromAvailable=function(){
     document.getElementById('req-date').value='';
     document.getElementById('req-time').value='';
     document.getElementById('req-service').value='';
-    return;
+    return false;
   }
-  const ev=(state.calendarEvents||[]).find(e=>String(e.id)===String(raw));
-  if(!ev){
+  let date='', time='', serviceName='';
+  try{
+    const parts=decodeURIComponent(raw).split('|');
+    date=parts[0]||'';
+    time=parts[1]||'';
+    serviceName=parts.slice(2).join('|')||'';
+  }catch(e){
     info.style.display='none';
-    return;
+    return false;
   }
-  document.getElementById('req-date').value=ev.date||'';
-  document.getElementById('req-time').value=ev.time||'';
-  const serv=state.services.find(s=>s.name===ev.serviceName);
-  document.getElementById('req-service').value=serv?serv.id:'';
-  info.style.display='block';
-  info.innerHTML=`<strong>${ev.serviceName}</strong><br>Data: ${ev.date} · Godzina: ${ev.time}`;
+  // znajdź event w kalendarzu
+  let ev=(state.calendarEvents||[]).find(e=>e.date===date&&e.time===time&&e.serviceName===serviceName);
+  if(!ev){
+    // fallback: po samym id jeśli stary format
+    ev=(state.calendarEvents||[]).find(e=>String(e.id)===String(raw));
+  }
+  if(ev){
+    date=ev.date||date;
+    time=ev.time||time;
+    serviceName=ev.serviceName||serviceName;
+  }
+  document.getElementById('req-date').value=date;
+  document.getElementById('req-time').value=time;
+  const serv=state.services.find(s=>s.name===serviceName);
+  document.getElementById('req-service').value=serv?String(serv.id):'';
+  if(info){
+    info.style.display='block';
+    info.innerHTML=`<strong>${serviceName||'Służba'}</strong><br>Data: ${date} · Godzina: ${time}`;
+  }
+  return !!(date&&time&&(serv||serviceName));
 };
 
 function buildAssignedCheckboxes(selected){
@@ -1023,28 +1043,61 @@ function renderAwardDropdowns(){
 }
 
 window.submitServiceRequest=function(){
-  // upewnij się, że ukryte pola są wypełnione z wybranej opcji
-  fillRequestFromAvailable();
-  const minId=parseInt(document.getElementById('req-ministrant').value);
-  let servId=parseInt(document.getElementById('req-service').value);
-  const date=document.getElementById('req-date').value;
-  const time=document.getElementById('req-time').value;
-  if(!minId||!date||!time)return alert('Wybierz służbę z listy dostępnych!');
-  let min=state.ministrants.find(m=>m.id===minId||String(m.id)===String(minId));
-  let serv=state.services.find(s=>s.id===servId||String(s.id)===String(servId));
-  // fallback: po nazwie z kalendarza, gdy id się nie zgadza
-  if(!serv){
-    const raw=document.getElementById('req-available').value;
-    const ev=(state.calendarEvents||[]).find(e=>String(e.id)===String(raw));
-    if(ev) serv=state.services.find(s=>s.name===ev.serviceName);
+  const filled=fillRequestFromAvailable();
+  const minId=parseInt(document.getElementById('req-ministrant').value,10);
+  const date=(document.getElementById('req-date').value||'').trim();
+  const time=(document.getElementById('req-time').value||'').trim();
+  const raw=document.getElementById('req-available').value;
+
+  if(!raw){
+    return alert('Wybierz służbę z listy dostępnych!');
   }
-  if(!min||!serv)return alert('Nie znaleziono ministranta lub typu służby. Sprawdź listę służb w ustawieniach.');
-  servId=serv.id;
+
+  // odczyt z klucza selecta (niezależnie od ukrytych pól)
+  let serviceName='';
+  let finalDate=date;
+  let finalTime=time;
+  try{
+    const parts=decodeURIComponent(raw).split('|');
+    if(!finalDate) finalDate=parts[0]||'';
+    if(!finalTime) finalTime=parts[1]||'';
+    serviceName=parts.slice(2).join('|')||'';
+  }catch(e){}
+
+  let ev=(state.calendarEvents||[]).find(e=>e.date===finalDate&&e.time===finalTime&&e.serviceName===serviceName);
+  if(!ev) ev=(state.calendarEvents||[]).find(e=>String(e.id)===String(raw));
+  if(ev){
+    finalDate=ev.date;
+    finalTime=ev.time;
+    serviceName=ev.serviceName;
+  }
+
+  if(!minId){
+    return alert('Wybierz kim jesteś!');
+  }
+  if(!finalDate||!finalTime||!serviceName){
+    return alert('Wybierz służbę z listy dostępnych!');
+  }
+
+  const min=state.ministrants.find(m=>m.id===minId||String(m.id)===String(minId));
+  let serv=state.services.find(s=>s.name===serviceName);
+  if(!serv){
+    // ostatnia szansa: po id z ukrytego pola
+    const sid=document.getElementById('req-service').value;
+    serv=state.services.find(s=>String(s.id)===String(sid));
+  }
+  if(!min){
+    return alert('Nie znaleziono ministranta.');
+  }
+  if(!serv){
+    // utwórz tymczasowy typ z domyślnymi punktami, żeby dało się zgłosić
+    serv={id:Date.now(),name:serviceName,posPoints:10,negPoints:-10};
+  }
 
   const now=new Date();
   const {before,after}=getWindowMs();
-  const [y,m,d]=date.split('-').map(Number);
-  const [hh,mm]=time.split(':').map(Number);
+  const [y,m,d]=finalDate.split('-').map(Number);
+  const [hh,mm]=(finalTime||'00:00').split(':').map(Number);
   const evTime=new Date(y,m-1,d,hh,mm);
   if(!isDayEnabledForSettings(evTime)){
     return alert('W tym dniu tygodnia zgłoszenia są wyłączone w ustawieniach.');
@@ -1063,7 +1116,7 @@ window.submitServiceRequest=function(){
   state.requests.push({
     id:Date.now(),type:'attendance',ministrantId:min.id,ministrantName:min.name,
     serviceId:serv.id,serviceName:serv.name,posPoints:serv.posPoints,negPoints:serv.negPoints,
-    serviceDate:date,serviceTime:time,note:'',sentAt:new Date().toLocaleString()
+    serviceDate:finalDate,serviceTime:finalTime,note:'',sentAt:new Date().toLocaleString()
   });
   saveRequestsOnly();
   alert('Zgłoszenie wysłane!');
