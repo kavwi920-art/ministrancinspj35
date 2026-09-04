@@ -958,6 +958,11 @@ function populateAvailableRequests(){
   if(matchedWindow>0){
     sel.innerHTML='<option value="">— Wybierz służbę —</option>'+serviceOptions;
     if(hint){hint.style.display='none';hint.innerHTML='';}
+    // jeśli jest tylko jedna służba – wybierz ją automatycznie
+    if(matchedWindow===1){
+      const first=sel.querySelector('option[value]:not([value=""])');
+      if(first){sel.value=first.value;fillRequestFromAvailable();}
+    }
   }else{
     sel.innerHTML='<option value="">— Brak dostępnych służb w oknie —</option>';
     if(hint){
@@ -977,15 +982,24 @@ function populateAvailableRequests(){
 }
 
 window.fillRequestFromAvailable=function(){
-  const id=parseInt(document.getElementById('req-available').value);
+  const raw=document.getElementById('req-available').value;
   const info=document.getElementById('req-info');
-  if(!id){info.style.display='none';return;}
-  const ev=(state.calendarEvents||[]).find(e=>e.id===id);
-  if(!ev)return;
-  document.getElementById('req-date').value=ev.date;
-  document.getElementById('req-time').value=ev.time;
+  if(!raw){
+    info.style.display='none';
+    document.getElementById('req-date').value='';
+    document.getElementById('req-time').value='';
+    document.getElementById('req-service').value='';
+    return;
+  }
+  const ev=(state.calendarEvents||[]).find(e=>String(e.id)===String(raw));
+  if(!ev){
+    info.style.display='none';
+    return;
+  }
+  document.getElementById('req-date').value=ev.date||'';
+  document.getElementById('req-time').value=ev.time||'';
   const serv=state.services.find(s=>s.name===ev.serviceName);
-  if(serv)document.getElementById('req-service').value=serv.id;
+  document.getElementById('req-service').value=serv?serv.id:'';
   info.style.display='block';
   info.innerHTML=`<strong>${ev.serviceName}</strong><br>Data: ${ev.date} · Godzina: ${ev.time}`;
 };
@@ -1009,14 +1023,23 @@ function renderAwardDropdowns(){
 }
 
 window.submitServiceRequest=function(){
+  // upewnij się, że ukryte pola są wypełnione z wybranej opcji
+  fillRequestFromAvailable();
   const minId=parseInt(document.getElementById('req-ministrant').value);
-  const servId=parseInt(document.getElementById('req-service').value);
+  let servId=parseInt(document.getElementById('req-service').value);
   const date=document.getElementById('req-date').value;
   const time=document.getElementById('req-time').value;
-  if(!minId||!servId||!date||!time)return alert('Wybierz służbę z listy dostępnych!');
-  const min=state.ministrants.find(m=>m.id===minId);
-  const serv=state.services.find(s=>s.id===servId);
-  if(!min||!serv)return;
+  if(!minId||!date||!time)return alert('Wybierz służbę z listy dostępnych!');
+  let min=state.ministrants.find(m=>m.id===minId||String(m.id)===String(minId));
+  let serv=state.services.find(s=>s.id===servId||String(s.id)===String(servId));
+  // fallback: po nazwie z kalendarza, gdy id się nie zgadza
+  if(!serv){
+    const raw=document.getElementById('req-available').value;
+    const ev=(state.calendarEvents||[]).find(e=>String(e.id)===String(raw));
+    if(ev) serv=state.services.find(s=>s.name===ev.serviceName);
+  }
+  if(!min||!serv)return alert('Nie znaleziono ministranta lub typu służby. Sprawdź listę służb w ustawieniach.');
+  servId=serv.id;
 
   const now=new Date();
   const {before,after}=getWindowMs();
