@@ -291,8 +291,9 @@ body.mobile-mode .bottom-nav{display:flex}
 <div id="tab-ustawienia-zgloszen" class="tab-content">
 <div class="card">
 <h2>⏱️ Ustawienia okna zgłoszenia obecności</h2>
-<p style="color:var(--text-sub);margin:8px 0 18px;font-size:.9rem">Ustal, ile minut przed i po godzinie mszy uczestnik może zgłosić obecność. Po zakończeniu okna system automatycznie odejmie punkty tym, którzy nie zgłosili.</p>
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:420px">
+<p style="color:var(--text-sub);margin:8px 0 18px;font-size:.9rem">Ustal okno zgłaszania obecności: minuty przed/po mszy, godziny od–do, dni tygodnia oraz cykl (od kiedy i na ile tygodni) – tak jak powtarzanie w kalendarzu. Po zakończeniu okna system automatycznie odejmie punkty tym, którzy nie zgłosili.</p>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:520px;margin-bottom:8px">
 <div class="form-group">
 <label>Minut przed mszą</label>
 <input type="number" id="set-window-before" min="0" max="180" value="60">
@@ -302,6 +303,60 @@ body.mobile-mode .bottom-nav{display:flex}
 <input type="number" id="set-window-after" min="0" max="180" value="60">
 </div>
 </div>
+
+<div class="form-group" style="max-width:520px">
+<label>Godziny, w których można zgłosić służbę (od – do)</label>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+<div>
+<label style="font-size:.82rem;color:var(--text-sub)">Od której</label>
+<input type="time" id="set-time-from" value="00:00">
+</div>
+<div>
+<label style="font-size:.82rem;color:var(--text-sub)">Do której</label>
+<input type="time" id="set-time-to" value="23:59">
+</div>
+</div>
+<p style="color:var(--text-sub);font-size:.8rem;margin-top:6px">Zgłoszenie możliwe tylko w tych godzinach <strong>oraz</strong> w oknie minut przed/po godzinie służby z kalendarza.</p>
+</div>
+
+<div class="form-group" style="max-width:520px">
+<label>W jakim dniu (dni tygodnia)</label>
+<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
+<button type="button" class="cal-pill-btn" onclick="setAllDaysEnabled(true)">Cały tydzień</button>
+<button type="button" class="cal-pill-btn" onclick="setAllDaysEnabled(false)">Odznacz wszystkie</button>
+</div>
+<div class="day-check" id="set-days-list">
+<label><input type="checkbox" class="set-day-cb" value="1" checked> Poniedziałek</label>
+<label><input type="checkbox" class="set-day-cb" value="2" checked> Wtorek</label>
+<label><input type="checkbox" class="set-day-cb" value="3" checked> Środa</label>
+<label><input type="checkbox" class="set-day-cb" value="4" checked> Czwartek</label>
+<label><input type="checkbox" class="set-day-cb" value="5" checked> Piątek</label>
+<label><input type="checkbox" class="set-day-cb" value="6" checked> Sobota</label>
+<label><input type="checkbox" class="set-day-cb" value="0" checked> Niedziela</label>
+</div>
+</div>
+
+<div class="form-group" style="max-width:520px;background:var(--bg-card);padding:16px;border-radius:12px;border:1px solid var(--border-color)">
+<label style="margin-bottom:10px;display:block">📅 Cykl (jak w kalendarzu – na jak długo)</label>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+<div class="form-group" style="margin-bottom:0">
+<label style="font-size:.82rem;color:var(--text-sub)">Data startu (pierwszy dzień)</label>
+<input type="date" id="set-cycle-start">
+</div>
+<div class="form-group" style="margin-bottom:0">
+<label style="font-size:.82rem;color:var(--text-sub)">Ile tygodni łącznie</label>
+<input type="number" id="set-cycle-weeks" min="1" max="52" value="52" placeholder="np. 4">
+</div>
+</div>
+<label style="display:flex;align-items:center;gap:8px;margin-top:12px;cursor:pointer;font-size:.9rem">
+<input type="checkbox" id="set-cycle-enabled" checked style="width:18px;height:18px;accent-color:var(--accent-red)">
+Włącz ograniczenie cyklem (poza okresem reguły nie działają)
+</label>
+<p style="color:var(--text-sub);font-size:.8rem;margin-top:8px">Od daty startu przez podaną liczbę tygodni reguły obowiązują na wybranych dniach. Poza tym okresem zgłoszenia i auto-minusy są wyłączone (jeśli cykl włączony).</p>
+</div>
+
+<div id="settings-summary" style="max-width:520px;margin:16px 0;padding:14px;background:var(--bg-card);border-radius:12px;border-left:4px solid var(--accent-red);font-size:.9rem;display:none"></div>
+
 <button class="btn" onclick="saveSettings()">💾 Zapisz ustawienia</button>
 <p id="settings-saved-msg" style="color:var(--success-color);margin-top:12px;display:none">Zapisano!</p>
 </div>
@@ -472,11 +527,22 @@ const defaultServices = [
 "Służba w Nowy Rok","Tarsycjusz","Msza tygodniowa","Msza niedzielna"
 ].map((name,i)=>({id:i+1,name,posPoints:10,negPoints:-10}));
 
+const DEFAULT_SETTINGS = {
+  windowBefore: 60,
+  windowAfter: 60,
+  daysEnabled: [0,1,2,3,4,5,6],
+  timeFrom: '00:00',
+  timeTo: '23:59',
+  cycleEnabled: false,
+  cycleStart: '',
+  cycleWeeks: 52
+};
+
 let state = {
   currentUserRole: null, currentUserId: null, currentDevice: null,
   ministrants: [], services: [], pointTypes: [], requests: [],
   calendarEvents: [], serviceHistory: [],
-  settings: { windowBefore: 60, windowAfter: 60 }
+  settings: { ...DEFAULT_SETTINGS }
 };
 let calCurrentDate = new Date(), calCurrentView = 'month';
 
@@ -496,11 +562,15 @@ onValue(ref(db,'lso_data'),(snapshot)=>{
     state.requests = data.requests || [];
     state.calendarEvents = data.calendarEvents || [];
     state.serviceHistory = data.serviceHistory || [];
-    state.settings = data.settings || { windowBefore: 60, windowAfter: 60 };
+    state.settings = { ...DEFAULT_SETTINGS, ...(data.settings || {}) };
+    if(!Array.isArray(state.settings.daysEnabled) || !state.settings.daysEnabled.length){
+      state.settings.daysEnabled = [0,1,2,3,4,5,6];
+    }
   } else {
     state.ministrants = [{id:1,name:"Kamil Gawenda",degree:"Ministrant",points:10,password:"",phone:"",rank:"Prezes",desc:"",photo:""}];
     state.services = defaultServices;
     state.pointTypes = [];
+    state.settings = { ...DEFAULT_SETTINGS };
     saveDataToFirebase();
   }
   populateLoginUsers(); toggleUserSelect(); renderAll(); checkMissedAttendances();
@@ -630,11 +700,51 @@ window.switchTab=function(tabId,btn){
   document.getElementById('page-title').innerText=document.body.classList.contains('mobile-mode')?'Ministranci-NSPJ':(titles[tabId]||'MINISTRANCI-NSPJ');
   updateBottomNavActive(tabId);
   if(tabId==='ustawienia-zgloszen'){
-    document.getElementById('set-window-before').value=state.settings.windowBefore||60;
-    document.getElementById('set-window-after').value=state.settings.windowAfter||60;
+    loadSettingsForm();
   }
   if(tabId==='zgloszenia')populateAvailableRequests();
 };
+
+function loadSettingsForm(){
+  document.getElementById('set-window-before').value=state.settings.windowBefore??60;
+  document.getElementById('set-window-after').value=state.settings.windowAfter??60;
+  document.getElementById('set-time-from').value=state.settings.timeFrom||'00:00';
+  document.getElementById('set-time-to').value=state.settings.timeTo||'23:59';
+  document.getElementById('set-cycle-enabled').checked=!!state.settings.cycleEnabled;
+  document.getElementById('set-cycle-start').value=state.settings.cycleStart||'';
+  document.getElementById('set-cycle-weeks').value=state.settings.cycleWeeks??52;
+  const enabled=state.settings.daysEnabled||[0,1,2,3,4,5,6];
+  document.querySelectorAll('.set-day-cb').forEach(cb=>{
+    cb.checked=enabled.map(Number).includes(Number(cb.value));
+  });
+  updateSettingsSummary();
+}
+
+window.setAllDaysEnabled=function(on){
+  document.querySelectorAll('.set-day-cb').forEach(cb=>cb.checked=!!on);
+};
+
+function updateSettingsSummary(){
+  const el=document.getElementById('settings-summary');
+  if(!el)return;
+  const s=state.settings;
+  const dayNames={0:'Nd',1:'Pn',2:'Wt',3:'Śr',4:'Cz',5:'Pt',6:'So'};
+  const days=(s.daysEnabled||[]).map(d=>dayNames[d]||d).join(', ')||'—';
+  let cycleTxt='bez limitu cyklu (zawsze)';
+  if(s.cycleEnabled&&s.cycleStart){
+    const start=new Date(s.cycleStart+'T12:00:00');
+    const weeks=s.cycleWeeks||1;
+    const end=new Date(start);
+    end.setDate(end.getDate()+(weeks*7)-1);
+    cycleTxt=`od ${s.cycleStart} przez ${weeks} tyg. (do ${formatLocalDate(end)})`;
+  }
+  el.style.display='block';
+  el.innerHTML=`<strong>Aktualne reguły:</strong><br>
+  • Okno: ${s.windowBefore??60} min przed / ${s.windowAfter??60} min po mszy<br>
+  • Godziny zgłoszeń: ${s.timeFrom||'00:00'} – ${s.timeTo||'23:59'}<br>
+  • Dni: ${days}<br>
+  • Cykl: ${cycleTxt}`;
+}
 window.switchTabMobile=function(tabId,btn){closeMoreMenu();switchTab(tabId,null);updateBottomNavActive(tabId);if(btn){document.querySelectorAll('.bottom-nav-item').forEach(b=>b.classList.remove('active'));btn.classList.add('active');}};
 function updateBottomNavActive(tabId){document.querySelectorAll('.bottom-nav-item').forEach(b=>b.classList.toggle('active',b.dataset.tab===tabId));}
 window.toggleMoreMenu=function(){const m=document.getElementById('more-menu');m.style.display=m.style.display==='none'?'block':'none';};
@@ -714,15 +824,54 @@ function renderServiceDropdowns(){
   const jd=document.getElementById('just-date');if(jd&&!jd.value)jd.value=today;
 }
 
+function isDayEnabledForSettings(dateObj){
+  const enabled=state.settings.daysEnabled;
+  if(!Array.isArray(enabled)||!enabled.length)return true;
+  return enabled.map(Number).includes(dateObj.getDay());
+}
+function isWithinDailyHours(now){
+  const from=state.settings.timeFrom||'00:00';
+  const to=state.settings.timeTo||'23:59';
+  const [fh,fm]=(from||'00:00').split(':').map(Number);
+  const [th,tm]=(to||'23:59').split(':').map(Number);
+  const mins=now.getHours()*60+now.getMinutes();
+  const fromM=(fh||0)*60+(fm||0);
+  const toM=(th||23)*60+(tm||59);
+  if(fromM<=toM) return mins>=fromM && mins<=toM;
+  return mins>=fromM || mins<=toM;
+}
+function isWithinCycle(dateObj){
+  const s=state.settings;
+  if(!s.cycleEnabled||!s.cycleStart)return true;
+  const start=new Date(s.cycleStart+'T00:00:00');
+  const weeks=Math.max(1,s.cycleWeeks||1);
+  const end=new Date(start);
+  end.setDate(end.getDate()+(weeks*7));
+  end.setHours(23,59,59,999);
+  const t=dateObj.getTime();
+  return t>=start.getTime() && t<=end.getTime();
+}
+function getWindowMs(){
+  return {
+    before:(state.settings.windowBefore??60)*60*1000,
+    after:(state.settings.windowAfter??60)*60*1000
+  };
+}
+
 function populateAvailableRequests(){
   const sel=document.getElementById('req-available');
   if(!sel)return;
   const now=new Date();
-  const before=(state.settings.windowBefore||60)*60*1000;
-  const after=(state.settings.windowAfter||60)*60*1000;
+  const {before,after}=getWindowMs();
   let options='<option value="">— Brak dostępnych służb w oknie —</option>';
   const userId=state.currentUserRole==='user'?state.currentUserId:null;
   const userName=userId?(state.ministrants.find(m=>m.id===userId)?.name||''):null;
+
+  if(!isWithinDailyHours(now)){
+    sel.innerHTML=options;
+    document.getElementById('req-info').style.display='none';
+    return;
+  }
 
   (state.calendarEvents||[]).forEach(ev=>{
     if(ev.status==='red')return;
@@ -730,6 +879,8 @@ function populateAvailableRequests(){
     const [y,m,d]=ev.date.split('-').map(Number);
     const [hh,mm]=(ev.time||'00:00').split(':').map(Number);
     const evTime=new Date(y,m-1,d,hh,mm);
+    if(!isDayEnabledForSettings(evTime))return;
+    if(!isWithinCycle(evTime))return;
     const start=new Date(evTime.getTime()-before);
     const end=new Date(evTime.getTime()+after);
     if(now>=start&&now<=end){
@@ -783,13 +934,21 @@ window.submitServiceRequest=function(){
   if(!min||!serv)return;
 
   const now=new Date();
-  const before=(state.settings.windowBefore||60)*60*1000;
-  const after=(state.settings.windowAfter||60)*60*1000;
+  const {before,after}=getWindowMs();
   const [y,m,d]=date.split('-').map(Number);
   const [hh,mm]=time.split(':').map(Number);
   const evTime=new Date(y,m-1,d,hh,mm);
+  if(!isDayEnabledForSettings(evTime)){
+    return alert('W tym dniu tygodnia zgłoszenia są wyłączone w ustawieniach.');
+  }
+  if(!isWithinCycle(evTime)){
+    return alert('Ta służba jest poza okresem cyklu ustawień zgłoszeń.');
+  }
+  if(!isWithinDailyHours(now)){
+    return alert(`Zgłoszenia dozwolone tylko w godzinach ${state.settings.timeFrom||'00:00'} – ${state.settings.timeTo||'23:59'}.`);
+  }
   if(now < new Date(evTime.getTime()-before) || now > new Date(evTime.getTime()+after)){
-    return alert(`Możesz zgłosić tylko w oknie ${state.settings.windowBefore} min przed i ${state.settings.windowAfter} min po.`);
+    return alert(`Możesz zgłosić tylko w oknie ${state.settings.windowBefore??60} min przed i ${state.settings.windowAfter??60} min po.`);
   }
 
   if(!state.requests)state.requests=[];
@@ -957,12 +1116,37 @@ window.awardExtraPoints=function(isPositive){
 };
 
 window.saveSettings=function(){
-  const before=parseInt(document.getElementById('set-window-before').value)||60;
-  const after=parseInt(document.getElementById('set-window-after').value)||60;
-  state.settings={windowBefore:before,windowAfter:after};
+  const before=parseInt(document.getElementById('set-window-before').value);
+  const after=parseInt(document.getElementById('set-window-after').value);
+  const timeFrom=document.getElementById('set-time-from').value||'00:00';
+  const timeTo=document.getElementById('set-time-to').value||'23:59';
+  const daysEnabled=Array.from(document.querySelectorAll('.set-day-cb:checked')).map(c=>parseInt(c.value));
+  const cycleEnabled=document.getElementById('set-cycle-enabled').checked;
+  const cycleStart=document.getElementById('set-cycle-start').value||'';
+  let cycleWeeks=parseInt(document.getElementById('set-cycle-weeks').value)||52;
+  if(cycleWeeks<1)cycleWeeks=1;
+  if(cycleWeeks>52)cycleWeeks=52;
+  if(!daysEnabled.length){
+    return alert('Zaznacz przynajmniej jeden dzień tygodnia!');
+  }
+  if(cycleEnabled&&!cycleStart){
+    return alert('Przy włączonym cyklu podaj datę startu!');
+  }
+  state.settings={
+    windowBefore: isNaN(before)?60:before,
+    windowAfter: isNaN(after)?60:after,
+    timeFrom,
+    timeTo,
+    daysEnabled,
+    cycleEnabled,
+    cycleStart,
+    cycleWeeks
+  };
   saveDataToFirebase();
+  updateSettingsSummary();
   const msg=document.getElementById('settings-saved-msg');msg.style.display='block';
   setTimeout(()=>msg.style.display='none',2000);
+  populateAvailableRequests();
 };
 
 window.openAddEventModal=function(){
@@ -1112,13 +1296,15 @@ window.deleteCalendarEvent=function(id,dateStr){
 function checkMissedAttendances(){
   if(!state.calendarEvents||!state.ministrants)return;
   const now=new Date();
-  const afterMs=(state.settings.windowAfter||60)*60*1000;
+  const {after:afterMs}=getWindowMs();
   let changed=false;
   state.calendarEvents.forEach(ev=>{
     if(ev.status==='red'||!ev.assigned||!ev.assigned.length)return;
     const [y,m,d]=ev.date.split('-').map(Number);
     const [hh,mm]=(ev.time||'00:00').split(':').map(Number);
     const evTime=new Date(y,m-1,d,hh,mm);
+    if(!isDayEnabledForSettings(evTime))return;
+    if(!isWithinCycle(evTime))return;
     if(now<=new Date(evTime.getTime()+afterMs))return;
     const serv=state.services.find(s=>s.name===ev.serviceName);if(!serv)return;
     const neg=serv.negPoints||-10;
