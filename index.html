@@ -132,6 +132,9 @@ body.mobile-mode .bottom-nav{display:flex}
 .bottom-nav-item.active{color:var(--accent-red)}
 .bottom-nav-item .bn-badge{position:absolute;top:2px;right:12px;background:var(--accent-red);color:#fff;font-size:.6rem;font-weight:700;border-radius:8px;padding:1px 5px;min-width:16px;text-align:center}
 @media(max-width:900px){body:not(.mobile-mode) .sidebar{width:70px;padding:16px 8px}body:not(.mobile-mode) .sidebar-logo{font-size:0;padding:8px 0 20px}body:not(.mobile-mode) .sidebar-logo::after{content:"⚜️";font-size:1.4rem}body:not(.mobile-mode) .nav-btn span:not(.icon){display:none}body:not(.mobile-mode) .nav-btn{justify-content:center;padding:12px}body:not(.mobile-mode) .main-wrapper{margin-left:70px}body:not(.mobile-mode) .personal-card{grid-template-columns:1fr;text-align:center}body:not(.mobile-mode) .personal-avatar{margin:0 auto}}
+.day-check{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.day-check label{background:var(--bg-card);border:1px solid var(--border-color);padding:8px 12px;border-radius:8px;cursor:pointer;font-size:.85rem}
+.day-check input{margin-right:6px}
 </style>
 </head>
 <body data-theme="dark">
@@ -200,7 +203,6 @@ body.mobile-mode .bottom-nav{display:flex}
 </header>
 <main>
 
-<!-- TABELA -->
 <div id="tab-tabela" class="tab-content active">
 <div id="user-my-stats" class="personal-card" style="display:none">
 <div class="personal-avatar" id="my-avatar">👤</div>
@@ -219,7 +221,6 @@ body.mobile-mode .bottom-nav{display:flex}
 </div>
 </div>
 
-<!-- KALENDARZ -->
 <div id="tab-kalendarz" class="tab-content">
 <div class="card">
 <div class="cal-nav-bar">
@@ -245,16 +246,16 @@ body.mobile-mode .bottom-nav{display:flex}
 </div>
 </div>
 
-<!-- ZGŁOSZENIA -->
 <div id="tab-zgloszenia" class="tab-content">
 <div class="card" style="max-width:520px">
 <h2>Zgłoś obecność na służbie</h2>
-<p style="color:var(--text-sub);margin:8px 0 18px;font-size:.9rem">Możesz zgłosić tylko służby, na które jesteś wyznaczony i tylko w oknie czasowym.</p>
+<p style="color:var(--text-sub);margin:8px 0 18px;font-size:.9rem">Widzisz tylko służby, na które jesteś wyznaczony i które są teraz w oknie czasowym.</p>
 <div class="form-group"><label>Kim jesteś?</label><select id="req-ministrant"></select></div>
-<div class="form-group"><label>Dostępne służby do zgłoszenia</label><select id="req-available" onchange="fillRequestFromAvailable()"></select></div>
-<div class="form-group"><label>Jaka to była służba?</label><select id="req-service"></select></div>
-<div class="form-group"><label>Dzień służby</label><input type="date" id="req-date"></div>
-<div class="form-group"><label>Godzina służby</label><input type="time" id="req-time" required></div>
+<div class="form-group"><label>Twoje służby do zgłoszenia</label><select id="req-available" onchange="fillRequestFromAvailable()"><option value="">— Brak dostępnych służb —</option></select></div>
+<input type="hidden" id="req-service">
+<input type="hidden" id="req-date">
+<input type="hidden" id="req-time">
+<div id="req-info" style="background:var(--bg-card);padding:12px;border-radius:10px;margin-bottom:14px;display:none;font-size:.9rem"></div>
 <button class="btn" style="width:100%;margin-top:8px" onclick="submitServiceRequest()">Wyślij zgłoszenie</button>
 </div>
 <div class="card" style="max-width:520px;margin-top:20px;border:1px solid #3b82f6">
@@ -269,12 +270,10 @@ body.mobile-mode .bottom-nav{display:flex}
 </div>
 </div>
 
-<!-- POWIADOMIENIA -->
 <div id="tab-powiadomienia" class="tab-content">
 <div class="card"><h2>Oczekujące zgłoszenia</h2><div id="requests-list" style="margin-top:16px"></div></div>
 </div>
 
-<!-- SZYBKA SŁUŻBA -->
 <div id="tab-szybka-sluzba" class="tab-content">
 <div class="card" style="border:1px solid var(--accent-red)">
 <h2>⚡ Szybkie przyznanie służby</h2>
@@ -289,7 +288,6 @@ body.mobile-mode .bottom-nav{display:flex}
 <div class="card" style="margin-top:16px"><h2 style="margin-bottom:12px">Ostatnie przyznane służby</h2><div id="admin-recent-history"></div></div>
 </div>
 
-<!-- USTAWIENIA ZGŁOSZEŃ (tylko admin) -->
 <div id="tab-ustawienia-zgloszen" class="tab-content">
 <div class="card">
 <h2>⏱️ Ustawienia okna zgłoszenia obecności</h2>
@@ -309,7 +307,6 @@ body.mobile-mode .bottom-nav{display:flex}
 </div>
 </div>
 
-<!-- HASŁA -->
 <div id="tab-hasla-uczestnikow" class="tab-content">
 <div class="card">
 <h2>🔑 Zarządzanie hasłami uczestników</h2>
@@ -320,11 +317,10 @@ body.mobile-mode .bottom-nav{display:flex}
 </div>
 </div>
 
-<!-- PUNKTACJA SŁUŻB -->
 <div id="tab-punktacja-sluzb" class="tab-content">
 <div class="card">
 <h2>📊 Punkty za służbę</h2>
-<p style="color:var(--text-sub);font-size:.9rem;margin-bottom:12px">Służby liturgiczne – pojawiają się w „Zgłoś obecność”. Wartość „Punkty (−)” jest używana przy automatycznym minusie za niezgłoszenie.</p>
+<p style="color:var(--text-sub);font-size:.9rem;margin-bottom:12px">Służby liturgiczne. Wartość „Punkty (−)” jest używana przy automatycznym minusie za niezgłoszenie.</p>
 <div class="admin-only" style="display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;background:var(--bg-card);padding:14px;border-radius:12px">
 <input type="text" id="new-service-name" placeholder="Nazwa służby..." style="flex:2;min-width:180px;padding:10px;border-radius:8px;border:1px solid var(--border-color);background:var(--bg-primary);color:var(--text-main)">
 <input type="number" id="new-service-pos" placeholder="+ Pkt" style="flex:1;min-width:90px;padding:10px;border-radius:8px;border:1px solid var(--border-color);background:var(--bg-primary);color:var(--text-main)">
@@ -338,11 +334,10 @@ body.mobile-mode .bottom-nav{display:flex}
 </div>
 </div>
 
-<!-- PUNKTY DODATKOWE -->
 <div id="tab-punkty" class="tab-content">
 <div class="card">
 <h2>⭐ Punkty dodatkowe</h2>
-<p style="color:var(--text-sub);font-size:.9rem;margin-bottom:12px">Zachowanie, kary, nagrody – nie pojawiają się w „Zgłoś obecność”.</p>
+<p style="color:var(--text-sub);font-size:.9rem;margin-bottom:12px">Zachowanie, kary, nagrody.</p>
 <div class="admin-only" style="display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;background:var(--bg-card);padding:14px;border-radius:12px">
 <input type="text" id="new-point-name" placeholder="Nazwa..." style="flex:2;min-width:180px;padding:10px;border-radius:8px;border:1px solid var(--border-color);background:var(--bg-primary);color:var(--text-main)">
 <input type="number" id="new-point-pos" placeholder="+ Pkt" style="flex:1;min-width:90px;padding:10px;border-radius:8px;border:1px solid var(--border-color);background:var(--bg-primary);color:var(--text-main)">
@@ -368,7 +363,6 @@ body.mobile-mode .bottom-nav{display:flex}
 </div>
 </div>
 
-<!-- MINISTRANCI -->
 <div id="tab-ministranci" class="tab-content">
 <div class="card" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
 <h2>Lista Ministrantów</h2>
@@ -397,7 +391,6 @@ body.mobile-mode .bottom-nav{display:flex}
 <button class="nav-btn" style="width:100%;color:var(--danger-color)" onclick="logout();closeMoreMenu()"><span class="icon">🚪</span><span>Wyloguj</span></button>
 </div>
 
-<!-- MODALE -->
 <div id="modal-ministrant" class="modal"><div class="modal-content">
 <h3 id="modal-min-title" style="margin-bottom:18px">Dodaj / Edytuj Ministranta</h3>
 <input type="hidden" id="m-edit-id">
@@ -416,7 +409,7 @@ body.mobile-mode .bottom-nav{display:flex}
 <h3 id="modal-event-title" style="margin-bottom:18px">Dodaj Służbę do Kalendarza</h3>
 <input type="hidden" id="cal-edit-id">
 <div class="form-group"><label>Typ służby</label><select id="cal-service-type"></select></div>
-<div class="form-group"><label>Data</label><input type="date" id="cal-date"></div>
+<div class="form-group"><label>Data (pierwsza)</label><input type="date" id="cal-date"></div>
 <div class="form-group"><label>Godzina</label><input type="time" id="cal-time"></div>
 <div class="form-group"><label>Status</label><select id="cal-status"><option value="green">🟢 Będzie</option><option value="yellow">🟡 Do ustalenia</option><option value="red">🔴 Odwołane</option></select></div>
 <div class="form-group" id="repeat-group">
@@ -480,18 +473,19 @@ const defaultServices = [
 ].map((name,i)=>({id:i+1,name,posPoints:10,negPoints:-10}));
 
 let state = {
-  currentUserRole: null,
-  currentUserId: null,
-  currentDevice: null,
-  ministrants: [],
-  services: [],
-  pointTypes: [],
-  requests: [],
-  calendarEvents: [],
-  serviceHistory: [],
+  currentUserRole: null, currentUserId: null, currentDevice: null,
+  ministrants: [], services: [], pointTypes: [], requests: [],
+  calendarEvents: [], serviceHistory: [],
   settings: { windowBefore: 60, windowAfter: 60 }
 };
 let calCurrentDate = new Date(), calCurrentView = 'month';
+
+function formatLocalDate(d){
+  const y = d.getFullYear();
+  const m = String(d.getMonth()+1).padStart(2,'0');
+  const day = String(d.getDate()).padStart(2,'0');
+  return `${y}-${m}-${day}`;
+}
 
 onValue(ref(db,'lso_data'),(snapshot)=>{
   const data = snapshot.val();
@@ -509,1038 +503,653 @@ onValue(ref(db,'lso_data'),(snapshot)=>{
     state.pointTypes = [];
     saveDataToFirebase();
   }
-  populateLoginUsers();
-  toggleUserSelect();
-  renderAll();
-  checkMissedAttendances();
+  populateLoginUsers(); toggleUserSelect(); renderAll(); checkMissedAttendances();
 },(error)=>{console.error(error);alert("Błąd połączenia z bazą!");});
 
 function saveDataToFirebase(){
   set(ref(db,'lso_data'),{
-    ministrants: state.ministrants,
-    services: state.services,
-    pointTypes: state.pointTypes,
-    requests: state.requests,
-    calendarEvents: state.calendarEvents,
-    serviceHistory: state.serviceHistory,
-    settings: state.settings
+    ministrants:state.ministrants, services:state.services, pointTypes:state.pointTypes,
+    requests:state.requests, calendarEvents:state.calendarEvents, serviceHistory:state.serviceHistory,
+    settings:state.settings
   }).catch(error=>{
     console.error(error);
-    if(error.code==='PERMISSION_DENIED') alert("Brak uprawnień do zapisu. Zaloguj się jako administrator.");
+    if(error.code==='PERMISSION_DENIED') alert("Brak uprawnień do zapisu.");
     else alert("Nie udało się zapisać!");
   });
 }
 function saveRequestsOnly(){
-  set(ref(db,'lso_data/requests'),state.requests).catch(error=>{console.error(error);alert("Nie udało się wysłać zgłoszenia!");});
+  set(ref(db,'lso_data/requests'),state.requests).catch(()=>alert("Nie udało się wysłać zgłoszenia!"));
 }
 
 function detectDevice(){
   const ua = navigator.userAgent || navigator.vendor || window.opera;
   const isMobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|Tablet/i.test(ua);
-  const isNarrow = window.innerWidth <= 900;
-  return (isMobileUA || isNarrow) ? 'Telefon' : 'Komputer';
+  return (isMobileUA || window.innerWidth <= 900) ? 'Telefon' : 'Komputer';
 }
 
-window.populateLoginUsers = function(){
-  const list = document.getElementById('login-user-list');
-  if(!list) return;
-  const q = (document.getElementById('login-user-search')?.value || '').toLowerCase().trim();
-  const selectedId = document.getElementById('login-user-id')?.value || '';
-  const filtered = q ? state.ministrants.filter(m => m.name.toLowerCase().includes(q)) : state.ministrants;
-  if(!filtered.length){ list.innerHTML = '<div class="login-user-item" style="color:var(--text-sub)">Brak wyników</div>'; return; }
-  list.innerHTML = filtered.map(m => `<div class="login-user-item ${String(m.id)===selectedId?'selected':''}" onclick="selectLoginUser(${m.id},'${m.name.replace(/'/g,"\\'")}')">${m.name}</div>`).join('');
+window.populateLoginUsers=function(){
+  const list=document.getElementById('login-user-list'); if(!list)return;
+  const q=(document.getElementById('login-user-search')?.value||'').toLowerCase().trim();
+  const selectedId=document.getElementById('login-user-id')?.value||'';
+  const filtered=q?state.ministrants.filter(m=>m.name.toLowerCase().includes(q)):state.ministrants;
+  if(!filtered.length){list.innerHTML='<div class="login-user-item" style="color:var(--text-sub)">Brak wyników</div>';return;}
+  list.innerHTML=filtered.map(m=>`<div class="login-user-item ${String(m.id)===selectedId?'selected':''}" onclick="selectLoginUser(${m.id},'${m.name.replace(/'/g,"\\'")}')">${m.name}</div>`).join('');
 };
-window.selectLoginUser = function(id,name){
-  document.getElementById('login-user-id').value = id;
-  document.getElementById('login-user-search').value = name;
-  populateLoginUsers();
+window.selectLoginUser=function(id,name){document.getElementById('login-user-id').value=id;document.getElementById('login-user-search').value=name;populateLoginUsers();};
+window.filterLoginUsers=function(){document.getElementById('login-user-id').value='';populateLoginUsers();};
+window.togglePassVisibility=function(){
+  const inp=document.getElementById('login-pass'),btn=document.getElementById('pass-toggle-btn');
+  if(!inp||!btn)return;
+  if(inp.type==='password'){inp.type='text';btn.textContent='🔓';}else{inp.type='password';btn.textContent='🔒';}
 };
-window.filterLoginUsers = function(){
-  document.getElementById('login-user-id').value = '';
-  populateLoginUsers();
-};
-window.togglePassVisibility = function(){
-  const inp = document.getElementById('login-pass');
-  const btn = document.getElementById('pass-toggle-btn');
-  if(!inp||!btn) return;
-  if(inp.type==='password'){ inp.type='text'; btn.textContent='🔓'; }
-  else { inp.type='password'; btn.textContent='🔒'; }
-};
-window.toggleUserSelect = function(){
-  const role = document.getElementById('login-role')?.value;
-  const userGroup = document.getElementById('user-select-group');
-  const adminEmailGroup = document.getElementById('admin-email-group');
-  if(userGroup) userGroup.style.display = role==='user' ? 'block' : 'none';
-  if(adminEmailGroup){
-    adminEmailGroup.style.display = role==='admin' ? 'block' : 'none';
-    const emailInput = document.getElementById('login-admin-email');
-    if(emailInput) emailInput.value = '';
-  }
+window.toggleUserSelect=function(){
+  const role=document.getElementById('login-role')?.value;
+  document.getElementById('user-select-group').style.display=role==='user'?'block':'none';
+  document.getElementById('admin-email-group').style.display=role==='admin'?'block':'none';
+  if(role==='admin')document.getElementById('login-admin-email').value='';
 };
 
-window.login = async function(){
-  const role = document.getElementById('login-role').value;
-  const pass = document.getElementById('login-pass').value;
-  state.currentDevice = detectDevice();
+window.login=async function(){
+  const role=document.getElementById('login-role').value;
+  const pass=document.getElementById('login-pass').value;
+  state.currentDevice=detectDevice();
   if(role==='admin'){
-    const adminEmail = document.getElementById('login-admin-email').value.trim();
-    if(!adminEmail) return alert('Wpisz e-mail administratora!');
-    try{
-      await signInWithEmailAndPassword(auth, adminEmail, pass);
-      state.currentUserRole = 'admin';
-      state.currentUserId = null;
-    }catch(e){
-      console.error(e);
-      return alert('Błąd logowania:\n'+(e.code||'brak')+'\n'+(e.message||''));
-    }
-  } else if(role==='all'){
-    if(pass !== ALL_PASS) return alert('Niepoprawne hasło dla roli WSZYSCY!');
-    state.currentUserRole = 'all';
-    state.currentUserId = null;
-  } else {
-    const selectedUserId = parseInt(document.getElementById('login-user-id').value);
-    const userObj = state.ministrants.find(m => m.id === selectedUserId);
-    if(!userObj) return alert('Wybierz siebie z listy (kliknij imię)!');
-    if(userObj.password && pass !== userObj.password) return alert('Niepoprawne hasło!');
-    state.currentUserRole = 'user';
-    state.currentUserId = selectedUserId;
+    const adminEmail=document.getElementById('login-admin-email').value.trim();
+    if(!adminEmail)return alert('Wpisz e-mail administratora!');
+    try{await signInWithEmailAndPassword(auth,adminEmail,pass);state.currentUserRole='admin';state.currentUserId=null;}
+    catch(e){return alert('Błąd logowania:\n'+(e.code||'')+'\n'+(e.message||''));}
+  }else if(role==='all'){
+    if(pass!==ALL_PASS)return alert('Niepoprawne hasło!');
+    state.currentUserRole='all';state.currentUserId=null;
+  }else{
+    const selectedUserId=parseInt(document.getElementById('login-user-id').value);
+    const userObj=state.ministrants.find(m=>m.id===selectedUserId);
+    if(!userObj)return alert('Wybierz siebie z listy!');
+    if(userObj.password&&pass!==userObj.password)return alert('Niepoprawne hasło!');
+    state.currentUserRole='user';state.currentUserId=selectedUserId;
   }
-  if(state.currentDevice === 'Telefon') document.body.classList.add('mobile-mode');
+  if(state.currentDevice==='Telefon')document.body.classList.add('mobile-mode');
   else document.body.classList.remove('mobile-mode');
-  document.getElementById('login-overlay').style.display = 'none';
-  let displayName = 'Admin';
-  if(state.currentUserRole === 'user'){
-    const cur = state.ministrants.find(m => m.id === state.currentUserId);
-    displayName = cur ? cur.name : 'Uczestnik';
-  } else if(state.currentUserRole === 'all') displayName = 'WSZYSCY';
-  document.getElementById('role-display').innerText = `${displayName} · ${state.currentDevice}`;
-  if(state.currentDevice === 'Telefon') document.getElementById('page-title').innerText = 'Ministranci-NSPJ';
-  switchTab('tabela', document.querySelector('.sidebar-nav .nav-btn'));
-  applyPermissions();
-  renderAll();
-  updateBottomNavActive('tabela');
-  checkMissedAttendances();
+  document.getElementById('login-overlay').style.display='none';
+  let displayName='Admin';
+  if(state.currentUserRole==='user'){const cur=state.ministrants.find(m=>m.id===state.currentUserId);displayName=cur?cur.name:'Uczestnik';}
+  else if(state.currentUserRole==='all')displayName='WSZYSCY';
+  document.getElementById('role-display').innerText=`${displayName} · ${state.currentDevice}`;
+  if(state.currentDevice==='Telefon')document.getElementById('page-title').innerText='Ministranci-NSPJ';
+  switchTab('tabela',document.querySelector('.sidebar-nav .nav-btn'));
+  applyPermissions();renderAll();updateBottomNavActive('tabela');checkMissedAttendances();
 };
 
-window.logout = async function(){
-  try{ await signOut(auth); }catch(e){}
-  state.currentUserRole = null;
-  state.currentUserId = null;
+window.logout=async function(){
+  try{await signOut(auth);}catch(e){}
+  state.currentUserRole=null;state.currentUserId=null;
   document.body.classList.remove('mobile-mode');
-  document.getElementById('login-overlay').style.display = 'flex';
-  document.getElementById('login-pass').value = '';
-  document.getElementById('login-pass').type = 'password';
-  const btn = document.getElementById('pass-toggle-btn'); if(btn) btn.textContent = '🔒';
-  const emailInput = document.getElementById('login-admin-email'); if(emailInput) emailInput.value = '';
-  const search = document.getElementById('login-user-search'); if(search) search.value = '';
-  document.getElementById('login-user-id').value = '';
-  closeMoreMenu();
-  populateLoginUsers();
+  document.getElementById('login-overlay').style.display='flex';
+  document.getElementById('login-pass').value='';document.getElementById('login-pass').type='password';
+  document.getElementById('pass-toggle-btn').textContent='🔒';
+  document.getElementById('login-admin-email').value='';
+  document.getElementById('login-user-search').value='';document.getElementById('login-user-id').value='';
+  closeMoreMenu();populateLoginUsers();
 };
 
 function applyPermissions(){
-  const isAdmin = state.currentUserRole === 'admin';
-  const isUser = state.currentUserRole === 'user';
-  document.querySelectorAll('.admin-only').forEach(el => el.style.display = isAdmin ? '' : 'none');
-  document.querySelectorAll('.user-admin-only').forEach(el => el.style.display = (isAdmin || isUser) ? '' : 'none');
-  const addServBtn = document.getElementById('add-serv-cal-btn');
-  if(addServBtn) addServBtn.style.display = isAdmin ? 'inline-block' : 'none';
-  const userStats = document.getElementById('user-my-stats');
-  if(isUser && state.currentUserId){ userStats.style.display = 'grid'; renderUserPersonalStats(); }
-  else userStats.style.display = 'none';
+  const isAdmin=state.currentUserRole==='admin',isUser=state.currentUserRole==='user';
+  document.querySelectorAll('.admin-only').forEach(el=>el.style.display=isAdmin?'':'none');
+  document.querySelectorAll('.user-admin-only').forEach(el=>el.style.display=(isAdmin||isUser)?'':'none');
+  const addServBtn=document.getElementById('add-serv-cal-btn');
+  if(addServBtn)addServBtn.style.display=isAdmin?'inline-block':'none';
+  const userStats=document.getElementById('user-my-stats');
+  if(isUser&&state.currentUserId){userStats.style.display='grid';renderUserPersonalStats();}
+  else userStats.style.display='none';
 }
 
 function renderUserPersonalStats(){
-  const user = state.ministrants.find(m => m.id === state.currentUserId);
-  if(!user) return;
-  document.getElementById('my-user-name').innerText = user.name;
-  document.getElementById('my-user-points').innerText = user.points;
-  document.getElementById('my-user-degree').innerText = degreeText(user.degree);
-  document.getElementById('my-avatar').innerHTML = user.photo ? `<img src="${user.photo}" alt="">` : '👤';
-  const historyList = document.getElementById('my-history-list');
-  const myHistory = (state.serviceHistory || []).filter(h => h.ministrantId === user.id);
-  if(!myHistory.length) historyList.innerHTML = '<p style="color:var(--text-sub);font-size:.9rem">Brak historii.</p>';
-  else historyList.innerHTML = myHistory.slice().reverse().slice(0,5).map(h => {
-    let extra = '', color = h.points >= 0 ? 'var(--success-color)' : 'var(--danger-color)', txt = h.points >= 0 ? '+'+h.points : h.points;
-    if(h.canceled){ extra = ' canceled'; color = 'var(--danger-color)'; txt = 'anulowano'; }
-    else if(h.justified){ extra = ' justified'; color = '#3b82f6'; txt = 'usprawiedliwiono'; }
+  const user=state.ministrants.find(m=>m.id===state.currentUserId);if(!user)return;
+  document.getElementById('my-user-name').innerText=user.name;
+  document.getElementById('my-user-points').innerText=user.points;
+  document.getElementById('my-user-degree').innerText=degreeText(user.degree);
+  document.getElementById('my-avatar').innerHTML=user.photo?`<img src="${user.photo}" alt="">`:'👤';
+  const historyList=document.getElementById('my-history-list');
+  const myHistory=(state.serviceHistory||[]).filter(h=>h.ministrantId===user.id);
+  if(!myHistory.length)historyList.innerHTML='<p style="color:var(--text-sub);font-size:.9rem">Brak historii.</p>';
+  else historyList.innerHTML=myHistory.slice().reverse().slice(0,5).map(h=>{
+    let extra='',color=h.points>=0?'var(--success-color)':'var(--danger-color)',txt=h.points>=0?'+'+h.points:h.points;
+    if(h.canceled){extra=' canceled';color='var(--danger-color)';txt='anulowano';}
+    else if(h.justified){extra=' justified';color='#3b82f6';txt='usprawiedliwiono';}
     return `<div class="history-item${extra}" style="border-left-color:${color}" onclick="openHistoryDetail(${h.id})"><div style="font-size:.85rem"><strong>${h.serviceName}</strong><br><small style="color:var(--text-sub)">${h.date} ${h.time}</small></div><div style="font-weight:700;color:${color}">${txt}</div></div>`;
   }).join('');
 }
 
-window.toggleTheme = function(){ document.body.setAttribute('data-theme', document.body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'); };
-
-window.switchTab = function(tabId, btn){
-  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+window.toggleTheme=function(){document.body.setAttribute('data-theme',document.body.getAttribute('data-theme')==='dark'?'light':'dark');};
+window.switchTab=function(tabId,btn){
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById(`tab-${tabId}`)?.classList.add('active');
-  if(btn) btn.classList.add('active');
-  const titles = {
-    tabela:'Tabela & Moje Konto', kalendarz:'Kalendarz Służb', zgloszenia:'Zgłoś Służbę',
-    powiadomienia:'Powiadomienia', 'szybka-sluzba':'Szybka Służba', 'hasla-uczestnikow':'Hasła',
-    'punktacja-sluzb':'Punkty za służbę', punkty:'Punkty dodatkowe', ministranci:'Lista Ministrantów',
-    'ustawienia-zgloszen':'Ustawienia zgłoszeń'
-  };
-  document.getElementById('page-title').innerText = document.body.classList.contains('mobile-mode') ? 'Ministranci-NSPJ' : (titles[tabId] || 'MINISTRANCI-NSPJ');
+  if(btn)btn.classList.add('active');
+  const titles={tabela:'Tabela & Moje Konto',kalendarz:'Kalendarz Służb',zgloszenia:'Zgłoś Służbę',powiadomienia:'Powiadomienia','szybka-sluzba':'Szybka Służba','hasla-uczestnikow':'Hasła','punktacja-sluzb':'Punkty za służbę',punkty:'Punkty dodatkowe',ministranci:'Lista Ministrantów','ustawienia-zgloszen':'Ustawienia zgłoszeń'};
+  document.getElementById('page-title').innerText=document.body.classList.contains('mobile-mode')?'Ministranci-NSPJ':(titles[tabId]||'MINISTRANCI-NSPJ');
   updateBottomNavActive(tabId);
-  if(tabId === 'ustawienia-zgloszen'){
-    document.getElementById('set-window-before').value = state.settings.windowBefore || 60;
-    document.getElementById('set-window-after').value = state.settings.windowAfter || 60;
+  if(tabId==='ustawienia-zgloszen'){
+    document.getElementById('set-window-before').value=state.settings.windowBefore||60;
+    document.getElementById('set-window-after').value=state.settings.windowAfter||60;
   }
-  if(tabId === 'zgloszenia') populateAvailableRequests();
+  if(tabId==='zgloszenia')populateAvailableRequests();
 };
+window.switchTabMobile=function(tabId,btn){closeMoreMenu();switchTab(tabId,null);updateBottomNavActive(tabId);if(btn){document.querySelectorAll('.bottom-nav-item').forEach(b=>b.classList.remove('active'));btn.classList.add('active');}};
+function updateBottomNavActive(tabId){document.querySelectorAll('.bottom-nav-item').forEach(b=>b.classList.toggle('active',b.dataset.tab===tabId));}
+window.toggleMoreMenu=function(){const m=document.getElementById('more-menu');m.style.display=m.style.display==='none'?'block':'none';};
+window.closeMoreMenu=function(){document.getElementById('more-menu').style.display='none';};
+document.addEventListener('click',function(e){const menu=document.getElementById('more-menu');const moreBtn=document.querySelector('.bottom-nav-item[data-tab="more"]');if(menu?.style.display==='block'&&!menu.contains(e.target)&&moreBtn&&!moreBtn.contains(e.target))closeMoreMenu();});
+window.openModal=id=>document.getElementById(id).classList.add('active');
+window.closeModal=id=>document.getElementById(id).classList.remove('active');
 
-window.switchTabMobile = function(tabId, btn){
-  closeMoreMenu();
-  switchTab(tabId, null);
-  updateBottomNavActive(tabId);
-  if(btn){
-    document.querySelectorAll('.bottom-nav-item').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-  }
-};
-function updateBottomNavActive(tabId){
-  document.querySelectorAll('.bottom-nav-item').forEach(b => b.classList.toggle('active', b.dataset.tab === tabId));
-}
-window.toggleMoreMenu = function(){
-  const m = document.getElementById('more-menu');
-  m.style.display = m.style.display === 'none' ? 'block' : 'none';
-};
-window.closeMoreMenu = function(){ document.getElementById('more-menu').style.display = 'none'; };
-document.addEventListener('click', function(e){
-  const menu = document.getElementById('more-menu');
-  const moreBtn = document.querySelector('.bottom-nav-item[data-tab="more"]');
-  if(menu?.style.display === 'block' && !menu.contains(e.target) && moreBtn && !moreBtn.contains(e.target)) closeMoreMenu();
-});
-window.openModal = id => document.getElementById(id).classList.add('active');
-window.closeModal = id => document.getElementById(id).classList.remove('active');
-
-function renderAll(){
-  renderPointsTable();
-  renderMinistrantsGrid();
-  renderServiceDropdowns();
-  renderRequests();
-  renderServicesSettings();
-  renderPointTypesSettings();
-  renderAwardDropdowns();
-  renderCalendar();
-  renderPasswordsTable();
-  renderAdminRecentHistory();
-  applyPermissions();
-  populateAvailableRequests();
-}
-function degreeText(d){ return Array.isArray(d) ? d.join(', ') : (d || '—'); }
+function renderAll(){renderPointsTable();renderMinistrantsGrid();renderServiceDropdowns();renderRequests();renderServicesSettings();renderPointTypesSettings();renderAwardDropdowns();renderCalendar();renderPasswordsTable();renderAdminRecentHistory();applyPermissions();populateAvailableRequests();}
+function degreeText(d){return Array.isArray(d)?d.join(', '):(d||'—');}
 
 function renderPointsTable(){
-  const tbody = document.getElementById('points-table-body');
-  if(!tbody) return;
-  tbody.innerHTML = '';
-  [...state.ministrants].sort((a,b) => b.points - a.points).forEach((m,i) => {
-    const rank = i + 1;
-    const rc = rank === 1 ? 'rank-1' : rank === 2 ? 'rank-2' : rank === 3 ? 'rank-3' : 'rank-other';
-    tbody.innerHTML += `<tr><td style="text-align:center"><span class="rank-badge ${rc}">${rank}</span></td><td><strong>${m.name}</strong></td><td>${degreeText(m.degree)}</td><td style="font-weight:700;color:${m.points>=0?'var(--success-color)':'var(--accent-red)'}">${m.points} pkt</td><td class="admin-only"><button class="btn btn-warning" style="padding:4px 10px;font-size:.78rem" onclick="openEditMinistrantModal(${m.id})">✏️</button> <button class="btn btn-danger" style="padding:4px 10px;font-size:.78rem" onclick="deleteMinistrant(${m.id})">Usuń</button></td></tr>`;
+  const tbody=document.getElementById('points-table-body');if(!tbody)return;tbody.innerHTML='';
+  [...state.ministrants].sort((a,b)=>b.points-a.points).forEach((m,i)=>{
+    const rank=i+1,rc=rank===1?'rank-1':rank===2?'rank-2':rank===3?'rank-3':'rank-other';
+    tbody.innerHTML+=`<tr><td style="text-align:center"><span class="rank-badge ${rc}">${rank}</span></td><td><strong>${m.name}</strong></td><td>${degreeText(m.degree)}</td><td style="font-weight:700;color:${m.points>=0?'var(--success-color)':'var(--accent-red)'}">${m.points} pkt</td><td class="admin-only"><button class="btn btn-warning" style="padding:4px 10px;font-size:.78rem" onclick="openEditMinistrantModal(${m.id})">✏️</button> <button class="btn btn-danger" style="padding:4px 10px;font-size:.78rem" onclick="deleteMinistrant(${m.id})">Usuń</button></td></tr>`;
   });
 }
-
 function renderPasswordsTable(){
-  const tbody = document.getElementById('passwords-table-body');
-  if(!tbody) return;
-  tbody.innerHTML = state.ministrants.map(m => `<tr><td><strong>${m.name}</strong></td><td>${degreeText(m.degree)}</td><td><input type="text" id="pass-input-${m.id}" value="${m.password||''}" placeholder="Brak hasła" style="padding:7px 10px;border-radius:8px;border:1px solid var(--border-color);background:var(--bg-primary);color:var(--text-main);width:140px"></td><td><button class="btn btn-success" style="padding:5px 10px;font-size:.8rem" onclick="saveUserPassword(${m.id})">💾</button> <button class="btn btn-secondary" style="padding:5px 10px;font-size:.8rem" onclick="generateUserPassword(${m.id})">🎲</button></td></tr>`).join('');
+  const tbody=document.getElementById('passwords-table-body');if(!tbody)return;
+  tbody.innerHTML=state.ministrants.map(m=>`<tr><td><strong>${m.name}</strong></td><td>${degreeText(m.degree)}</td><td><input type="text" id="pass-input-${m.id}" value="${m.password||''}" placeholder="Brak hasła" style="padding:7px 10px;border-radius:8px;border:1px solid var(--border-color);background:var(--bg-primary);color:var(--text-main);width:140px"></td><td><button class="btn btn-success" style="padding:5px 10px;font-size:.8rem" onclick="saveUserPassword(${m.id})">💾</button> <button class="btn btn-secondary" style="padding:5px 10px;font-size:.8rem" onclick="generateUserPassword(${m.id})">🎲</button></td></tr>`).join('');
 }
-window.saveUserPassword = function(id){
-  const input = document.getElementById(`pass-input-${id}`);
-  const m = state.ministrants.find(x => x.id === id);
-  if(m && input){ m.password = input.value.trim(); saveDataToFirebase(); alert('Zapisano hasło dla: ' + m.name); }
-};
-window.generateUserPassword = function(id){
-  const p = Math.floor(1000 + Math.random() * 9000).toString();
-  const input = document.getElementById(`pass-input-${id}`);
-  if(input){ input.value = p; saveUserPassword(id); }
-};
-
+window.saveUserPassword=function(id){const input=document.getElementById(`pass-input-${id}`);const m=state.ministrants.find(x=>x.id===id);if(m&&input){m.password=input.value.trim();saveDataToFirebase();alert('Zapisano hasło dla: '+m.name);}};
+window.generateUserPassword=function(id){const p=Math.floor(1000+Math.random()*9000).toString();const input=document.getElementById(`pass-input-${id}`);if(input){input.value=p;saveUserPassword(id);}};
 function renderMinistrantsGrid(){
-  const grid = document.getElementById('ministrants-grid');
-  if(!grid) return;
-  grid.innerHTML = state.ministrants.map(m => `<div class="ministrant-card"><div class="avatar">${m.photo?`<img src="${m.photo}" alt="">`:'👤'}</div><h3 style="font-size:1.1rem">${m.name}</h3>${m.rank?`<div class="role-tag">${m.rank}</div>`:''}<p style="font-weight:600;margin-top:8px">${degreeText(m.degree)}</p>${m.phone?`<p style="font-size:.85rem;color:var(--text-sub);margin-top:4px">📞 ${m.phone}</p>`:''}<p style="font-weight:700;color:var(--accent-red);margin:12px 0 6px">${m.points} pkt</p>${state.currentUserRole==='admin'?`<button class="btn btn-warning" style="width:100%;font-size:.82rem;margin-top:8px" onclick="openEditMinistrantModal(${m.id})">✏️ Edytuj</button>`:''}</div>`).join('');
+  const grid=document.getElementById('ministrants-grid');if(!grid)return;
+  grid.innerHTML=state.ministrants.map(m=>`<div class="ministrant-card"><div class="avatar">${m.photo?`<img src="${m.photo}" alt="">`:'👤'}</div><h3 style="font-size:1.1rem">${m.name}</h3>${m.rank?`<div class="role-tag">${m.rank}</div>`:''}<p style="font-weight:600;margin-top:8px">${degreeText(m.degree)}</p>${m.phone?`<p style="font-size:.85rem;color:var(--text-sub);margin-top:4px">📞 ${m.phone}</p>`:''}<p style="font-weight:700;color:var(--accent-red);margin:12px 0 6px">${m.points} pkt</p>${state.currentUserRole==='admin'?`<button class="btn btn-warning" style="width:100%;font-size:.82rem;margin-top:8px" onclick="openEditMinistrantModal(${m.id})">✏️ Edytuj</button>`:''}</div>`).join('');
 }
 
 function buildDegreeCheckboxes(selected){
-  const sel = Array.isArray(selected) ? selected : [selected].filter(Boolean);
-  const list = document.getElementById('m-degree-list');
-  if(!list) return;
-  list.innerHTML = DEGREE_OPTIONS.map(d => `<label class="check-item"><input type="checkbox" class="m-deg-cb" value="${d}" ${sel.includes(d)?'checked':''}> ${d}</label>`).join('');
+  const sel=Array.isArray(selected)?selected:[selected].filter(Boolean);
+  document.getElementById('m-degree-list').innerHTML=DEGREE_OPTIONS.map(d=>`<label class="check-item"><input type="checkbox" class="m-deg-cb" value="${d}" ${sel.includes(d)?'checked':''}> ${d}</label>`).join('');
 }
-function getSelectedDegrees(){
-  return Array.from(document.querySelectorAll('.m-deg-cb:checked')).map(c => c.value);
-}
-window.openAddMinistrantModal = function(){
-  document.getElementById('m-edit-id').value = '';
-  ['m-name','m-photo','m-phone','m-rank','m-desc'].forEach(id => document.getElementById(id).value = '');
-  buildDegreeCheckboxes(['Kandydat']);
-  document.getElementById('m-points').value = '0';
-  document.getElementById('modal-min-title').innerText = 'Dodaj Nowego Ministranta';
-  openModal('modal-ministrant');
+function getSelectedDegrees(){return Array.from(document.querySelectorAll('.m-deg-cb:checked')).map(c=>c.value);}
+window.openAddMinistrantModal=function(){
+  document.getElementById('m-edit-id').value='';
+  ['m-name','m-photo','m-phone','m-rank','m-desc'].forEach(id=>document.getElementById(id).value='');
+  buildDegreeCheckboxes(['Kandydat']);document.getElementById('m-points').value='0';
+  document.getElementById('modal-min-title').innerText='Dodaj Nowego Ministranta';openModal('modal-ministrant');
 };
-window.openEditMinistrantModal = function(id){
-  const m = state.ministrants.find(x => x.id === id);
-  if(!m) return;
-  document.getElementById('m-edit-id').value = m.id;
-  document.getElementById('m-name').value = m.name;
-  document.getElementById('m-photo').value = m.photo || '';
-  document.getElementById('m-phone').value = m.phone || '';
-  buildDegreeCheckboxes(m.degree);
-  document.getElementById('m-rank').value = m.rank || '';
-  document.getElementById('m-desc').value = m.desc || '';
-  document.getElementById('m-points').value = m.points;
-  document.getElementById('modal-min-title').innerText = 'Edycja: ' + m.name;
-  openModal('modal-ministrant');
+window.openEditMinistrantModal=function(id){
+  const m=state.ministrants.find(x=>x.id===id);if(!m)return;
+  document.getElementById('m-edit-id').value=m.id;document.getElementById('m-name').value=m.name;
+  document.getElementById('m-photo').value=m.photo||'';document.getElementById('m-phone').value=m.phone||'';
+  buildDegreeCheckboxes(m.degree);document.getElementById('m-rank').value=m.rank||'';
+  document.getElementById('m-desc').value=m.desc||'';document.getElementById('m-points').value=m.points;
+  document.getElementById('modal-min-title').innerText='Edycja: '+m.name;openModal('modal-ministrant');
 };
-window.saveMinistrant = function(){
-  const id = document.getElementById('m-edit-id').value;
-  const name = document.getElementById('m-name').value;
-  if(!name) return alert('Wpisz imię i nazwisko!');
-  const degrees = getSelectedDegrees();
-  if(!degrees.length) return alert('Wybierz przynajmniej jeden stopień!');
-  const data = {
-    name,
-    photo: document.getElementById('m-photo').value,
-    phone: document.getElementById('m-phone').value,
-    degree: degrees.length === 1 ? degrees[0] : degrees,
-    rank: document.getElementById('m-rank').value,
-    desc: document.getElementById('m-desc').value,
-    points: parseInt(document.getElementById('m-points').value) || 0
-  };
-  if(id){
-    const m = state.ministrants.find(x => x.id == id);
-    if(m) Object.assign(m, data);
-  } else {
-    state.ministrants.push({ id: Date.now(), ...data, password: "" });
-  }
-  saveDataToFirebase();
-  closeModal('modal-ministrant');
+window.saveMinistrant=function(){
+  const id=document.getElementById('m-edit-id').value;const name=document.getElementById('m-name').value;
+  if(!name)return alert('Wpisz imię i nazwisko!');
+  const degrees=getSelectedDegrees();if(!degrees.length)return alert('Wybierz przynajmniej jeden stopień!');
+  const data={name,photo:document.getElementById('m-photo').value,phone:document.getElementById('m-phone').value,degree:degrees.length===1?degrees[0]:degrees,rank:document.getElementById('m-rank').value,desc:document.getElementById('m-desc').value,points:parseInt(document.getElementById('m-points').value)||0};
+  if(id){const m=state.ministrants.find(x=>x.id==id);if(m)Object.assign(m,data);}
+  else state.ministrants.push({id:Date.now(),...data,password:""});
+  saveDataToFirebase();closeModal('modal-ministrant');
 };
-window.deleteMinistrant = function(id){
-  if(confirm('Usunąć tego ministranta?')){
-    state.ministrants = state.ministrants.filter(m => m.id !== id);
-    saveDataToFirebase();
-  }
-};
+window.deleteMinistrant=function(id){if(confirm('Usunąć tego ministranta?')){state.ministrants=state.ministrants.filter(m=>m.id!==id);saveDataToFirebase();}};
 
 function renderServiceDropdowns(){
-  const set = (id, html) => { const el = document.getElementById(id); if(el) el.innerHTML = html; };
-  const isUser = state.currentUserRole === 'user' && state.currentUserId;
+  const set=(id,html)=>{const el=document.getElementById(id);if(el)el.innerHTML=html;};
+  const isUser=state.currentUserRole==='user'&&state.currentUserId;
   if(isUser){
-    const me = state.ministrants.find(m => m.id === state.currentUserId);
-    const onlyMe = me ? `<option value="${me.id}">${me.name}</option>` : '';
-    set('req-ministrant', onlyMe);
-    set('just-ministrant', onlyMe);
-  } else {
-    set('req-ministrant', state.ministrants.map(m => `<option value="${m.id}">${m.name}</option>`).join(''));
-    set('just-ministrant', state.ministrants.map(m => `<option value="${m.id}">${m.name}</option>`).join(''));
+    const me=state.ministrants.find(m=>m.id===state.currentUserId);
+    const onlyMe=me?`<option value="${me.id}">${me.name}</option>`:'';
+    set('req-ministrant',onlyMe);set('just-ministrant',onlyMe);
+  }else{
+    set('req-ministrant',state.ministrants.map(m=>`<option value="${m.id}">${m.name}</option>`).join(''));
+    set('just-ministrant',state.ministrants.map(m=>`<option value="${m.id}">${m.name}</option>`).join(''));
   }
-  set('req-service', state.services.map(s => `<option value="${s.id}">${s.name} (+${s.posPoints} / ${s.negPoints})</option>`).join(''));
-  set('cal-service-type', state.services.map(s => `<option value="${s.name}">${s.name}</option>`).join(''));
-  set('admin-direct-min', state.ministrants.map(m => `<option value="${m.id}">${m.name}</option>`).join(''));
-  set('admin-direct-serv', state.services.map(s => `<option value="${s.id}">${s.name} (+${s.posPoints} pkt)</option>`).join(''));
-  set('just-service', state.services.map(s => `<option value="${s.id}">${s.name}</option>`).join(''));
+  set('cal-service-type',state.services.map(s=>`<option value="${s.name}">${s.name}</option>`).join(''));
+  set('admin-direct-min',state.ministrants.map(m=>`<option value="${m.id}">${m.name}</option>`).join(''));
+  set('admin-direct-serv',state.services.map(s=>`<option value="${s.id}">${s.name} (+${s.posPoints} pkt)</option>`).join(''));
+  set('just-service',state.services.map(s=>`<option value="${s.id}">${s.name}</option>`).join(''));
   buildAssignedCheckboxes([]);
-  const today = new Date().toISOString().split('T')[0];
-  const rd = document.getElementById('req-date'); if(rd && !rd.value) rd.value = today;
-  const jd = document.getElementById('just-date'); if(jd && !jd.value) jd.value = today;
+  const today=formatLocalDate(new Date());
+  const jd=document.getElementById('just-date');if(jd&&!jd.value)jd.value=today;
 }
 
 function populateAvailableRequests(){
-  const sel = document.getElementById('req-available');
-  if(!sel) return;
-  const now = new Date();
-  const before = (state.settings.windowBefore || 60) * 60 * 1000;
-  const after = (state.settings.windowAfter || 60) * 60 * 1000;
-  let options = '<option value="">— Wybierz służbę z kalendarza —</option>';
-  const userId = state.currentUserRole === 'user' ? state.currentUserId : null;
-  const userName = userId ? (state.ministrants.find(m => m.id === userId)?.name || '') : null;
+  const sel=document.getElementById('req-available');
+  if(!sel)return;
+  const now=new Date();
+  const before=(state.settings.windowBefore||60)*60*1000;
+  const after=(state.settings.windowAfter||60)*60*1000;
+  let options='<option value="">— Brak dostępnych służb w oknie —</option>';
+  const userId=state.currentUserRole==='user'?state.currentUserId:null;
+  const userName=userId?(state.ministrants.find(m=>m.id===userId)?.name||''):null;
 
-  (state.calendarEvents || []).forEach(ev => {
-    if(ev.status === 'red') return;
-    if(userName && !(ev.assigned || []).includes(userName)) return;
-    const [y,m,d] = ev.date.split('-').map(Number);
-    const [hh,mm] = (ev.time || '00:00').split(':').map(Number);
-    const evTime = new Date(y, m-1, d, hh, mm);
-    const start = new Date(evTime.getTime() - before);
-    const end = new Date(evTime.getTime() + after);
-    if(now >= start && now <= end){
-      options += `<option value="${ev.id}">${ev.date} ${ev.time} – ${ev.serviceName}</option>`;
+  (state.calendarEvents||[]).forEach(ev=>{
+    if(ev.status==='red')return;
+    if(userName&&!(ev.assigned||[]).includes(userName))return;
+    const [y,m,d]=ev.date.split('-').map(Number);
+    const [hh,mm]=(ev.time||'00:00').split(':').map(Number);
+    const evTime=new Date(y,m-1,d,hh,mm);
+    const start=new Date(evTime.getTime()-before);
+    const end=new Date(evTime.getTime()+after);
+    if(now>=start&&now<=end){
+      options+=`<option value="${ev.id}">${ev.date} ${ev.time} – ${ev.serviceName}</option>`;
     }
   });
-  sel.innerHTML = options;
+  sel.innerHTML=options;
+  document.getElementById('req-info').style.display='none';
 }
 
-window.fillRequestFromAvailable = function(){
-  const id = parseInt(document.getElementById('req-available').value);
-  if(!id) return;
-  const ev = (state.calendarEvents || []).find(e => e.id === id);
-  if(!ev) return;
-  document.getElementById('req-date').value = ev.date;
-  document.getElementById('req-time').value = ev.time;
-  const serv = state.services.find(s => s.name === ev.serviceName);
-  if(serv) document.getElementById('req-service').value = serv.id;
+window.fillRequestFromAvailable=function(){
+  const id=parseInt(document.getElementById('req-available').value);
+  const info=document.getElementById('req-info');
+  if(!id){info.style.display='none';return;}
+  const ev=(state.calendarEvents||[]).find(e=>e.id===id);
+  if(!ev)return;
+  document.getElementById('req-date').value=ev.date;
+  document.getElementById('req-time').value=ev.time;
+  const serv=state.services.find(s=>s.name===ev.serviceName);
+  if(serv)document.getElementById('req-service').value=serv.id;
+  info.style.display='block';
+  info.innerHTML=`<strong>${ev.serviceName}</strong><br>Data: ${ev.date} · Godzina: ${ev.time}`;
 };
 
 function buildAssignedCheckboxes(selected){
-  const list = document.getElementById('cal-assigned-list');
-  if(!list) return;
-  const sel = selected || [];
-  list.innerHTML = state.ministrants.map(m => `<label class="check-item"><input type="checkbox" class="cal-asg-cb" value="${m.name.replace(/"/g,'&quot;')}" ${sel.includes(m.name)?'checked':''} onchange="syncSelectAllCheckbox()"> ${m.name}</label>`).join('');
+  const list=document.getElementById('cal-assigned-list');if(!list)return;
+  const sel=selected||[];
+  list.innerHTML=state.ministrants.map(m=>`<label class="check-item"><input type="checkbox" class="cal-asg-cb" value="${m.name.replace(/"/g,'&quot;')}" ${sel.includes(m.name)?'checked':''} onchange="syncSelectAllCheckbox()"> ${m.name}</label>`).join('');
   syncSelectAllCheckbox();
 }
-function getSelectedAssigned(){
-  return Array.from(document.querySelectorAll('.cal-asg-cb:checked')).map(c => c.value);
-}
-window.toggleSelectAllAssigned = function(checked){
-  document.querySelectorAll('.cal-asg-cb').forEach(c => c.checked = checked);
+function getSelectedAssigned(){return Array.from(document.querySelectorAll('.cal-asg-cb:checked')).map(c=>c.value);}
+window.toggleSelectAllAssigned=function(checked){document.querySelectorAll('.cal-asg-cb').forEach(c=>c.checked=checked);};
+window.syncSelectAllCheckbox=function(){
+  const all=document.querySelectorAll('.cal-asg-cb'),checked=document.querySelectorAll('.cal-asg-cb:checked');
+  const sa=document.getElementById('cal-select-all');if(sa&&all.length)sa.checked=all.length===checked.length;
 };
-window.syncSelectAllCheckbox = function(){
-  const all = document.querySelectorAll('.cal-asg-cb');
-  const checked = document.querySelectorAll('.cal-asg-cb:checked');
-  const sa = document.getElementById('cal-select-all');
-  if(sa && all.length) sa.checked = all.length === checked.length;
-};
-
 function renderAwardDropdowns(){
-  const a = document.getElementById('award-min'), t = document.getElementById('award-type');
-  if(a) a.innerHTML = state.ministrants.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
-  if(t) t.innerHTML = (state.pointTypes || []).map(p => `<option value="${p.id}">${p.name} (+${p.posPoints} / ${p.negPoints})</option>`).join('');
+  const a=document.getElementById('award-min'),t=document.getElementById('award-type');
+  if(a)a.innerHTML=state.ministrants.map(m=>`<option value="${m.id}">${m.name}</option>`).join('');
+  if(t)t.innerHTML=(state.pointTypes||[]).map(p=>`<option value="${p.id}">${p.name} (+${p.posPoints} / ${p.negPoints})</option>`).join('');
 }
 
-window.submitServiceRequest = function(){
-  const minId = parseInt(document.getElementById('req-ministrant').value);
-  const servId = parseInt(document.getElementById('req-service').value);
-  const date = document.getElementById('req-date').value;
-  const time = document.getElementById('req-time').value;
-  if(!minId || !servId || !time) return alert('Uzupełnij wszystkie pola!');
-  if(!date) return alert('Wybierz dzień służby!');
+window.submitServiceRequest=function(){
+  const minId=parseInt(document.getElementById('req-ministrant').value);
+  const servId=parseInt(document.getElementById('req-service').value);
+  const date=document.getElementById('req-date').value;
+  const time=document.getElementById('req-time').value;
+  if(!minId||!servId||!date||!time)return alert('Wybierz służbę z listy dostępnych!');
+  const min=state.ministrants.find(m=>m.id===minId);
+  const serv=state.services.find(s=>s.id===servId);
+  if(!min||!serv)return;
 
-  const min = state.ministrants.find(m => m.id === minId);
-  const serv = state.services.find(s => s.id === servId);
-  if(!min || !serv) return;
-
-  // Sprawdzenie okna czasowego + przypisania
-  const now = new Date();
-  const before = (state.settings.windowBefore || 60) * 60 * 1000;
-  const after = (state.settings.windowAfter || 60) * 60 * 1000;
-  const [y,m,d] = date.split('-').map(Number);
-  const [hh,mm] = time.split(':').map(Number);
-  const evTime = new Date(y, m-1, d, hh, mm);
-  const start = new Date(evTime.getTime() - before);
-  const end = new Date(evTime.getTime() + after);
-
-  if(now < start || now > end){
-    return alert(`Możesz zgłosić obecność tylko w oknie ${state.settings.windowBefore} min przed i ${state.settings.windowAfter} min po godzinie służby.`);
+  const now=new Date();
+  const before=(state.settings.windowBefore||60)*60*1000;
+  const after=(state.settings.windowAfter||60)*60*1000;
+  const [y,m,d]=date.split('-').map(Number);
+  const [hh,mm]=time.split(':').map(Number);
+  const evTime=new Date(y,m-1,d,hh,mm);
+  if(now < new Date(evTime.getTime()-before) || now > new Date(evTime.getTime()+after)){
+    return alert(`Możesz zgłosić tylko w oknie ${state.settings.windowBefore} min przed i ${state.settings.windowAfter} min po.`);
   }
 
-  const matchingEv = (state.calendarEvents || []).find(e => e.date === date && e.time === time && e.serviceName === serv.name);
-  if(matchingEv && matchingEv.status === 'red') return alert('Ta służba została odwołana.');
-  if(matchingEv && !(matchingEv.assigned || []).includes(min.name) && state.currentUserRole === 'user'){
-    return alert('Nie jesteś wyznaczony na tę służbę.');
-  }
-
-  if(!state.requests) state.requests = [];
+  if(!state.requests)state.requests=[];
   state.requests.push({
-    id: Date.now(),
-    type: 'attendance',
-    ministrantId: min.id,
-    ministrantName: min.name,
-    serviceId: serv.id,
-    serviceName: serv.name,
-    posPoints: serv.posPoints,
-    negPoints: serv.negPoints,
-    serviceDate: date,
-    serviceTime: time,
-    note: '',
-    sentAt: new Date().toLocaleString()
+    id:Date.now(),type:'attendance',ministrantId:min.id,ministrantName:min.name,
+    serviceId:serv.id,serviceName:serv.name,posPoints:serv.posPoints,negPoints:serv.negPoints,
+    serviceDate:date,serviceTime:time,note:'',sentAt:new Date().toLocaleString()
   });
   saveRequestsOnly();
-  alert('Zgłoszenie wysłane! (dzień: ' + date + ')');
+  alert('Zgłoszenie wysłane!');
   populateAvailableRequests();
 };
 
-window.submitJustificationRequest = function(){
-  const minId = parseInt(document.getElementById('just-ministrant').value);
-  const servId = parseInt(document.getElementById('just-service').value);
-  const date = document.getElementById('just-date').value || '—';
-  const time = document.getElementById('just-time').value || '—';
-  const note = (document.getElementById('just-note')?.value || '').trim();
-  if(!minId || !servId) return alert('Wybierz ministranta i służbę!');
-  const min = state.ministrants.find(m => m.id === minId);
-  const serv = state.services.find(s => s.id === servId);
-  if(!state.requests) state.requests = [];
-  state.requests.push({
-    id: Date.now(),
-    type: 'justification',
-    ministrantId: min.id,
-    ministrantName: min.name,
-    serviceId: serv.id,
-    serviceName: serv.name,
-    posPoints: 0,
-    negPoints: serv.negPoints,
-    serviceDate: date,
-    serviceTime: time,
-    note,
-    sentAt: new Date().toLocaleString()
-  });
-  saveRequestsOnly();
-  document.getElementById('just-note').value = '';
-  alert('Prośba wysłana!');
+window.submitJustificationRequest=function(){
+  const minId=parseInt(document.getElementById('just-ministrant').value);
+  const servId=parseInt(document.getElementById('just-service').value);
+  const date=document.getElementById('just-date').value||'—';
+  const time=document.getElementById('just-time').value||'—';
+  const note=(document.getElementById('just-note')?.value||'').trim();
+  if(!minId||!servId)return alert('Wybierz ministranta i służbę!');
+  const min=state.ministrants.find(m=>m.id===minId),serv=state.services.find(s=>s.id===servId);
+  if(!state.requests)state.requests=[];
+  state.requests.push({id:Date.now(),type:'justification',ministrantId:min.id,ministrantName:min.name,serviceId:serv.id,serviceName:serv.name,posPoints:0,negPoints:serv.negPoints,serviceDate:date,serviceTime:time,note,sentAt:new Date().toLocaleString()});
+  saveRequestsOnly();document.getElementById('just-note').value='';alert('Prośba wysłana!');
 };
 
-window.adminDirectAddService = function(){
-  const minId = parseInt(document.getElementById('admin-direct-min').value);
-  const servId = parseInt(document.getElementById('admin-direct-serv').value);
-  const time = document.getElementById('admin-direct-time').value || 'Służba';
-  const note = (document.getElementById('admin-direct-note')?.value || '').trim();
-  if(!minId || !servId) return alert('Wybierz ministranta i służbę!');
-  const min = state.ministrants.find(m => m.id === minId);
-  const serv = state.services.find(s => s.id === servId);
-  min.points += serv.posPoints;
-  if(!state.serviceHistory) state.serviceHistory = [];
-  state.serviceHistory.push({
-    id: Date.now(),
-    ministrantId: min.id,
-    ministrantName: min.name,
-    serviceName: serv.name,
-    points: serv.posPoints,
-    date: new Date().toLocaleDateString(),
-    time,
-    note,
-    canceled: false,
-    justified: false
-  });
-  document.getElementById('admin-direct-note').value = '';
-  saveDataToFirebase();
-  alert(`Przyznano "${serv.name}" (+${serv.posPoints} pkt) dla ${min.name}!`);
+window.adminDirectAddService=function(){
+  const minId=parseInt(document.getElementById('admin-direct-min').value);
+  const servId=parseInt(document.getElementById('admin-direct-serv').value);
+  const time=document.getElementById('admin-direct-time').value||'Służba';
+  const note=(document.getElementById('admin-direct-note')?.value||'').trim();
+  if(!minId||!servId)return alert('Wybierz ministranta i służbę!');
+  const min=state.ministrants.find(m=>m.id===minId),serv=state.services.find(s=>s.id===servId);
+  min.points+=serv.posPoints;
+  if(!state.serviceHistory)state.serviceHistory=[];
+  state.serviceHistory.push({id:Date.now(),ministrantId:min.id,ministrantName:min.name,serviceName:serv.name,points:serv.posPoints,date:new Date().toLocaleDateString(),time,note,canceled:false,justified:false});
+  document.getElementById('admin-direct-note').value='';
+  saveDataToFirebase();alert(`Przyznano "${serv.name}" (+${serv.posPoints} pkt) dla ${min.name}!`);
 };
 
 function renderAdminRecentHistory(){
-  const list = document.getElementById('admin-recent-history');
-  if(!list) return;
-  const hist = (state.serviceHistory || []).slice().reverse().slice(0,15);
-  if(!hist.length){ list.innerHTML = '<p style="color:var(--text-sub)">Brak przyznanych służb.</p>'; return; }
-  list.innerHTML = hist.map(h => {
-    let extra = '', color = h.points >= 0 ? 'var(--success-color)' : 'var(--danger-color)', txt = h.points >= 0 ? '+'+h.points : h.points;
-    if(h.canceled){ extra = ' canceled'; color = 'var(--danger-color)'; txt = 'anulowano'; }
-    else if(h.justified){ extra = ' justified'; color = '#3b82f6'; txt = 'usprawiedliwiono'; }
+  const list=document.getElementById('admin-recent-history');if(!list)return;
+  const hist=(state.serviceHistory||[]).slice().reverse().slice(0,15);
+  if(!hist.length){list.innerHTML='<p style="color:var(--text-sub)">Brak przyznanych służb.</p>';return;}
+  list.innerHTML=hist.map(h=>{
+    let extra='',color=h.points>=0?'var(--success-color)':'var(--danger-color)',txt=h.points>=0?'+'+h.points:h.points;
+    if(h.canceled){extra=' canceled';color='var(--danger-color)';txt='anulowano';}
+    else if(h.justified){extra=' justified';color='#3b82f6';txt='usprawiedliwiono';}
     return `<div class="history-item${extra}" style="border-left-color:${color};margin-bottom:10px" onclick="openHistoryDetail(${h.id})"><div style="font-size:.88rem"><strong>${h.ministrantName||'?'}</strong> · ${h.serviceName}<br><small style="color:var(--text-sub)">${h.date} ${h.time}${h.note?' · 📝':''}</small></div><div style="font-weight:700;color:${color}">${txt}</div></div>`;
   }).join('');
 }
 
-window.openHistoryDetail = function(histId){
-  const h = (state.serviceHistory || []).find(x => x.id === histId);
-  if(!h) return;
-  let border = 'var(--success-color)', label = 'Szczegóły';
-  if(h.canceled){ label = 'Anulowana'; border = 'var(--danger-color)'; }
-  else if(h.justified){ label = 'Usprawiedliwiona'; border = '#3b82f6'; }
-  document.getElementById('history-detail-title').innerText = label;
-  document.getElementById('history-detail-body').innerHTML = `<div style="background:var(--bg-card);padding:16px;border-radius:12px;border-left:5px solid ${border}"><p style="margin-bottom:8px"><strong>Ministrant:</strong> ${h.ministrantName||'—'}</p><p style="margin-bottom:8px"><strong>Nazwa:</strong> ${h.serviceName}</p><p style="margin-bottom:8px"><strong>Data:</strong> ${h.date}</p><p style="margin-bottom:8px"><strong>Godzina:</strong> ${h.time}</p><p style="margin-bottom:8px"><strong>Punkty:</strong> <span style="color:${border};font-weight:700">${h.canceled?'anulowano':h.justified?'usprawiedliwiono (0)':(h.points>=0?'+'+h.points:h.points)}</span></p>${h.note?`<p style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border-color)"><strong>📝 Notatka:</strong><br>${h.note}</p>`:''}</div>`;
-  const actions = document.getElementById('history-detail-actions');
-  if(state.currentUserRole === 'admin' && !h.canceled && !h.justified){
-    actions.innerHTML = `<button class="btn btn-danger" style="width:100%;margin-bottom:10px" onclick="cancelHistoryService(${h.id})">❌ Anuluj (odejmij punkty)</button><button class="btn btn-info" style="width:100%;margin-bottom:10px" onclick="justifyHistoryService(${h.id})">📝 Usprawiedliw (0 pkt)</button>`;
-  } else actions.innerHTML = '';
+window.openHistoryDetail=function(histId){
+  const h=(state.serviceHistory||[]).find(x=>x.id===histId);if(!h)return;
+  let border='var(--success-color)',label='Szczegóły';
+  if(h.canceled){label='Anulowana';border='var(--danger-color)';}
+  else if(h.justified){label='Usprawiedliwiona';border='#3b82f6';}
+  document.getElementById('history-detail-title').innerText=label;
+  document.getElementById('history-detail-body').innerHTML=`<div style="background:var(--bg-card);padding:16px;border-radius:12px;border-left:5px solid ${border}"><p style="margin-bottom:8px"><strong>Ministrant:</strong> ${h.ministrantName||'—'}</p><p style="margin-bottom:8px"><strong>Nazwa:</strong> ${h.serviceName}</p><p style="margin-bottom:8px"><strong>Data:</strong> ${h.date}</p><p style="margin-bottom:8px"><strong>Godzina:</strong> ${h.time}</p><p style="margin-bottom:8px"><strong>Punkty:</strong> <span style="color:${border};font-weight:700">${h.canceled?'anulowano':h.justified?'usprawiedliwiono (0)':(h.points>=0?'+'+h.points:h.points)}</span></p>${h.note?`<p style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border-color)"><strong>📝 Notatka:</strong><br>${h.note}</p>`:''}</div>`;
+  const actions=document.getElementById('history-detail-actions');
+  if(state.currentUserRole==='admin'&&!h.canceled&&!h.justified){
+    actions.innerHTML=`<button class="btn btn-danger" style="width:100%;margin-bottom:10px" onclick="cancelHistoryService(${h.id})">❌ Anuluj (odejmij punkty)</button><button class="btn btn-info" style="width:100%;margin-bottom:10px" onclick="justifyHistoryService(${h.id})">📝 Usprawiedliw (0 pkt)</button>`;
+  }else actions.innerHTML='';
   openModal('modal-history-detail');
 };
-window.cancelHistoryService = function(histId){
-  const h = (state.serviceHistory || []).find(x => x.id === histId);
-  if(!h || h.canceled || h.justified) return;
-  if(!confirm(`Anulować i odjąć ${h.points} pkt?`)) return;
-  const min = state.ministrants.find(m => m.id === h.ministrantId);
-  if(min) min.points -= h.points;
-  h.canceled = true;
-  h.justified = false;
-  saveDataToFirebase();
-  closeModal('modal-history-detail');
-  renderAll();
+window.cancelHistoryService=function(histId){
+  const h=(state.serviceHistory||[]).find(x=>x.id===histId);if(!h||h.canceled||h.justified)return;
+  if(!confirm(`Anulować i odjąć ${h.points} pkt?`))return;
+  const min=state.ministrants.find(m=>m.id===h.ministrantId);if(min)min.points-=h.points;
+  h.canceled=true;h.justified=false;saveDataToFirebase();closeModal('modal-history-detail');renderAll();
 };
-window.justifyHistoryService = function(histId){
-  const h = (state.serviceHistory || []).find(x => x.id === histId);
-  if(!h || h.canceled || h.justified) return;
-  if(!confirm('Usprawiedliwić? Punkty NIE zostaną odjęte.')) return;
-  h.justified = true;
-  h.canceled = false;
-  saveDataToFirebase();
-  closeModal('modal-history-detail');
-  renderAll();
+window.justifyHistoryService=function(histId){
+  const h=(state.serviceHistory||[]).find(x=>x.id===histId);if(!h||h.canceled||h.justified)return;
+  if(!confirm('Usprawiedliwić? Punkty NIE zostaną odjęte.'))return;
+  h.justified=true;h.canceled=false;saveDataToFirebase();closeModal('modal-history-detail');renderAll();
 };
 
 function renderRequests(){
-  const list = document.getElementById('requests-list');
-  const badge = document.getElementById('notif-badge');
-  const bnBadge = document.getElementById('bn-notif-badge');
-  if(!list || !badge) return;
-  const reqs = state.requests || [];
-  badge.innerText = reqs.length;
-  badge.style.display = reqs.length ? 'inline-block' : 'none';
-  if(bnBadge){ bnBadge.innerText = reqs.length; bnBadge.style.display = reqs.length ? 'inline-block' : 'none'; }
-  if(!reqs.length){ list.innerHTML = '<p style="color:var(--text-sub)">Brak nowych zgłoszeń.</p>'; return; }
-  list.innerHTML = reqs.map(r => {
-    const isJust = r.type === 'justification';
-    const dayInfo = r.serviceDate ? ` · 📅 ${r.serviceDate}` : '';
+  const list=document.getElementById('requests-list'),badge=document.getElementById('notif-badge'),bnBadge=document.getElementById('bn-notif-badge');
+  if(!list||!badge)return;
+  const reqs=state.requests||[];
+  badge.innerText=reqs.length;badge.style.display=reqs.length?'inline-block':'none';
+  if(bnBadge){bnBadge.innerText=reqs.length;bnBadge.style.display=reqs.length?'inline-block':'none';}
+  if(!reqs.length){list.innerHTML='<p style="color:var(--text-sub)">Brak nowych zgłoszeń.</p>';return;}
+  list.innerHTML=reqs.map(r=>{
+    const isJust=r.type==='justification';
+    const dayInfo=r.serviceDate?` · 📅 ${r.serviceDate}`:'';
     return `<div class="request-card" style="${isJust?'border-left:4px solid #3b82f6':''}"><div><strong>${isJust?'📝 ':'📩 '}${r.ministrantName}</strong> ${isJust?'prosi o usprawiedliwienie':'zgłosił'}: <strong>${r.serviceName}</strong><br>
 <small style="color:var(--text-sub)">Godzina: ${r.serviceTime}${dayInfo}${r.note?' · 📝 '+r.note:''}<br>Wysłano: ${r.sentAt||'—'}</small></div>
 <div style="display:flex;gap:8px;flex-wrap:wrap">${isJust?`<button class="btn btn-info" onclick="processRequest(${r.id},'justify')">✅ Usprawiedliw (0)</button><button class="btn btn-danger" onclick="processRequest(${r.id},false)">❌ Odrzuć (${r.negPoints})</button>`:`<button class="btn btn-success" onclick="processRequest(${r.id},true)">✅ +${r.posPoints}</button><button class="btn btn-danger" onclick="processRequest(${r.id},false)">❌ ${r.negPoints}</button>`}</div></div>`;
   }).join('');
 }
-
-window.processRequest = function(reqId, action){
-  const req = state.requests.find(r => r.id === reqId);
-  if(!req) return;
-  const min = state.ministrants.find(m => m.id === req.ministrantId);
-  if(!min) return;
-  let pts = 0, justified = false;
-  if(req.type === 'justification'){
-    if(action === 'justify'){ pts = 0; justified = true; }
-    else pts = req.negPoints;
-  } else {
-    pts = action === true ? req.posPoints : req.negPoints;
+window.processRequest=function(reqId,action){
+  const req=state.requests.find(r=>r.id===reqId);if(!req)return;
+  const min=state.ministrants.find(m=>m.id===req.ministrantId);if(!min)return;
+  let pts=0,justified=false;
+  if(req.type==='justification'){if(action==='justify'){pts=0;justified=true;}else pts=req.negPoints;}
+  else pts=action===true?req.posPoints:req.negPoints;
+  min.points+=pts;
+  if(!state.serviceHistory)state.serviceHistory=[];
+  state.serviceHistory.push({id:Date.now(),ministrantId:min.id,ministrantName:min.name,serviceName:req.serviceName,points:pts,date:req.serviceDate||new Date().toLocaleDateString(),time:req.serviceTime,note:req.note||'',canceled:false,justified});
+  if(req.type==='attendance'&&action===true&&req.serviceDate){
+    const ev=(state.calendarEvents||[]).find(e=>e.date===req.serviceDate&&e.serviceName===req.serviceName&&e.time===req.serviceTime);
+    if(ev){ev.status='green';if(!ev.assigned.includes(min.name))ev.assigned.push(min.name);}
   }
-  min.points += pts;
-  if(!state.serviceHistory) state.serviceHistory = [];
-  state.serviceHistory.push({
-    id: Date.now(),
-    ministrantId: min.id,
-    ministrantName: min.name,
-    serviceName: req.serviceName,
-    points: pts,
-    date: req.serviceDate || new Date().toLocaleDateString(),
-    time: req.serviceTime,
-    note: req.note || '',
-    canceled: false,
-    justified
-  });
-  if(req.type === 'attendance' && action === true && req.serviceDate){
-    if(!state.calendarEvents) state.calendarEvents = [];
-    const ev = state.calendarEvents.find(e => e.date === req.serviceDate && e.serviceName === req.serviceName && e.time === req.serviceTime);
-    if(ev){
-      ev.status = 'green';
-      if(!ev.assigned.includes(min.name)) ev.assigned.push(min.name);
-    }
-  }
-  state.requests = state.requests.filter(r => r.id !== reqId);
-  saveDataToFirebase();
+  state.requests=state.requests.filter(r=>r.id!==reqId);saveDataToFirebase();
 };
 
 function renderServicesSettings(){
-  const tbody = document.getElementById('services-settings-body');
-  if(!tbody) return;
-  const isAdmin = state.currentUserRole === 'admin';
-  tbody.innerHTML = (state.services || []).map(s => isAdmin ?
-    `<tr><td><input type="text" id="serv-name-${s.id}" value="${s.name.replace(/"/g,'&quot;')}" style="width:100%;min-width:160px;padding:8px 10px;border-radius:8px;border:1px solid var(--border-color);background:var(--bg-primary);color:var(--text-main)"></td><td><input type="number" id="serv-pos-${s.id}" value="${s.posPoints}" style="width:90px;padding:8px 10px;border-radius:8px;border:1px solid var(--border-color);background:var(--bg-primary);color:var(--text-main)"></td><td><input type="number" id="serv-neg-${s.id}" value="${s.negPoints}" style="width:90px;padding:8px 10px;border-radius:8px;border:1px solid var(--border-color);background:var(--bg-primary);color:var(--text-main)"></td><td style="white-space:nowrap"><button class="btn btn-success" style="padding:5px 10px;font-size:.8rem" onclick="updateServiceType(${s.id})">💾</button> <button class="btn btn-danger" style="padding:5px 10px;font-size:.8rem" onclick="deleteServiceType(${s.id})">Usuń</button></td></tr>` :
-    `<tr><td><strong>${s.name}</strong></td><td style="color:var(--success-color);font-weight:700">+${s.posPoints}</td><td style="color:var(--accent-red);font-weight:700">${s.negPoints}</td><td></td></tr>`
-  ).join('');
+  const tbody=document.getElementById('services-settings-body');if(!tbody)return;
+  const isAdmin=state.currentUserRole==='admin';
+  tbody.innerHTML=(state.services||[]).map(s=>isAdmin?`<tr><td><input type="text" id="serv-name-${s.id}" value="${s.name.replace(/"/g,'&quot;')}" style="width:100%;min-width:160px;padding:8px 10px;border-radius:8px;border:1px solid var(--border-color);background:var(--bg-primary);color:var(--text-main)"></td><td><input type="number" id="serv-pos-${s.id}" value="${s.posPoints}" style="width:90px;padding:8px 10px;border-radius:8px;border:1px solid var(--border-color);background:var(--bg-primary);color:var(--text-main)"></td><td><input type="number" id="serv-neg-${s.id}" value="${s.negPoints}" style="width:90px;padding:8px 10px;border-radius:8px;border:1px solid var(--border-color);background:var(--bg-primary);color:var(--text-main)"></td><td style="white-space:nowrap"><button class="btn btn-success" style="padding:5px 10px;font-size:.8rem" onclick="updateServiceType(${s.id})">💾</button> <button class="btn btn-danger" style="padding:5px 10px;font-size:.8rem" onclick="deleteServiceType(${s.id})">Usuń</button></td></tr>`:`<tr><td><strong>${s.name}</strong></td><td style="color:var(--success-color);font-weight:700">+${s.posPoints}</td><td style="color:var(--accent-red);font-weight:700">${s.negPoints}</td><td></td></tr>`).join('');
 }
-window.updateServiceType = function(id){
-  const s = state.services.find(x => x.id === id);
-  if(!s) return;
-  const name = document.getElementById(`serv-name-${id}`).value.trim();
-  let pos = parseInt(document.getElementById(`serv-pos-${id}`).value) || 0;
-  let neg = parseInt(document.getElementById(`serv-neg-${id}`).value) || 0;
-  if(!name) return alert('Nazwa nie może być pusta!');
-  if(neg > 0) neg = -neg;
-  s.name = name; s.posPoints = pos; s.negPoints = neg;
-  saveDataToFirebase();
-  renderServiceDropdowns();
-  alert('Zapisano: ' + name);
+window.updateServiceType=function(id){
+  const s=state.services.find(x=>x.id===id);if(!s)return;
+  const name=document.getElementById(`serv-name-${id}`).value.trim();
+  let pos=parseInt(document.getElementById(`serv-pos-${id}`).value)||0,neg=parseInt(document.getElementById(`serv-neg-${id}`).value)||0;
+  if(!name)return alert('Nazwa nie może być pusta!');if(neg>0)neg=-neg;
+  s.name=name;s.posPoints=pos;s.negPoints=neg;saveDataToFirebase();renderServiceDropdowns();alert('Zapisano: '+name);
 };
-window.addNewServiceType = function(){
-  const name = document.getElementById('new-service-name').value.trim();
-  const pos = parseInt(document.getElementById('new-service-pos').value) || 10;
-  let neg = parseInt(document.getElementById('new-service-neg').value) || -10;
-  if(!name) return alert('Wpisz nazwę!');
-  if(neg > 0) neg = -neg;
-  state.services.push({ id: Date.now(), name, posPoints: pos, negPoints: neg });
-  saveDataToFirebase();
-  document.getElementById('new-service-name').value = '';
-  document.getElementById('new-service-pos').value = '';
-  document.getElementById('new-service-neg').value = '';
-  renderServicesSettings();
-  renderServiceDropdowns();
+window.addNewServiceType=function(){
+  const name=document.getElementById('new-service-name').value.trim();
+  const pos=parseInt(document.getElementById('new-service-pos').value)||10;
+  let neg=parseInt(document.getElementById('new-service-neg').value)||-10;
+  if(!name)return alert('Wpisz nazwę!');if(neg>0)neg=-neg;
+  state.services.push({id:Date.now(),name,posPoints:pos,negPoints:neg});saveDataToFirebase();
+  document.getElementById('new-service-name').value='';document.getElementById('new-service-pos').value='';document.getElementById('new-service-neg').value='';
+  renderServicesSettings();renderServiceDropdowns();
 };
-window.deleteServiceType = function(id){
-  if(!confirm('Usunąć tę służbę?')) return;
-  state.services = state.services.filter(s => s.id !== id);
-  saveDataToFirebase();
-  renderServicesSettings();
-  renderServiceDropdowns();
-};
+window.deleteServiceType=function(id){if(!confirm('Usunąć tę służbę?'))return;state.services=state.services.filter(s=>s.id!==id);saveDataToFirebase();renderServicesSettings();renderServiceDropdowns();};
 
 function renderPointTypesSettings(){
-  const tbody = document.getElementById('point-types-body');
-  if(!tbody) return;
-  const isAdmin = state.currentUserRole === 'admin';
-  if(!(state.pointTypes || []).length){
-    tbody.innerHTML = `<tr><td colspan="4" style="color:var(--text-sub)">Brak zdefiniowanych punktów dodatkowych.</td></tr>`;
-    return;
-  }
-  tbody.innerHTML = state.pointTypes.map(p => isAdmin ?
-    `<tr><td><input type="text" id="pt-name-${p.id}" value="${p.name.replace(/"/g,'&quot;')}" style="width:100%;min-width:160px;padding:8px 10px;border-radius:8px;border:1px solid var(--border-color);background:var(--bg-primary);color:var(--text-main)"></td><td><input type="number" id="pt-pos-${p.id}" value="${p.posPoints}" style="width:90px;padding:8px 10px;border-radius:8px;border:1px solid var(--border-color);background:var(--bg-primary);color:var(--text-main)"></td><td><input type="number" id="pt-neg-${p.id}" value="${p.negPoints}" style="width:90px;padding:8px 10px;border-radius:8px;border:1px solid var(--border-color);background:var(--bg-primary);color:var(--text-main)"></td><td style="white-space:nowrap"><button class="btn btn-success" style="padding:5px 10px;font-size:.8rem" onclick="updatePointType(${p.id})">💾</button> <button class="btn btn-danger" style="padding:5px 10px;font-size:.8rem" onclick="deletePointType(${p.id})">Usuń</button></td></tr>` :
-    `<tr><td><strong>${p.name}</strong></td><td style="color:var(--success-color);font-weight:700">+${p.posPoints}</td><td style="color:var(--accent-red);font-weight:700">${p.negPoints}</td><td></td></tr>`
-  ).join('');
+  const tbody=document.getElementById('point-types-body');if(!tbody)return;
+  const isAdmin=state.currentUserRole==='admin';
+  if(!(state.pointTypes||[]).length){tbody.innerHTML=`<tr><td colspan="4" style="color:var(--text-sub)">Brak zdefiniowanych punktów dodatkowych.</td></tr>`;return;}
+  tbody.innerHTML=state.pointTypes.map(p=>isAdmin?`<tr><td><input type="text" id="pt-name-${p.id}" value="${p.name.replace(/"/g,'&quot;')}" style="width:100%;min-width:160px;padding:8px 10px;border-radius:8px;border:1px solid var(--border-color);background:var(--bg-primary);color:var(--text-main)"></td><td><input type="number" id="pt-pos-${p.id}" value="${p.posPoints}" style="width:90px;padding:8px 10px;border-radius:8px;border:1px solid var(--border-color);background:var(--bg-primary);color:var(--text-main)"></td><td><input type="number" id="pt-neg-${p.id}" value="${p.negPoints}" style="width:90px;padding:8px 10px;border-radius:8px;border:1px solid var(--border-color);background:var(--bg-primary);color:var(--text-main)"></td><td style="white-space:nowrap"><button class="btn btn-success" style="padding:5px 10px;font-size:.8rem" onclick="updatePointType(${p.id})">💾</button> <button class="btn btn-danger" style="padding:5px 10px;font-size:.8rem" onclick="deletePointType(${p.id})">Usuń</button></td></tr>`:`<tr><td><strong>${p.name}</strong></td><td style="color:var(--success-color);font-weight:700">+${p.posPoints}</td><td style="color:var(--accent-red);font-weight:700">${p.negPoints}</td><td></td></tr>`).join('');
 }
-window.updatePointType = function(id){
-  const p = state.pointTypes.find(x => x.id === id);
-  if(!p) return;
-  const name = document.getElementById(`pt-name-${id}`).value.trim();
-  let pos = parseInt(document.getElementById(`pt-pos-${id}`).value) || 0;
-  let neg = parseInt(document.getElementById(`pt-neg-${id}`).value) || 0;
-  if(!name) return alert('Nazwa nie może być pusta!');
-  if(neg > 0) neg = -neg;
-  p.name = name; p.posPoints = pos; p.negPoints = neg;
-  saveDataToFirebase();
-  renderAwardDropdowns();
-  alert('Zapisano: ' + name);
+window.updatePointType=function(id){
+  const p=state.pointTypes.find(x=>x.id===id);if(!p)return;
+  const name=document.getElementById(`pt-name-${id}`).value.trim();
+  let pos=parseInt(document.getElementById(`pt-pos-${id}`).value)||0,neg=parseInt(document.getElementById(`pt-neg-${id}`).value)||0;
+  if(!name)return alert('Nazwa nie może być pusta!');if(neg>0)neg=-neg;
+  p.name=name;p.posPoints=pos;p.negPoints=neg;saveDataToFirebase();renderAwardDropdowns();alert('Zapisano: '+name);
 };
-window.addNewPointType = function(){
-  const name = document.getElementById('new-point-name').value.trim();
-  const pos = parseInt(document.getElementById('new-point-pos').value) || 0;
-  let neg = parseInt(document.getElementById('new-point-neg').value) || 0;
-  if(!name) return alert('Wpisz nazwę!');
-  if(neg > 0) neg = -neg;
-  if(!state.pointTypes) state.pointTypes = [];
-  state.pointTypes.push({ id: Date.now(), name, posPoints: pos, negPoints: neg });
-  saveDataToFirebase();
-  document.getElementById('new-point-name').value = '';
-  document.getElementById('new-point-pos').value = '';
-  document.getElementById('new-point-neg').value = '';
-  renderPointTypesSettings();
-  renderAwardDropdowns();
+window.addNewPointType=function(){
+  const name=document.getElementById('new-point-name').value.trim();
+  const pos=parseInt(document.getElementById('new-point-pos').value)||0;
+  let neg=parseInt(document.getElementById('new-point-neg').value)||0;
+  if(!name)return alert('Wpisz nazwę!');if(neg>0)neg=-neg;
+  if(!state.pointTypes)state.pointTypes=[];
+  state.pointTypes.push({id:Date.now(),name,posPoints:pos,negPoints:neg});saveDataToFirebase();
+  document.getElementById('new-point-name').value='';document.getElementById('new-point-pos').value='';document.getElementById('new-point-neg').value='';
+  renderPointTypesSettings();renderAwardDropdowns();
 };
-window.deletePointType = function(id){
-  if(!confirm('Usunąć ten rodzaj punktów?')) return;
-  state.pointTypes = state.pointTypes.filter(p => p.id !== id);
-  saveDataToFirebase();
-  renderPointTypesSettings();
-  renderAwardDropdowns();
-};
-window.awardExtraPoints = function(isPositive){
-  const minId = parseInt(document.getElementById('award-min').value);
-  const typeId = parseInt(document.getElementById('award-type').value);
-  const note = (document.getElementById('award-note')?.value || '').trim();
-  if(!minId || !typeId) return alert('Wybierz ministranta i rodzaj punktów!');
-  const min = state.ministrants.find(m => m.id === minId);
-  const pt = state.pointTypes.find(p => p.id === typeId);
-  if(!min || !pt) return;
-  const pts = isPositive ? pt.posPoints : pt.negPoints;
-  if(pts === 0) return alert('Ten rodzaj ma 0 punktów w tym kierunku!');
-  min.points += pts;
-  if(!state.serviceHistory) state.serviceHistory = [];
-  state.serviceHistory.push({
-    id: Date.now(),
-    ministrantId: min.id,
-    ministrantName: min.name,
-    serviceName: pt.name,
-    points: pts,
-    date: new Date().toLocaleDateString(),
-    time: new Date().toLocaleTimeString('pl-PL',{hour:'2-digit',minute:'2-digit'}),
-    note,
-    canceled: false,
-    justified: false
-  });
-  document.getElementById('award-note').value = '';
-  saveDataToFirebase();
-  alert(`Przyznano "${pt.name}" (${pts>=0?'+':''}${pts} pkt) dla ${min.name}!`);
-  renderAll();
+window.deletePointType=function(id){if(!confirm('Usunąć ten rodzaj punktów?'))return;state.pointTypes=state.pointTypes.filter(p=>p.id!==id);saveDataToFirebase();renderPointTypesSettings();renderAwardDropdowns();};
+window.awardExtraPoints=function(isPositive){
+  const minId=parseInt(document.getElementById('award-min').value),typeId=parseInt(document.getElementById('award-type').value);
+  const note=(document.getElementById('award-note')?.value||'').trim();
+  if(!minId||!typeId)return alert('Wybierz ministranta i rodzaj punktów!');
+  const min=state.ministrants.find(m=>m.id===minId),pt=state.pointTypes.find(p=>p.id===typeId);if(!min||!pt)return;
+  const pts=isPositive?pt.posPoints:pt.negPoints;if(pts===0)return alert('Ten rodzaj ma 0 punktów w tym kierunku!');
+  min.points+=pts;if(!state.serviceHistory)state.serviceHistory=[];
+  state.serviceHistory.push({id:Date.now(),ministrantId:min.id,ministrantName:min.name,serviceName:pt.name,points:pts,date:new Date().toLocaleDateString(),time:new Date().toLocaleTimeString('pl-PL',{hour:'2-digit',minute:'2-digit'}),note,canceled:false,justified:false});
+  document.getElementById('award-note').value='';saveDataToFirebase();alert(`Przyznano "${pt.name}" (${pts>=0?'+':''}${pts} pkt) dla ${min.name}!`);renderAll();
 };
 
-window.saveSettings = function(){
-  const before = parseInt(document.getElementById('set-window-before').value) || 60;
-  const after = parseInt(document.getElementById('set-window-after').value) || 60;
-  state.settings = { windowBefore: before, windowAfter: after };
+window.saveSettings=function(){
+  const before=parseInt(document.getElementById('set-window-before').value)||60;
+  const after=parseInt(document.getElementById('set-window-after').value)||60;
+  state.settings={windowBefore:before,windowAfter:after};
   saveDataToFirebase();
-  const msg = document.getElementById('settings-saved-msg');
-  msg.style.display = 'block';
-  setTimeout(() => msg.style.display = 'none', 2000);
+  const msg=document.getElementById('settings-saved-msg');msg.style.display='block';
+  setTimeout(()=>msg.style.display='none',2000);
 };
 
-window.openAddEventModal = function(){
-  if(state.currentUserRole !== 'admin') return;
-  document.getElementById('cal-edit-id').value = '';
-  document.getElementById('modal-event-title').innerText = 'Dodaj Służbę do Kalendarza';
-  document.getElementById('cal-date').value = new Date().toISOString().split('T')[0];
-  document.getElementById('cal-time').value = '';
-  document.getElementById('cal-status').value = 'green';
-  document.getElementById('cal-repeat').checked = false;
-  document.getElementById('repeat-weeks-wrap').style.display = 'none';
-  document.getElementById('cal-repeat-weeks').value = 4;
+window.openAddEventModal=function(){
+  if(state.currentUserRole!=='admin')return;
+  document.getElementById('cal-edit-id').value='';
+  document.getElementById('modal-event-title').innerText='Dodaj Służbę do Kalendarza';
+  document.getElementById('cal-date').value=formatLocalDate(new Date());
+  document.getElementById('cal-time').value='';
+  document.getElementById('cal-status').value='green';
+  document.getElementById('cal-repeat').checked=false;
+  document.getElementById('repeat-weeks-wrap').style.display='none';
+  document.getElementById('cal-repeat-weeks').value=4;
   buildAssignedCheckboxes([]);
-  const sa = document.getElementById('cal-select-all'); if(sa) sa.checked = false;
+  const sa=document.getElementById('cal-select-all');if(sa)sa.checked=false;
   openModal('modal-event');
 };
 
-window.saveCalendarEvent = function(){
-  const editId = document.getElementById('cal-edit-id').value;
-  const serviceName = document.getElementById('cal-service-type').value;
-  const date = document.getElementById('cal-date').value;
-  const time = document.getElementById('cal-time').value;
-  const status = document.getElementById('cal-status').value;
-  const assigned = getSelectedAssigned();
-  const repeat = document.getElementById('cal-repeat').checked;
-  const weeks = parseInt(document.getElementById('cal-repeat-weeks').value) || 1;
-
-  if(!date || !time) return alert('Wybierz datę i godzinę!');
-  if(!state.calendarEvents) state.calendarEvents = [];
+window.saveCalendarEvent=function(){
+  const editId=document.getElementById('cal-edit-id').value;
+  const serviceName=document.getElementById('cal-service-type').value;
+  const date=document.getElementById('cal-date').value;
+  const time=document.getElementById('cal-time').value;
+  const status=document.getElementById('cal-status').value;
+  const assigned=getSelectedAssigned();
+  const repeat=document.getElementById('cal-repeat').checked;
+  const weeks=parseInt(document.getElementById('cal-repeat-weeks').value)||1;
+  if(!date||!time)return alert('Wybierz datę i godzinę!');
+  if(!state.calendarEvents)state.calendarEvents=[];
 
   if(editId){
-    const ev = state.calendarEvents.find(e => e.id == editId);
-    if(ev){
-      ev.serviceName = serviceName;
-      ev.date = date;
-      ev.time = time;
-      ev.status = status;
-      ev.assigned = assigned;
-    }
-  } else {
-    const cycleId = repeat ? Date.now() : null;
-    const baseDate = new Date(date + 'T12:00:00');
-    for(let i = 0; i < (repeat ? weeks : 1); i++){
-      const d = new Date(baseDate);
-      d.setDate(d.getDate() + i * 7);
-      const dateStr = d.toISOString().split('T')[0];
+    const ev=state.calendarEvents.find(e=>e.id==editId);
+    if(ev){ev.serviceName=serviceName;ev.date=date;ev.time=time;ev.status=status;ev.assigned=assigned;}
+  }else{
+    const cycleId=repeat?Date.now():null;
+    const [y,m,d]=date.split('-').map(Number);
+    const base=new Date(y,m-1,d);
+    for(let i=0;i<(repeat?weeks:1);i++){
+      const d2=new Date(base);
+      d2.setDate(base.getDate()+i*7);
+      const dateStr=formatLocalDate(d2);
       state.calendarEvents.push({
-        id: Date.now() + i,
-        serviceName,
-        date: dateStr,
-        time,
-        status,
-        assigned: [...assigned],
-        cycleId
+        id:Date.now()+i+Math.random(),
+        serviceName,date:dateStr,time,status,
+        assigned:[...assigned],cycleId
       });
     }
   }
-  saveDataToFirebase();
-  closeModal('modal-event');
-  closeModal('modal-day-view');
+  saveDataToFirebase();closeModal('modal-event');closeModal('modal-day-view');
 };
 
-const monthNamesPl = ["Styczeń","Luty","Marzec","Kwiecień","Maj","Czerwiec","Lipiec","Sierpień","Wrzesień","Październik","Listopad","Grudzień"];
-window.calSetView = function(view){
-  calCurrentView = view;
-  ['month','week','day'].forEach(v => {
-    document.getElementById(`view-btn-${v}`)?.classList.toggle('active', view === v);
-    document.getElementById(`mview-btn-${v}`)?.classList.toggle('active', view === v);
-  });
-  renderCalendar();
-};
-window.calGoToday = function(){ calCurrentDate = new Date(); renderCalendar(); };
-window.calChangePeriod = function(dir){
-  if(calCurrentView === 'month') calCurrentDate.setMonth(calCurrentDate.getMonth() + dir);
-  else if(calCurrentView === 'week') calCurrentDate.setDate(calCurrentDate.getDate() + dir * 7);
-  else calCurrentDate.setDate(calCurrentDate.getDate() + dir);
-  renderCalendar();
-};
+const monthNamesPl=["Styczeń","Luty","Marzec","Kwiecień","Maj","Czerwiec","Lipiec","Sierpień","Wrzesień","Październik","Listopad","Grudzień"];
+window.calSetView=function(view){calCurrentView=view;['month','week','day'].forEach(v=>{document.getElementById(`view-btn-${v}`)?.classList.toggle('active',view===v);document.getElementById(`mview-btn-${v}`)?.classList.toggle('active',view===v);});renderCalendar();};
+window.calGoToday=function(){calCurrentDate=new Date();renderCalendar();};
+window.calChangePeriod=function(dir){if(calCurrentView==='month')calCurrentDate.setMonth(calCurrentDate.getMonth()+dir);else if(calCurrentView==='week')calCurrentDate.setDate(calCurrentDate.getDate()+dir*7);else calCurrentDate.setDate(calCurrentDate.getDate()+dir);renderCalendar();};
 function renderCalendar(){
-  const area = document.getElementById('calendar-render-area');
-  const titleEl = document.getElementById('cal-period-title');
-  if(!area || !titleEl) return;
-  const y = calCurrentDate.getFullYear(), m = calCurrentDate.getMonth(), d = calCurrentDate.getDate();
-  if(calCurrentView === 'month'){ titleEl.innerText = `${monthNamesPl[m]} ${y}`; renderMonthView(y, m, area); }
-  else if(calCurrentView === 'week') renderWeekView(area, titleEl);
-  else { titleEl.innerText = `${d} ${monthNamesPl[m]} ${y}`; renderSingleDayView(y, m, d, area); }
+  const area=document.getElementById('calendar-render-area'),titleEl=document.getElementById('cal-period-title');if(!area||!titleEl)return;
+  const y=calCurrentDate.getFullYear(),m=calCurrentDate.getMonth(),d=calCurrentDate.getDate();
+  if(calCurrentView==='month'){titleEl.innerText=`${monthNamesPl[m]} ${y}`;renderMonthView(y,m,area);}
+  else if(calCurrentView==='week')renderWeekView(area,titleEl);
+  else{titleEl.innerText=`${d} ${monthNamesPl[m]} ${y}`;renderSingleDayView(y,m,d,area);}
 }
-function renderMonthView(year, month, area){
-  let html = '<div class="month-grid">';
-  ['PON','WT','ŚR','CZW','PT','SOB','NDZ'].forEach(d => html += `<div class="month-header-cell">${d}</div>`);
-  const firstDay = new Date(year, month, 1), lastDay = new Date(year, month + 1, 0);
-  let start = firstDay.getDay() - 1; if(start === -1) start = 6;
-  for(let i = 0; i < start; i++) html += `<div class="day-cell other-month"></div>`;
-  const todayStr = new Date().toISOString().split('T')[0];
-  for(let day = 1; day <= lastDay.getDate(); day++){
-    const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
-    const events = (state.calendarEvents || []).filter(e => e.date === dateStr);
-    html += `<div class="day-cell ${todayStr===dateStr?'today':''}" onclick="openDayView('${dateStr}')"><span class="day-number">${day}</span>`;
-    events.forEach(e => {
-      const c = e.status === 'yellow' ? 'cal-event-yellow' : e.status === 'red' ? 'cal-event-red' : 'cal-event-green';
-      html += `<div class="cal-event-badge ${c}"><strong>${e.time}</strong> ${e.serviceName}</div>`;
-    });
-    html += `</div>`;
+function renderMonthView(year,month,area){
+  let html='<div class="month-grid">';
+  ['PON','WT','ŚR','CZW','PT','SOB','NDZ'].forEach(d=>html+=`<div class="month-header-cell">${d}</div>`);
+  const firstDay=new Date(year,month,1),lastDay=new Date(year,month+1,0);
+  let start=firstDay.getDay()-1;if(start===-1)start=6;
+  for(let i=0;i<start;i++)html+=`<div class="day-cell other-month"></div>`;
+  const todayStr=formatLocalDate(new Date());
+  for(let day=1;day<=lastDay.getDate();day++){
+    const dateStr=`${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+    const events=(state.calendarEvents||[]).filter(e=>e.date===dateStr);
+    html+=`<div class="day-cell ${todayStr===dateStr?'today':''}" onclick="openDayView('${dateStr}')"><span class="day-number">${day}</span>`;
+    events.forEach(e=>{const c=e.status==='yellow'?'cal-event-yellow':e.status==='red'?'cal-event-red':'cal-event-green';html+=`<div class="cal-event-badge ${c}"><strong>${e.time}</strong> ${e.serviceName}</div>`;});
+    html+=`</div>`;
   }
-  html += '</div>';
-  area.innerHTML = html;
+  html+='</div>';area.innerHTML=html;
 }
-function renderWeekView(area, titleEl){
-  const curr = new Date(calCurrentDate);
-  const first = curr.getDate() - curr.getDay() + (curr.getDay() === 0 ? -6 : 1);
-  const start = new Date(curr.setDate(first));
-  const end = new Date(curr.setDate(start.getDate() + 6));
-  titleEl.innerText = `${start.getDate()} ${monthNamesPl[start.getMonth()]} – ${end.getDate()} ${monthNamesPl[end.getMonth()]} ${end.getFullYear()}`;
-  let html = '<div class="month-grid">';
-  ['PON','WT','ŚR','CZW','PT','SOB','NDZ'].forEach(d => html += `<div class="month-header-cell">${d}</div>`);
-  const todayStr = new Date().toISOString().split('T')[0];
-  for(let i = 0; i < 7; i++){
-    const d = new Date(start);
-    d.setDate(start.getDate() + i);
-    const dateStr = d.toISOString().split('T')[0];
-    const events = (state.calendarEvents || []).filter(e => e.date === dateStr);
-    html += `<div class="day-cell ${todayStr===dateStr?'today':''}" style="min-height:220px" onclick="openDayView('${dateStr}')"><span class="day-number">${d.getDate()}</span>`;
-    events.forEach(e => {
-      const c = e.status === 'yellow' ? 'cal-event-yellow' : e.status === 'red' ? 'cal-event-red' : 'cal-event-green';
-      html += `<div class="cal-event-badge ${c}"><strong>${e.time}</strong> ${e.serviceName}</div>`;
-    });
-    html += `</div>`;
+function renderWeekView(area,titleEl){
+  const curr=new Date(calCurrentDate);
+  const first=curr.getDate()-curr.getDay()+(curr.getDay()===0?-6:1);
+  const start=new Date(curr.setDate(first));
+  const end=new Date(new Date(start).setDate(start.getDate()+6));
+  titleEl.innerText=`${start.getDate()} ${monthNamesPl[start.getMonth()]} – ${end.getDate()} ${monthNamesPl[end.getMonth()]} ${end.getFullYear()}`;
+  let html='<div class="month-grid">';
+  ['PON','WT','ŚR','CZW','PT','SOB','NDZ'].forEach(d=>html+=`<div class="month-header-cell">${d}</div>`);
+  const todayStr=formatLocalDate(new Date());
+  for(let i=0;i<7;i++){
+    const d=new Date(start);d.setDate(start.getDate()+i);
+    const dateStr=formatLocalDate(d);
+    const events=(state.calendarEvents||[]).filter(e=>e.date===dateStr);
+    html+=`<div class="day-cell ${todayStr===dateStr?'today':''}" style="min-height:220px" onclick="openDayView('${dateStr}')"><span class="day-number">${d.getDate()}</span>`;
+    events.forEach(e=>{const c=e.status==='yellow'?'cal-event-yellow':e.status==='red'?'cal-event-red':'cal-event-green';html+=`<div class="cal-event-badge ${c}"><strong>${e.time}</strong> ${e.serviceName}</div>`;});
+    html+=`</div>`;
   }
-  html += '</div>';
-  area.innerHTML = html;
+  html+='</div>';area.innerHTML=html;
 }
-function renderSingleDayView(year, month, day, area){
-  const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
-  const events = (state.calendarEvents || []).filter(e => e.date === dateStr);
-  let html = `<div style="padding:6px"><h3 style="color:var(--accent-red);margin-bottom:16px">Harmonogram: ${dateStr}</h3>`;
-  if(!events.length) html += '<p style="color:var(--text-sub)">Brak zaplanowanych służb.</p>';
-  else events.forEach(e => {
-    const st = e.status === 'yellow' ? '🟡 Do ustalenia' : e.status === 'red' ? '🔴 Odwołane' : '🟢 Będzie';
-    const asg = e.assigned?.length ? e.assigned.join(', ') : 'Brak';
-    const bc = e.status === 'red' ? 'var(--danger-color)' : e.status === 'yellow' ? '#f59e0b' : 'var(--success-color)';
-    html += `<div style="background:var(--bg-card);padding:16px;border-radius:12px;margin-bottom:12px;border-left:5px solid ${bc}"><strong>${e.serviceName}</strong><br><small style="color:var(--text-sub)">Godzina: ${e.time} · ${st}</small><br><small>Wyznaczeni: ${asg}</small>${state.currentUserRole==='admin'?`<div style="margin-top:12px;display:flex;gap:8px"><button class="btn btn-warning" style="padding:5px 12px;font-size:.8rem" onclick="editCalendarEvent(${e.id})">✏️ Edytuj</button><button class="btn btn-danger" style="padding:5px 12px;font-size:.8rem" onclick="deleteCalendarEvent(${e.id},'${dateStr}')">🗑️ Usuń</button></div>`:''}</div>`;
+function renderSingleDayView(year,month,day,area){
+  const dateStr=`${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+  const events=(state.calendarEvents||[]).filter(e=>e.date===dateStr);
+  let html=`<div style="padding:6px"><h3 style="color:var(--accent-red);margin-bottom:16px">Harmonogram: ${dateStr}</h3>`;
+  if(!events.length)html+='<p style="color:var(--text-sub)">Brak zaplanowanych służb.</p>';
+  else events.forEach(e=>{
+    const st=e.status==='yellow'?'🟡 Do ustalenia':e.status==='red'?'🔴 Odwołane':'🟢 Będzie';
+    const asg=e.assigned?.length?e.assigned.join(', '):'Brak';
+    const bc=e.status==='red'?'var(--danger-color)':e.status==='yellow'?'#f59e0b':'var(--success-color)';
+    html+=`<div style="background:var(--bg-card);padding:16px;border-radius:12px;margin-bottom:12px;border-left:5px solid ${bc}"><strong>${e.serviceName}</strong><br><small style="color:var(--text-sub)">Godzina: ${e.time} · ${st}</small><br><small>Wyznaczeni: ${asg}</small>${state.currentUserRole==='admin'?`<div style="margin-top:12px;display:flex;gap:8px"><button class="btn btn-warning" style="padding:5px 12px;font-size:.8rem" onclick="editCalendarEvent(${e.id})">✏️ Edytuj</button><button class="btn btn-danger" style="padding:5px 12px;font-size:.8rem" onclick="deleteCalendarEvent(${e.id},'${dateStr}')">🗑️ Usuń</button></div>`:''}</div>`;
   });
-  if(state.currentUserRole === 'admin') html += `<button class="btn" style="width:100%;margin-top:14px" onclick="prepareAddEventForDate('${dateStr}')">+ Dodaj służbę</button>`;
-  html += `</div>`;
-  area.innerHTML = html;
+  if(state.currentUserRole==='admin')html+=`<button class="btn" style="width:100%;margin-top:14px" onclick="prepareAddEventForDate('${dateStr}')">+ Dodaj służbę</button>`;
+  html+=`</div>`;area.innerHTML=html;
 }
-window.openDayView = function(dateStr){
-  const events = (state.calendarEvents || []).filter(e => e.date === dateStr);
-  document.getElementById('day-view-title').innerText = 'Służby: ' + dateStr;
-  const listEl = document.getElementById('day-view-list');
-  if(!events.length) listEl.innerHTML = '<p style="color:var(--text-sub)">Brak zaplanowanych służb.</p>';
-  else listEl.innerHTML = events.map(e => {
-    const st = e.status === 'yellow' ? '🟡 Do ustalenia' : e.status === 'red' ? '🔴 Odwołane' : '🟢 Będzie';
-    const asg = e.assigned?.length ? e.assigned.join(', ') : 'Brak';
-    const bc = e.status === 'red' ? 'var(--danger-color)' : e.status === 'yellow' ? '#f59e0b' : 'var(--success-color)';
+window.openDayView=function(dateStr){
+  const events=(state.calendarEvents||[]).filter(e=>e.date===dateStr);
+  document.getElementById('day-view-title').innerText='Służby: '+dateStr;
+  const listEl=document.getElementById('day-view-list');
+  if(!events.length)listEl.innerHTML='<p style="color:var(--text-sub)">Brak zaplanowanych służb.</p>';
+  else listEl.innerHTML=events.map(e=>{
+    const st=e.status==='yellow'?'🟡 Do ustalenia':e.status==='red'?'🔴 Odwołane':'🟢 Będzie';
+    const asg=e.assigned?.length?e.assigned.join(', '):'Brak';
+    const bc=e.status==='red'?'var(--danger-color)':e.status==='yellow'?'#f59e0b':'var(--success-color)';
     return `<div style="background:var(--bg-card);padding:14px;border-radius:10px;margin-bottom:10px;border-left:4px solid ${bc}"><strong>${e.serviceName}</strong><br><small style="color:var(--text-sub)">Godzina: ${e.time} · ${st}</small><br><small>Wyznaczeni: ${asg}</small>${state.currentUserRole==='admin'?`<div style="margin-top:10px;display:flex;gap:8px"><button class="btn btn-warning" style="padding:4px 10px;font-size:.78rem" onclick="editCalendarEvent(${e.id})">✏️</button><button class="btn btn-danger" style="padding:4px 10px;font-size:.78rem" onclick="deleteCalendarEvent(${e.id},'${dateStr}')">🗑️</button></div>`:''}</div>`;
   }).join('');
-  if(state.currentUserRole === 'admin') listEl.innerHTML += `<button class="btn" style="width:100%;margin-top:12px" onclick="prepareAddEventForDate('${dateStr}')">+ Dodaj służbę</button>`;
+  if(state.currentUserRole==='admin')listEl.innerHTML+=`<button class="btn" style="width:100%;margin-top:12px" onclick="prepareAddEventForDate('${dateStr}')">+ Dodaj służbę</button>`;
   openModal('modal-day-view');
 };
-window.prepareAddEventForDate = function(dateStr){
+window.prepareAddEventForDate=function(dateStr){
   closeModal('modal-day-view');
-  document.getElementById('cal-edit-id').value = '';
-  document.getElementById('modal-event-title').innerText = 'Dodaj Służbę';
-  document.getElementById('cal-date').value = dateStr;
-  document.getElementById('cal-time').value = '';
-  document.getElementById('cal-status').value = 'green';
-  document.getElementById('cal-repeat').checked = false;
-  document.getElementById('repeat-weeks-wrap').style.display = 'none';
-  buildAssignedCheckboxes([]);
-  const sa = document.getElementById('cal-select-all'); if(sa) sa.checked = false;
+  document.getElementById('cal-edit-id').value='';document.getElementById('modal-event-title').innerText='Dodaj Służbę';
+  document.getElementById('cal-date').value=dateStr;document.getElementById('cal-time').value='';
+  document.getElementById('cal-status').value='green';document.getElementById('cal-repeat').checked=false;
+  document.getElementById('repeat-weeks-wrap').style.display='none';
+  buildAssignedCheckboxes([]);const sa=document.getElementById('cal-select-all');if(sa)sa.checked=false;
   openModal('modal-event');
 };
-window.editCalendarEvent = function(id){
-  const ev = (state.calendarEvents || []).find(e => e.id === id);
-  if(!ev) return;
+window.editCalendarEvent=function(id){
+  const ev=(state.calendarEvents||[]).find(e=>e.id===id);if(!ev)return;
   closeModal('modal-day-view');
-  document.getElementById('cal-edit-id').value = ev.id;
-  document.getElementById('modal-event-title').innerText = 'Edytuj Służbę';
-  document.getElementById('cal-service-type').value = ev.serviceName;
-  document.getElementById('cal-date').value = ev.date;
-  document.getElementById('cal-time').value = ev.time;
-  document.getElementById('cal-status').value = ev.status || 'green';
-  document.getElementById('cal-repeat').checked = false;
-  document.getElementById('repeat-weeks-wrap').style.display = 'none';
-  buildAssignedCheckboxes(ev.assigned || []);
-  openModal('modal-event');
+  document.getElementById('cal-edit-id').value=ev.id;document.getElementById('modal-event-title').innerText='Edytuj Służbę';
+  document.getElementById('cal-service-type').value=ev.serviceName;document.getElementById('cal-date').value=ev.date;
+  document.getElementById('cal-time').value=ev.time;document.getElementById('cal-status').value=ev.status||'green';
+  document.getElementById('cal-repeat').checked=false;document.getElementById('repeat-weeks-wrap').style.display='none';
+  buildAssignedCheckboxes(ev.assigned||[]);openModal('modal-event');
 };
-window.deleteCalendarEvent = function(id, dateStr){
-  if(confirm('Usunąć tę służbę?')){
-    state.calendarEvents = state.calendarEvents.filter(e => e.id !== id);
-    saveDataToFirebase();
-    if(document.getElementById('modal-day-view').classList.contains('active')) openDayView(dateStr);
-  }
+window.deleteCalendarEvent=function(id,dateStr){
+  if(confirm('Usunąć tę służbę?')){state.calendarEvents=state.calendarEvents.filter(e=>e.id!==id);saveDataToFirebase();if(document.getElementById('modal-day-view').classList.contains('active'))openDayView(dateStr);}
 };
 
-// ===== AUTOMATYCZNE MINUSY ZA NIEZGŁOSZENIE =====
 function checkMissedAttendances(){
-  if(!state.calendarEvents || !state.ministrants) return;
-  const now = new Date();
-  const afterMs = (state.settings.windowAfter || 60) * 60 * 1000;
-  let changed = false;
-
-  state.calendarEvents.forEach(ev => {
-    if(ev.status === 'red') return;
-    if(!ev.assigned || !ev.assigned.length) return;
-
-    const [y,m,d] = ev.date.split('-').map(Number);
-    const [hh,mm] = (ev.time || '00:00').split(':').map(Number);
-    const evTime = new Date(y, m-1, d, hh, mm);
-    const windowEnd = new Date(evTime.getTime() + afterMs);
-
-    if(now <= windowEnd) return; // jeszcze w oknie lub przed
-
-    const serv = state.services.find(s => s.name === ev.serviceName);
-    if(!serv) return;
-    const neg = serv.negPoints || -10;
-
-    ev.assigned.forEach(name => {
-      const min = state.ministrants.find(m => m.name === name);
-      if(!min) return;
-
-      // Czy już jest jakikolwiek wpis w historii na tę datę + godzinę + służbę?
-      const already = (state.serviceHistory || []).some(h =>
-        h.ministrantId === min.id &&
-        h.serviceName === ev.serviceName &&
-        h.date === ev.date &&
-        (h.time === ev.time || !h.time)
-      );
-      if(already) return;
-
-      // Czy jest oczekujące zgłoszenie?
-      const pending = (state.requests || []).some(r =>
-        r.ministrantId === min.id &&
-        r.serviceName === ev.serviceName &&
-        r.serviceDate === ev.date &&
-        r.serviceTime === ev.time
-      );
-      if(pending) return;
-
-      // Automatyczny minus
-      min.points += neg;
-      if(!state.serviceHistory) state.serviceHistory = [];
-      state.serviceHistory.push({
-        id: Date.now() + Math.random(),
-        ministrantId: min.id,
-        ministrantName: min.name,
-        serviceName: ev.serviceName,
-        points: neg,
-        date: ev.date,
-        time: ev.time,
-        note: 'Automatycznie – brak zgłoszenia obecności',
-        canceled: false,
-        justified: false,
-        auto: true
-      });
-      changed = true;
+  if(!state.calendarEvents||!state.ministrants)return;
+  const now=new Date();
+  const afterMs=(state.settings.windowAfter||60)*60*1000;
+  let changed=false;
+  state.calendarEvents.forEach(ev=>{
+    if(ev.status==='red'||!ev.assigned||!ev.assigned.length)return;
+    const [y,m,d]=ev.date.split('-').map(Number);
+    const [hh,mm]=(ev.time||'00:00').split(':').map(Number);
+    const evTime=new Date(y,m-1,d,hh,mm);
+    if(now<=new Date(evTime.getTime()+afterMs))return;
+    const serv=state.services.find(s=>s.name===ev.serviceName);if(!serv)return;
+    const neg=serv.negPoints||-10;
+    ev.assigned.forEach(name=>{
+      const min=state.ministrants.find(m=>m.name===name);if(!min)return;
+      const already=(state.serviceHistory||[]).some(h=>h.ministrantId===min.id&&h.serviceName===ev.serviceName&&h.date===ev.date);
+      if(already)return;
+      const pending=(state.requests||[]).some(r=>r.ministrantId===min.id&&r.serviceName===ev.serviceName&&r.serviceDate===ev.date&&r.serviceTime===ev.time);
+      if(pending)return;
+      min.points+=neg;
+      if(!state.serviceHistory)state.serviceHistory=[];
+      state.serviceHistory.push({id:Date.now()+Math.random(),ministrantId:min.id,ministrantName:min.name,serviceName:ev.serviceName,points:neg,date:ev.date,time:ev.time,note:'Automatycznie – brak zgłoszenia obecności',canceled:false,justified:false,auto:true});
+      changed=true;
     });
   });
-
-  if(changed) saveDataToFirebase();
+  if(changed)saveDataToFirebase();
 }
 
-// Automatyczne przełączanie trybu przy zmianie rozmiaru okna
-window.addEventListener('resize', () => {
-  if(!state.currentUserRole) return;
-  const newDevice = detectDevice();
-  if(newDevice === state.currentDevice) return;
-  state.currentDevice = newDevice;
-  if(newDevice === 'Telefon'){
-    document.body.classList.add('mobile-mode');
-    document.getElementById('page-title').innerText = 'Ministranci-NSPJ';
-  } else {
-    document.body.classList.remove('mobile-mode');
-  }
-  const roleDisplay = document.getElementById('role-display');
-  if(roleDisplay){
-    const parts = roleDisplay.innerText.split(' · ');
-    roleDisplay.innerText = (parts[0] || '—') + ' · ' + newDevice;
-  }
+window.addEventListener('resize',()=>{
+  if(!state.currentUserRole)return;
+  const newDevice=detectDevice();
+  if(newDevice===state.currentDevice)return;
+  state.currentDevice=newDevice;
+  if(newDevice==='Telefon'){document.body.classList.add('mobile-mode');document.getElementById('page-title').innerText='Ministranci-NSPJ';}
+  else document.body.classList.remove('mobile-mode');
+  const roleDisplay=document.getElementById('role-display');
+  if(roleDisplay){const parts=roleDisplay.innerText.split(' · ');roleDisplay.innerText=(parts[0]||'—')+' · '+newDevice;}
 });
 
-document.getElementById('login-pass').value = '';
-const emailEl = document.getElementById('login-admin-email');
-if(emailEl) emailEl.value = '';
+document.getElementById('login-pass').value='';
+const emailEl=document.getElementById('login-admin-email');if(emailEl)emailEl.value='';
 </script>
 </body>
 </html>
