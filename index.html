@@ -161,13 +161,6 @@ body.mobile-mode .bottom-nav{display:flex}
 <input type="text" id="login-admin-email" placeholder="Wpisz e-mail" value="" autocomplete="off" readonly onfocus="this.removeAttribute('readonly')">
 </div>
 <div class="form-group">
-<label>Wybierz Urządzenie</label>
-<select id="login-device" autocomplete="off">
-<option value="Komputer">💻 Komputer</option>
-<option value="Telefon">📱 Telefon</option>
-</select>
-</div>
-<div class="form-group">
 <label>Hasło</label>
 <div class="pass-wrap">
 <input type="password" id="login-pass" placeholder="Wpisz hasło..." value="" autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly')">
@@ -513,10 +506,18 @@ if(emailInput)emailInput.value='';
 }
 };
 
+// ===== AUTOMATYCZNE WYKRYWANIE URZĄDZENIA =====
+function detectDevice() {
+  const ua = navigator.userAgent || navigator.vendor || window.opera;
+  const isMobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|Tablet/i.test(ua);
+  const isNarrow = window.innerWidth <= 900;
+  return (isMobileUA || isNarrow) ? 'Telefon' : 'Komputer';
+}
+
 window.login=async function(){
 const role=document.getElementById('login-role').value;
 const pass=document.getElementById('login-pass').value;
-state.currentDevice=document.getElementById('login-device').value;
+state.currentDevice = detectDevice();   // <-- automatycznie
 if(role==='admin'){
 const adminEmail=document.getElementById('login-admin-email').value.trim();
 if(!adminEmail)return alert('Wpisz e-mail administratora!');
@@ -874,6 +875,25 @@ window.openDayView=function(dateStr){const events=(state.calendarEvents||[]).fil
 window.prepareAddEventForDate=function(dateStr){closeModal('modal-day-view');document.getElementById('cal-edit-id').value='';document.getElementById('modal-event-title').innerText='Dodaj Służbę';document.getElementById('cal-date').value=dateStr;document.getElementById('cal-time').value='';document.getElementById('cal-status').value='green';buildAssignedCheckboxes([]);const sa=document.getElementById('cal-select-all');if(sa)sa.checked=false;openModal('modal-event');};
 window.editCalendarEvent=function(id){const ev=(state.calendarEvents||[]).find(e=>e.id===id);if(!ev)return;closeModal('modal-day-view');document.getElementById('cal-edit-id').value=ev.id;document.getElementById('modal-event-title').innerText='Edytuj Służbę';document.getElementById('cal-service-type').value=ev.serviceName;document.getElementById('cal-date').value=ev.date;document.getElementById('cal-time').value=ev.time;document.getElementById('cal-status').value=ev.status||'green';buildAssignedCheckboxes(ev.assigned||[]);openModal('modal-event');};
 window.deleteCalendarEvent=function(id,dateStr){if(confirm('Usunąć tę służbę?')){state.calendarEvents=state.calendarEvents.filter(e=>e.id!==id);saveDataToFirebase();if(document.getElementById('modal-day-view').classList.contains('active'))openDayView(dateStr);}};
+
+// Automatyczne przełączanie trybu przy zmianie rozmiaru okna
+window.addEventListener('resize', () => {
+  if (!state.currentUserRole) return;
+  const newDevice = detectDevice();
+  if (newDevice === state.currentDevice) return;
+  state.currentDevice = newDevice;
+  if (newDevice === 'Telefon') {
+    document.body.classList.add('mobile-mode');
+    document.getElementById('page-title').innerText = 'Ministranci-NSPJ';
+  } else {
+    document.body.classList.remove('mobile-mode');
+  }
+  const roleDisplay = document.getElementById('role-display');
+  if (roleDisplay) {
+    const parts = roleDisplay.innerText.split(' · ');
+    roleDisplay.innerText = (parts[0] || '—') + ' · ' + newDevice;
+  }
+});
 
 document.getElementById('login-pass').value='';
 const emailEl=document.getElementById('login-admin-email');
