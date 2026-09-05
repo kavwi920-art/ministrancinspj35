@@ -1354,35 +1354,9 @@ window.deleteCalendarEvent=function(id,dateStr){
   if(confirm('Usunąć tę służbę?')){state.calendarEvents=state.calendarEvents.filter(e=>e.id!==id);saveDataToFirebase();if(document.getElementById('modal-day-view').classList.contains('active'))openDayView(dateStr);}
 };
 
-function checkMissedAttendances(){ return; // wylaczone – usunieto system zgloszen
-function checkMissedAttendances_DISABLED(){
-  if(!state.calendarEvents||!state.ministrants)return;
-  const now=new Date();
-  const {after:afterMs}=getWindowMs();
-  let changed=false;
-  state.calendarEvents.forEach(ev=>{
-    if(ev.status==='red'||!ev.assigned||!ev.assigned.length)return;
-    const [y,m,d]=ev.date.split('-').map(Number);
-    const [hh,mm]=(ev.time||'00:00').split(':').map(Number);
-    const evTime=new Date(y,m-1,d,hh,mm);
-    if(!isDayEnabledForSettings(evTime))return;
-    if(!isWithinCycle(evTime))return;
-    if(now<=new Date(evTime.getTime()+afterMs))return;
-    const serv=state.services.find(s=>s.name===ev.serviceName);if(!serv)return;
-    const neg=serv.negPoints||-10;
-    ev.assigned.forEach(name=>{
-      const min=state.ministrants.find(m=>m.name===name);if(!min)return;
-      const already=(state.serviceHistory||[]).some(h=>h.ministrantId===min.id&&h.serviceName===ev.serviceName&&h.date===ev.date);
-      if(already)return;
-      const pending=(state.requests||[]).some(r=>r.ministrantId===min.id&&r.serviceName===ev.serviceName&&r.serviceDate===ev.date&&r.serviceTime===ev.time);
-      if(pending)return;
-      min.points+=neg;
-      if(!state.serviceHistory)state.serviceHistory=[];
-      state.serviceHistory.push({id:Date.now()+Math.random(),ministrantId:min.id,ministrantName:min.name,serviceName:ev.serviceName,points:neg,date:ev.date,time:ev.time,note:'Automatycznie – brak zgłoszenia obecności',canceled:false,justified:false,auto:true});
-      changed=true;
-    });
-  });
-  if(changed)saveDataToFirebase();
+function checkMissedAttendances(){
+  // System zgłoszeń obecności wyłączony – bez auto-minusów
+  return;
 }
 
 window.addEventListener('resize',()=>{
