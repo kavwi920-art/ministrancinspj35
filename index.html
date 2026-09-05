@@ -179,12 +179,9 @@ body.mobile-mode .bottom-nav{display:flex}
 <nav class="sidebar-nav">
 <button class="nav-btn active" onclick="switchTab('tabela',this)"><span class="icon">🏠</span><span>Tabela</span></button>
 <button class="nav-btn" onclick="switchTab('kalendarz',this)"><span class="icon">📅</span><span>Kalendarz</span></button>
-<button class="nav-btn user-admin-only" onclick="switchTab('zgloszenia',this)"><span class="icon">✍️</span><span>Zgłoś Służbę</span></button>
 <button class="nav-btn user-admin-only" onclick="switchTab('punktacja-sluzb',this)"><span class="icon">📊</span><span>Punkty za służbę</span></button>
 <button class="nav-btn user-admin-only" onclick="switchTab('punkty',this)"><span class="icon">⭐</span><span>Punkty</span></button>
-<button class="nav-btn admin-only" onclick="switchTab('powiadomienia',this)"><span class="icon">🔔</span><span>Powiadomienia</span><span id="notif-badge" class="badge-count" style="display:none">0</span></button>
 <button class="nav-btn admin-only" onclick="switchTab('szybka-sluzba',this)"><span class="icon">⚡</span><span>Szybka Służba</span></button>
-<button class="nav-btn admin-only" onclick="switchTab('ustawienia-zgloszen',this)"><span class="icon">⏱️</span><span>Ustawienia zgłoszeń</span></button>
 <button class="nav-btn admin-only" onclick="switchTab('hasla-uczestnikow',this)"><span class="icon">🔑</span><span>Hasła</span></button>
 <button class="nav-btn" onclick="switchTab('ministranci',this)"><span class="icon">👥</span><span>Ministranci</span></button>
 </nav>
@@ -246,35 +243,6 @@ body.mobile-mode .bottom-nav{display:flex}
 </div>
 </div>
 
-<div id="tab-zgloszenia" class="tab-content">
-<div class="card" style="max-width:520px">
-<h2>Zgłoś obecność na służbie</h2>
-<p style="color:var(--text-sub);margin:8px 0 12px;font-size:.9rem">Widzisz służby z <strong>kalendarza</strong>, na które jesteś wyznaczony i które są <strong>teraz</strong> w oknie (minuty przed/po godzinie mszy). Każda msza ma swoją godzinę – np. poniedziałek 17:00 i wtorek 7:00 mają osobne okna.</p>
-<p id="req-hint" style="color:var(--text-sub);margin:0 0 18px;font-size:.82rem;display:none"></p>
-<div class="form-group"><label>Kim jesteś?</label><select id="req-ministrant"></select></div>
-<div class="form-group"><label>Twoje służby do zgłoszenia</label><select id="req-available" onchange="fillRequestFromAvailable()"><option value="">— Wybierz służbę —</option></select></div>
-<input type="hidden" id="req-service">
-<input type="hidden" id="req-date">
-<input type="hidden" id="req-time">
-<div id="req-info" style="background:var(--bg-card);padding:12px;border-radius:10px;margin-bottom:14px;display:none;font-size:.9rem"></div>
-<button class="btn" style="width:100%;margin-top:8px" onclick="submitServiceRequest()">Wyślij zgłoszenie</button>
-</div>
-<div class="card" style="max-width:520px;margin-top:20px;border:1px solid #3b82f6">
-<h2 style="color:#3b82f6">📝 Prośba o usprawiedliwienie</h2>
-<p style="color:var(--text-sub);margin:8px 0 18px;font-size:.9rem">Wyślij prośbę do administratora.</p>
-<div class="form-group"><label>Kim jesteś?</label><select id="just-ministrant"></select></div>
-<div class="form-group"><label>Jaka służba?</label><select id="just-service"></select></div>
-<div class="form-group"><label>Dzień służby</label><input type="date" id="just-date"></div>
-<div class="form-group"><label>Godzina służby</label><input type="time" id="just-time"></div>
-<div class="form-group"><label>Powód / Notatka</label><textarea id="just-note" rows="3" placeholder="Np. choroba..."></textarea></div>
-<button class="btn btn-info" style="width:100%;margin-top:8px" onclick="submitJustificationRequest()">Wyślij prośbę</button>
-</div>
-</div>
-
-<div id="tab-powiadomienia" class="tab-content">
-<div class="card"><h2>Oczekujące zgłoszenia</h2><div id="requests-list" style="margin-top:16px"></div></div>
-</div>
-
 <div id="tab-szybka-sluzba" class="tab-content">
 <div class="card" style="border:1px solid var(--accent-red)">
 <h2>⚡ Szybkie przyznanie służby</h2>
@@ -287,77 +255,6 @@ body.mobile-mode .bottom-nav{display:flex}
 <button class="btn btn-success" style="width:100%;margin-top:8px" onclick="adminDirectAddService()">+ Przyznaj służbę i punkty</button>
 </div>
 <div class="card" style="margin-top:16px"><h2 style="margin-bottom:12px">Ostatnie przyznane służby</h2><div id="admin-recent-history"></div></div>
-</div>
-
-<div id="tab-ustawienia-zgloszen" class="tab-content">
-<div class="card">
-<h2>⏱️ Ustawienia okna zgłoszenia obecności</h2>
-<p style="color:var(--text-sub);margin:8px 0 18px;font-size:.9rem">Okno liczy się od <strong>godziny każdej służby z kalendarza</strong>. Msza w poniedziałek o 17:00 i we wtorek o 7:00 mają osobne okna automatycznie. Poniżej możesz ustawić minuty przed/po, dni, godziny i cykl.</p>
-
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:520px;margin-bottom:8px">
-<div class="form-group">
-<label>Minut przed mszą</label>
-<input type="number" id="set-window-before" min="0" max="180" value="60">
-</div>
-<div class="form-group">
-<label>Minut po mszy</label>
-<input type="number" id="set-window-after" min="0" max="180" value="60">
-</div>
-</div>
-
-<div class="form-group" style="max-width:560px;background:var(--bg-card);padding:14px;border-radius:12px;border:1px solid var(--border-color)">
-<label style="margin-bottom:8px;display:block">📅 Służby z kalendarza (okno od ich godzin)</label>
-<p style="color:var(--text-sub);font-size:.8rem;margin-bottom:10px">To godziny z kalendarza – nie musisz ich tu wpisywać. System bierze je automatycznie.</p>
-<div id="settings-cal-preview" style="font-size:.88rem;max-height:180px;overflow-y:auto"><p style="color:var(--text-sub)">Brak służb w kalendarzu.</p></div>
-</div>
-
-<div class="form-group" style="max-width:560px">
-<label>Godziny globalne (gdy dzień nie ma własnych)</label>
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-<div>
-<label style="font-size:.82rem;color:var(--text-sub)">Od której</label>
-<input type="time" id="set-time-from" value="00:00">
-</div>
-<div>
-<label style="font-size:.82rem;color:var(--text-sub)">Do której</label>
-<input type="time" id="set-time-to" value="23:59">
-</div>
-</div>
-</div>
-
-<div class="form-group" style="max-width:560px">
-<label>W jakim dniu + własne godziny (np. pon. wieczór, wt. rano)</label>
-<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
-<button type="button" class="cal-pill-btn" onclick="setAllDaysEnabled(true)">Cały tydzień</button>
-<button type="button" class="cal-pill-btn" onclick="setAllDaysEnabled(false)">Odznacz wszystkie</button>
-</div>
-<div id="set-days-hours-list" style="display:flex;flex-direction:column;gap:8px"></div>
-<p style="color:var(--text-sub);font-size:.8rem;margin-top:8px">Zaznacz dzień i ustaw „od–do” dla tego dnia (np. Pon 16:00–18:30, Wt 06:00–08:00). Puste = używa godzin globalnych.</p>
-</div>
-
-<div class="form-group" style="max-width:560px;background:var(--bg-card);padding:16px;border-radius:12px;border:1px solid var(--border-color)">
-<label style="margin-bottom:10px;display:block">📆 Cykl (jak w kalendarzu – na jak długo)</label>
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-<div class="form-group" style="margin-bottom:0">
-<label style="font-size:.82rem;color:var(--text-sub)">Data startu (pierwszy dzień)</label>
-<input type="date" id="set-cycle-start">
-</div>
-<div class="form-group" style="margin-bottom:0">
-<label style="font-size:.82rem;color:var(--text-sub)">Ile tygodni łącznie</label>
-<input type="number" id="set-cycle-weeks" min="1" max="52" value="52" placeholder="np. 4">
-</div>
-</div>
-<label style="display:flex;align-items:center;gap:8px;margin-top:12px;cursor:pointer;font-size:.9rem">
-<input type="checkbox" id="set-cycle-enabled" style="width:18px;height:18px;accent-color:var(--accent-red)">
-Włącz ograniczenie cyklem (poza okresem reguły nie działają)
-</label>
-</div>
-
-<div id="settings-summary" style="max-width:560px;margin:16px 0;padding:14px;background:var(--bg-card);border-radius:12px;border-left:4px solid var(--accent-red);font-size:.9rem;display:none"></div>
-
-<button class="btn" onclick="saveSettings()">💾 Zapisz ustawienia</button>
-<p id="settings-saved-msg" style="color:var(--success-color);margin-top:12px;display:none">Zapisano!</p>
-</div>
 </div>
 
 <div id="tab-hasla-uczestnikow" class="tab-content">
@@ -429,8 +326,6 @@ Włącz ograniczenie cyklem (poza okresem reguły nie działają)
 <nav class="bottom-nav" id="bottom-nav">
 <button class="bottom-nav-item active" data-tab="tabela" onclick="switchTabMobile('tabela',this)"><span class="bn-icon">🏠</span><span>Tabela</span></button>
 <button class="bottom-nav-item" data-tab="kalendarz" onclick="switchTabMobile('kalendarz',this)"><span class="bn-icon">📅</span><span>Kalendarz</span></button>
-<button class="bottom-nav-item user-admin-only" data-tab="zgloszenia" onclick="switchTabMobile('zgloszenia',this)"><span class="bn-icon">✍️</span><span>Zgłoś</span></button>
-<button class="bottom-nav-item admin-only" data-tab="powiadomienia" onclick="switchTabMobile('powiadomienia',this)"><span class="bn-icon">🔔</span><span>Powiad.</span><span id="bn-notif-badge" class="bn-badge" style="display:none">0</span></button>
 <button class="bottom-nav-item" data-tab="ministranci" onclick="switchTabMobile('ministranci',this)"><span class="bn-icon">👥</span><span>Lista</span></button>
 <button class="bottom-nav-item" data-tab="more" onclick="toggleMoreMenu()"><span class="bn-icon">☰</span><span>Więcej</span></button>
 </nav>
@@ -439,7 +334,6 @@ Włącz ograniczenie cyklem (poza okresem reguły nie działają)
 <button class="nav-btn user-admin-only" style="width:100%;margin-bottom:6px" onclick="switchTabMobile('punktacja-sluzb');closeMoreMenu()"><span class="icon">📊</span><span>Punkty za służbę</span></button>
 <button class="nav-btn user-admin-only" style="width:100%;margin-bottom:6px" onclick="switchTabMobile('punkty');closeMoreMenu()"><span class="icon">⭐</span><span>Punkty</span></button>
 <button class="nav-btn admin-only" style="width:100%;margin-bottom:6px" onclick="switchTabMobile('szybka-sluzba');closeMoreMenu()"><span class="icon">⚡</span><span>Szybka Służba</span></button>
-<button class="nav-btn admin-only" style="width:100%;margin-bottom:6px" onclick="switchTabMobile('ustawienia-zgloszen');closeMoreMenu()"><span class="icon">⏱️</span><span>Ustawienia zgłoszeń</span></button>
 <button class="nav-btn admin-only" style="width:100%;margin-bottom:6px" onclick="switchTabMobile('hasla-uczestnikow');closeMoreMenu()"><span class="icon">🔑</span><span>Hasła</span></button>
 <button class="nav-btn" style="width:100%;color:var(--danger-color)" onclick="logout();closeMoreMenu()"><span class="icon">🚪</span><span>Wyloguj</span></button>
 </div>
@@ -695,13 +589,9 @@ window.switchTab=function(tabId,btn){
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById(`tab-${tabId}`)?.classList.add('active');
   if(btn)btn.classList.add('active');
-  const titles={tabela:'Tabela & Moje Konto',kalendarz:'Kalendarz Służb',zgloszenia:'Zgłoś Służbę',powiadomienia:'Powiadomienia','szybka-sluzba':'Szybka Służba','hasla-uczestnikow':'Hasła','punktacja-sluzb':'Punkty za służbę',punkty:'Punkty dodatkowe',ministranci:'Lista Ministrantów','ustawienia-zgloszen':'Ustawienia zgłoszeń'};
+  const titles={tabela:'Tabela & Moje Konto',kalendarz:'Kalendarz Służb','szybka-sluzba':'Szybka Służba','hasla-uczestnikow':'Hasła','punktacja-sluzb':'Punkty za służbę',punkty:'Punkty dodatkowe',ministranci:'Lista Ministrantów'};
   document.getElementById('page-title').innerText=document.body.classList.contains('mobile-mode')?'Ministranci-NSPJ':(titles[tabId]||'MINISTRANCI-NSPJ');
   updateBottomNavActive(tabId);
-  if(tabId==='ustawienia-zgloszen'){
-    loadSettingsForm();
-  }
-  if(tabId==='zgloszenia')populateAvailableRequests();
 };
 
 function loadSettingsForm(){
@@ -1189,7 +1079,7 @@ window.justifyHistoryService=function(histId){
 
 function renderRequests(){
   const list=document.getElementById('requests-list'),badge=document.getElementById('notif-badge'),bnBadge=document.getElementById('bn-notif-badge');
-  if(!list||!badge)return;
+  if(!list||!badge)return; // zakladka powiadomien usunieta
   const reqs=state.requests||[];
   badge.innerText=reqs.length;badge.style.display=reqs.length?'inline-block':'none';
   if(bnBadge){bnBadge.innerText=reqs.length;bnBadge.style.display=reqs.length?'inline-block':'none';}
@@ -1464,7 +1354,8 @@ window.deleteCalendarEvent=function(id,dateStr){
   if(confirm('Usunąć tę służbę?')){state.calendarEvents=state.calendarEvents.filter(e=>e.id!==id);saveDataToFirebase();if(document.getElementById('modal-day-view').classList.contains('active'))openDayView(dateStr);}
 };
 
-function checkMissedAttendances(){
+function checkMissedAttendances(){ return; // wylaczone – usunieto system zgloszen
+function checkMissedAttendances_DISABLED(){
   if(!state.calendarEvents||!state.ministrants)return;
   const now=new Date();
   const {after:afterMs}=getWindowMs();
